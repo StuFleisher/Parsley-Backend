@@ -1,0 +1,95 @@
+{
+    "name":"Spicy Thai Coconut Chicken Soup",
+    "steps":[
+      {
+        "step_number":1,
+        "instructions":"Heat a Dutch oven over medium heat. Add oil to coat the pan. Then add mushrooms, bell pepper, ginger, garlic, and lemongrass; cook for 3 minutes, stirring occasionally.",
+        "ingredients": [
+          {
+            "amount":"2 teaspoons",
+            "ingredient_name":"canola oil"
+          },
+          {
+            "amount":"1 cup",
+            "ingredient_name":"sliced mushrooms"
+          },
+          {
+            "amount":"1/2 cup",
+            "ingredient_name":"chopped red bell pepper"
+          },
+          {
+            "amount":"4 teaspoons",
+            "ingredient_name":"minced peeled fresh ginger"
+          },
+          {
+            "amount":"4 cloves",
+            "ingredient_name":"garlic, minced"
+          },
+          {
+            "amount":"1 (3-inch) stalk",
+            "ingredient_name":"lemongrass, halved lengthwise"
+          }
+        ]
+      },
+      {
+        "step_number":2,
+        "instructions":"Add chile paste to the pan; cook for 1 minute, stirring continuously.",
+        "ingredients": [
+          {
+            "amount":"2 teaspoons",
+            "ingredient_name":"sambal oelek (ground fresh chile paste)"
+          }
+        ]
+      },
+      {
+        "step_number":3,
+        "instructions":"Add chicken stock, coconut milk, fish sauce, and sugar to the pan; bring to a simmer. Then reduce heat to low and simmer for 10 minutes.",
+        "ingredients": [
+          {
+            "amount":"3 cups",
+            "ingredient_name":"chicken stock or reduced-sodium chicken broth"
+          },
+          {
+            "amount":"1 ¼ cups",
+            "ingredient_name":"light coconut milk"
+          },
+          {
+            "amount":"4 teaspoons",
+            "ingredient_name":"fish sauce"
+          },
+          {
+            "amount":"1 tablespoon",
+            "ingredient_name":"sugar"
+          }
+        ]
+      },
+      {
+        "step_number":4,
+        "instructions":"Add chicken to the pan and cook for 1 minute or until thoroughly heated.",
+        "ingredients": [
+          {
+            "amount":"2 cups",
+            "ingredient_name":"shredded cooked chicken breast"
+          }
+        ]
+      },
+      {
+        "step_number":5,
+        "instructions":"Discard lemongrass. Top the soup with green onions, cilantro, and lime juice before serving.",
+        "ingredients": [
+          {
+            "amount":"1/2 cup",
+            "ingredient_name":" ½ cup green onion strips"
+          },
+          {
+            "amount":"3 tablespoons",
+            "ingredient_name":"chopped fresh cilantro"
+          },
+          {
+            "amount":"2 tablespoons",
+            "ingredient_name":"fresh lime juice"
+          }
+        ]
+      }
+    ]
+  }
