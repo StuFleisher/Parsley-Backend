@@ -46,27 +46,27 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
           "ingredients": [
             {
               "amount":"2 teaspoons",
-              "ingredient_name":"canola oil"
+              "description":"canola oil"
             },
             {
               "amount":"1 cup",
-              "ingredient_name":"sliced mushrooms"
+              "description":"sliced mushrooms"
             },
             {
               "amount":"1/2 cup",
-              "ingredient_name":"chopped red bell pepper"
+              "description":"chopped red bell pepper"
             },
             {
               "amount":"4 teaspoons",
-              "ingredient_name":"minced peeled fresh ginger"
+              "description":"minced peeled fresh ginger"
             },
             {
               "amount":"4 cloves",
-              "ingredient_name":"garlic, minced"
+              "description":"garlic, minced"
             },
             {
               "amount":"1 (3-inch) stalk",
-              "ingredient_name":"lemongrass, halved lengthwise"
+              "description":"lemongrass, halved lengthwise"
             }
           ]
         },
@@ -76,7 +76,7 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
           "ingredients": [
             {
               "amount":"2 teaspoons",
-              "ingredient_name":"sambal oelek (ground fresh chile paste)"
+              "description":"sambal oelek (ground fresh chile paste)"
             }
           ]
         },
@@ -86,19 +86,19 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
           "ingredients": [
             {
               "amount":"3 cups",
-              "ingredient_name":"chicken stock or reduced-sodium chicken broth"
+              "description":"chicken stock or reduced-sodium chicken broth"
             },
             {
               "amount":"1 ¼ cups",
-              "ingredient_name":"light coconut milk"
+              "description":"light coconut milk"
             },
             {
               "amount":"4 teaspoons",
-              "ingredient_name":"fish sauce"
+              "description":"fish sauce"
             },
             {
               "amount":"1 tablespoon",
-              "ingredient_name":"sugar"
+              "description":"sugar"
             }
           ]
         },
@@ -108,7 +108,7 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
           "ingredients": [
             {
               "amount":"2 cups",
-              "ingredient_name":"shredded cooked chicken breast"
+              "description":"shredded cooked chicken breast"
             }
           ]
         },
@@ -118,15 +118,15 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
           "ingredients": [
             {
               "amount":"1/2 cup",
-              "ingredient_name":" ½ cup green onion strips"
+              "description":" ½ cup green onion strips"
             },
             {
               "amount":"3 tablespoons",
-              "ingredient_name":"chopped fresh cilantro"
+              "description":"chopped fresh cilantro"
             },
             {
               "amount":"2 tablespoons",
-              "ingredient_name":"fresh lime juice"
+              "description":"fresh lime juice"
             }
           ]
         }
@@ -134,7 +134,7 @@ const RECIPE_CONVERSION_BASE_PROMPT = (
     }
 
   Please respond with ONLY the converted JSON, no additional text.
-  
+
   Here is the recipe to convert:
   `
 )
@@ -184,4 +184,5 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
+// module.exports = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT}
 export {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT}

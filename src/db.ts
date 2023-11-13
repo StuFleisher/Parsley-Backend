@@ -2,8 +2,10 @@
 
 /** Database setup for parsley. */
 
-const { Client } = require("pg");
-const { getDatabaseUri } = require("./config");
+// const { Client } = require("pg");
+// const { getDatabaseUri } = require("./config");
+import { Client } from "pg";
+import { getDatabaseUri } from"./config";
 
 const databaseUri = getDatabaseUri();
 
@@ -24,4 +26,6 @@ async function connectDb() {
 }
 connectDb();
 
+
 export default db;
+// module.exports = db;
