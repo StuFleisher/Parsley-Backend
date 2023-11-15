@@ -1,8 +1,6 @@
 "use strict"
 
-// const dotenv =require("dotenv");
 import "dotenv/config.js";
-// dotenv.config();
 
 const OPENAI_API_KEY = process.env.API_KEY;
 const PORT = +process.env.PORT || 3001;
@@ -14,12 +12,7 @@ function getDatabaseUri() {
       : process.env.DATABASE_URL || "postgresql:///parsely";
 }
 
-// module.exports = {
-//   getDatabaseUri,
-//   OPENAI_API_KEY,
-//   PORT,
-// }
-;
+
 export {
   getDatabaseUri,
   OPENAI_API_KEY,

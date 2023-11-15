@@ -1,11 +1,5 @@
 "use strict";
 
-//load modules
-// const app = require("./app.js");
-// const {PORT} = require("./config.js");
-// const {textToRecipe} = require("./api/openai.js");
-// const {textToRecipe} = require("./api/openai.js");
-
 import app from "./app.js";
 import { PORT } from "./config.js";
 import { textToRecipe } from "./api/openai.js";

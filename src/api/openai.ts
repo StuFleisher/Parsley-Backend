@@ -1,32 +1,25 @@
 "use strict"
 /** This file contains methods for handling interactions with the openai api*/
 
-interface IRecipe {
-  name:string;
-  steps:IStep[];
-}
-
-interface IStep {
-  step_number:number,
-  ingredients:IIngredient[],
-  instructions: string
-}
-
-interface IIngredient {
-  amount: string;
-  description: string;
-}
-
-
-import { Interface } from "readline";
-
-import { RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT } from "./prompts.js";
+import { RECIPE_CONVERSION_BASE_PROMPT } from "./prompts.js";
 import OpenAI from "openai";
 
 const openai = new OpenAI();
 
-async function requestRecipeJSON(recipeText:string) {
+/** Accepts a string containing raw text for a recipe and returns an IRecipe
+ *
+ * IRecipe format:
+ * {
+ *  name: string,
+ *  steps: [{
+ *    step_number: number,
+ *    ingredients: {amount: string, description: string},
+ *    instructions: string
+ *  },{step2},{step3}...]
+ * }
+ */
 
+async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
   console.log("connecting to openai...");
   const completion = await openai.chat.completions.create({
     messages: [{
@@ -37,24 +30,21 @@ async function requestRecipeJSON(recipeText:string) {
     response_format: { type: "json_object" },
     temperature: 0
   });
-  return completion.choices[0].message.content;
-}
-
-async function textToRecipe(recipeText:string){
-  const recipeData = await requestRecipeJSON(recipeText);
+  const recipeData = completion.choices[0].message.content;
   const recipe = JSON.parse(recipeData);
-
-  printRecipe(recipe.steps)
-
+  printRecipe(recipe.steps);
+  return recipe;
 }
+
+/** Prints the recipe to the console for logging/troubleshooting */
 
 function printRecipe(steps:IStep[]):void {
   for (const step of steps){
     console.log(step.step_number);
     for (const i of step.ingredients){
-      console.log(i.amount, i.description);
+      console.log("* ", i.amount, i.description);
     }
-    console.log(step.instructions)
+    console.log("Instructions:",step.instructions)
   }
 }
 
