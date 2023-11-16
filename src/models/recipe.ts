@@ -15,14 +15,9 @@ class Recipe {
    * Returns an IRecipe or an throws an error.
    *  */
 
-  static async saveRecipe(recipe:IRecipeWithMetadata):Promise<IRecipe> {
+  static async saveRecipe(recipe:IRecipeWithMetadata) {
 
     //create recipe
-    const result = await db.query(`
-      INSERT INTO recipes
-
-    `)
-
     //create steps
     //create ingredients
 

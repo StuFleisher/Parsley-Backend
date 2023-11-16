@@ -1,20 +1,32 @@
 "use strict"
 
-import "dotenv/config.js";
+// import "dotenv/config.js";
+import dotenv from "dotenv";
+
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: '.env.test' });
+} else {
+  dotenv.config();
+}
 
 const OPENAI_API_KEY = process.env.API_KEY;
 const PORT = +process.env.PORT || 3001;
+const DATABASE_URL = process.env.DATABASE_URL
 
-/** Returns the correct database for the current environment */
-function getDatabaseUri() {
-  return (process.env.NODE_ENV === "test")
-      ? "postgresql:///parsley_test"
-      : process.env.DATABASE_URL || "postgresql:///parsely";
-}
+console.log("database:", process.env.DATABASE_URL)
+
+// /** Returns the correct database for the current environment */
+// function getDatabaseUri() {
+//   return (process.env.NODE_ENV === "test")
+//       ? "postgresql:///parsley_test"
+//       : process.env.DATABASE_URL || "postgresql:///parsely";
+// }
+
+
 
 
 export {
-  getDatabaseUri,
+  DATABASE_URL,
   OPENAI_API_KEY,
   PORT,
 };
