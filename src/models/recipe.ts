@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 import { Prisma } from '@prisma/client';
 import prisma from "../client";
@@ -8,38 +8,43 @@ console.log("DB from recipes.ts", DATABASE_URL);
 
 /** Data and functionality for recipes */
 
-class Recipe {
-
-
+class RecipeFactory {
 
   /** Create a recipe from data, store it to the database, then return data
    * from the new record
    *
+   * @param: clientRecipe - The recipe data including all metadata and submodels
+   * but not including system generated data (like id).
+   * @returns: RecipeData (Promise) - Full recipe data including system generated
+   * fields
    *  */
 
-  static async saveRecipe(clientRecipe:IRecipeBase) {
-    let recipe = Recipe._pojoToPrismaRecipeInput(clientRecipe);
+  static async saveRecipe(clientRecipe: IRecipeBase): Promise<RecipeData> {
+    let recipe = RecipeFactory._pojoToPrismaRecipeInput(clientRecipe);
     return await prisma.recipe.create({
-      data:recipe,
-      include:{
-        steps:{
-          include:{
-            ingredients:true,
+      data: recipe,
+      include: {
+        steps: {
+          include: {
+            ingredients: true,
           }
         }
       }
     });
   }
 
-  /** Returns a list of all recipes. Does not include recipe steps or
-   * ingredients*/
+  /** Fetches a list of all recipes from the database. Does not include submodel
+   *  data (steps or ingredients)
+   *
+   * @returns: SimpleRecipeData[] (Promise)
+   *  {recipeId, name, description, sourceUrl, sourceName}
+   * */
 
-  static async getAllRecipes(){
-    let recipes = await prisma.recipe.findMany({});
+  static async getAllRecipes(): Promise<SimpleRecipeData[]> {
+    let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({});
     return recipes;
   }
 
-  //Get All
 
   //Get One
 
@@ -51,29 +56,29 @@ class Recipe {
    * for use in Prisma create commands.  (Submodels will be wrapped in a
    * 'create' property)
    */
-  static _pojoToPrismaRecipeInput(recipe:IRecipeBase):Prisma.RecipeCreateInput{
-    const {steps, ...metadata} = recipe;
+  static _pojoToPrismaRecipeInput(recipe: IRecipeBase): Prisma.RecipeCreateInput {
+    const { steps, ...metadata } = recipe;
     return {
       ...metadata,
-      steps:{
-        create:steps.map(step=>{
+      steps: {
+        create: steps.map(step => {
           return {
-            stepNumber:step.stepNumber,
+            stepNumber: step.stepNumber,
             instructions: step.instructions,
-            ingredients:{
-              create:step.ingredients.map(ingredient=>{
+            ingredients: {
+              create: step.ingredients.map(ingredient => {
                 return {
-                  amount:ingredient.amount,
-                  description:ingredient.description
-                }
+                  amount: ingredient.amount,
+                  description: ingredient.description
+                };
               })
             }
-          }
+          };
         })
       }
-    }
+    };
   }
 
 }
 
-export default Recipe;
+export default RecipeFactory;
