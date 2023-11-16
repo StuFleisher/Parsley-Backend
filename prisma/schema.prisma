@@ -7,28 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ingredients {
-  ingredient_id Int     @id @default(autoincrement())
+model Ingredient {
+  ingredientId  Int     @id @default(autoincrement())
   step          Int
   amount        String? @db.VarChar(25)
   description   String  @db.VarChar(25)
-  steps         steps   @relation(fields: [step], references: [step_id], onDelete: Cascade, onUpdate: NoAction)
+  steps         Step    @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
+  @@map("ingredients")
 }
 
-model recipes {
-  recipe_id   Int     @id @default(autoincrement())
+model Recipe {
+  recipeId    Int     @id @default(autoincrement())
   name        String  @db.VarChar(30)
   description String? @db.VarChar(40)
-  source_url  String?
-  source_name String? @db.VarChar(25)
-  steps       steps[]
+  sourceUrl   String? @map("source_url")
+  sourceName  String? @map("source_name") @db.VarChar(25)
+  steps       Step[]
+  @@map("recipes")
 }
 
-model steps {
-  step_id      Int           @id @default(autoincrement())
-  recipe_id    Int
-  step_number  Int
-  instructions String        @db.VarChar(100)
-  ingredients  ingredients[]
-  recipes      recipes       @relation(fields: [recipe_id], references: [recipe_id], onDelete: Cascade, onUpdate: NoAction)
+model Step {
+  stepId        Int           @id @default(autoincrement())
+  recipeId      Int           @map("recipe_id")
+  stepNumber    Int           @map("step_number")
+  instructions  String        @db.VarChar(100)
+  ingredients   Ingredient[]
+  recipe        Recipe        @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade, onUpdate: NoAction)
+  @@map("steps")
 }

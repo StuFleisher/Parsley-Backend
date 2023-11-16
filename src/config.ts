@@ -15,14 +15,6 @@ const DATABASE_URL = process.env.DATABASE_URL
 
 console.log("database:", process.env.DATABASE_URL)
 
-// /** Returns the correct database for the current environment */
-// function getDatabaseUri() {
-//   return (process.env.NODE_ENV === "test")
-//       ? "postgresql:///parsley_test"
-//       : process.env.DATABASE_URL || "postgresql:///parsely";
-// }
-
-
 
 
 export {

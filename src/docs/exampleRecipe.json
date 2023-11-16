@@ -1,4 +1,39 @@
-{
+{ "recipes":
+  {
+    "name":"PB&J Sandwich",
+    "steps":[
+      {
+        "step_number":1,
+        "instructions":"Lay the bread flat on the counter",
+        "ingredients":[
+          {"amount":"2 pieces",
+          "description":"bread"}
+        ]
+      },
+      {
+        "step_number":2,
+        "instructions":"Spread the peanut-butter on one slice of bread",
+        "ingredients":[
+          {"amount":"1 tbsp",
+          "description":"Peanut Butter"}
+        ]
+      },
+      {
+        "step_number":3,
+        "instructions":"Spread the jelly on the other slice of bread",
+        "ingredients":[
+          {"amount":"1 tbsp",
+          "description":"Jelly"}
+        ]
+      }
+      {
+        "step_number":3,
+        "instructions":"Close the bread and enjoy",
+        "ingredients":[]
+      }
+    ]
+  },
+  {
     "name":"Spicy Thai Coconut Chicken Soup",
     "steps":[
       {
@@ -93,3 +128,4 @@
       }
     ]
   }
+}

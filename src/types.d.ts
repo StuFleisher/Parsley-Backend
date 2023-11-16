@@ -1,29 +1,29 @@
 //The base format for a recipe as provided by the raw-text parser
 interface IRecipeBase {
   name:string;
-  steps:IStep[];
+  steps:IStepBase[];
 }
 
 //Additional metadata from the user.  Extends IRecipeBase.
 interface IRecipeWithMetadata extends IRecipeBase {
   description: string;
-  source_url: string|undefined;
-  source_name: string;
+  sourceUrl: string|undefined;
+  sourceName: string;
 }
 
 //A full recipe including system generated values. Extends IRecipeWithMetadata
 interface IRecipe extends IRecipeWithMetadata{
-  id:number;
+  recipeId:number;
 }
 
 interface IStepBase {
-  step_number:number,
-  ingredients:IIngredient[],
+  stepNumber:number,
+  ingredients:IIngredientBase[],
   instructions: string
 }
 
 interface IStep extends IStepBase{
-  id:number
+  stepId:number
 }
 
 interface IIngredientBase {
@@ -32,6 +32,6 @@ interface IIngredientBase {
 }
 
 interface IIngredient extends IIngredientBase {
-  id: number;
+  ingredientId: number;
 }
 
