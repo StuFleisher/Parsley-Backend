@@ -12,8 +12,17 @@ interface IRecipeWithMetadata extends IRecipeBase {
 }
 
 //A full recipe including system generated values. Extends IRecipeWithMetadata
-interface IRecipe extends IRecipeWithMetadata{
+type RecipeData = IRecipeWithMetadata & {
   recipeId:number;
+}
+
+//A less detailed recipe for summary views with no submodel data
+type SimpleRecipeData {
+  recipeId:number;
+  name:string;
+  description: string;
+  sourceUrl: string|undefined;
+  sourceName: string;
 }
 
 interface IStepBase {
