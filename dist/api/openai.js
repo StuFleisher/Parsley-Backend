@@ -1,11 +1,21 @@
 "use strict";
 /** This file contains methods for handling interactions with the openai api*/
-// const { RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT } =require("./prompts.js");
-// const OpenAI =require("openai");
 import { RECIPE_CONVERSION_BASE_PROMPT } from "./prompts.js";
 import OpenAI from "openai";
 const openai = new OpenAI();
-async function requestRecipeJSON(recipeText) {
+/** Accepts a string containing raw text for a recipe and returns an IRecipe
+ *
+ * IRecipe format:
+ * {
+ *  name: string,
+ *  steps: [{
+ *    step_number: number,
+ *    ingredients: {amount: string, description: string},
+ *    instructions: string
+ *  },{step2},{step3}...]
+ * }
+ */
+async function textToRecipe(recipeText) {
     console.log("connecting to openai...");
     const completion = await openai.chat.completions.create({
         messages: [{
@@ -16,22 +26,19 @@ async function requestRecipeJSON(recipeText) {
         response_format: { type: "json_object" },
         temperature: 0
     });
-    console.log("openai response:", completion);
-    console.log("openai response:", completion.choices[0].message.content);
-    return completion.choices[0].message.content;
-}
-async function textToRecipe(recipeText) {
-    console.log("attempting to convert text:", recipeText);
-    const recipeData = await requestRecipeJSON(recipeText);
-    console.log("attempting to parse JSON");
+    const recipeData = completion.choices[0].message.content;
     const recipe = JSON.parse(recipeData);
-    for (const step of recipe.steps) {
+    printRecipe(recipe.steps);
+    return recipe;
+}
+/** Prints the recipe to the console for logging/troubleshooting */
+function printRecipe(steps) {
+    for (const step of steps) {
         console.log(step.step_number);
         for (const i of step.ingredients) {
-            console.log(i.amount, i.ingredient_name);
+            console.log("* ", i.amount, i.description);
         }
-        console.log(step.instructions);
+        console.log("Instructions:", step.instructions);
     }
 }
-// module.exports =  {textToRecipe}
 export { textToRecipe };
