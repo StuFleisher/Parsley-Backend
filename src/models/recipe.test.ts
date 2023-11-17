@@ -128,7 +128,7 @@ describe("Test getAllRecipes", function () {
     const recipe2 = await RecipeFactory.saveRecipe(testRecipe2);
     const recipes = await RecipeFactory.getAllRecipes();
 
-    expect(recipes.length).toBe(2);
+    expect(recipes.length).toEqual(2);
   });
 
   test("Does not return submodel data", async function () {
@@ -197,7 +197,7 @@ describe("Test deleteRecipeById", function () {
     try {
       await RecipeFactory.getRecipeById(recipe1.recipeId);
       throw new Error("Fail test.  You shouldn't get here");
-    } catch(err) {
+    } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
     }
   });
@@ -211,16 +211,16 @@ describe("Test deleteRecipeById", function () {
 
     expect(
       await prisma.step.findUnique({
-        where:{
-          stepId:stepId,
+        where: {
+          stepId: stepId,
         }
       })
     ).toBe(null);
 
     expect(
       await prisma.ingredient.findUnique({
-        where:{
-          ingredientId:ingredientId,
+        where: {
+          ingredientId: ingredientId,
         }
       })
     ).toBe(null);
@@ -253,7 +253,7 @@ describe("Test deleteRecipeById", function () {
     const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
 
     try {
-      console.log("attempting to generate error")
+      console.log("attempting to generate error");
       await RecipeFactory.deleteRecipeById(0);
       throw new Error("Fail test, you shouldn't get here");
     } catch (err) {
@@ -261,4 +261,32 @@ describe("Test deleteRecipeById", function () {
     }
   });
 
+});
+
+
+/**************** _INTERNAL METHODS **************************/
+describe("Test _pojoToPrismaRecipeInput", function () {
+  test("Returns correct object", function () {
+    expect(RecipeFactory._pojoToPrismaRecipeInput(testRecipe1)).toEqual({
+      name: "R1Name",
+      description: "R1Description",
+      sourceUrl: "R1SourceUrl",
+      sourceName: "R1SourceName",
+      steps: {
+        create: [
+          {
+            stepNumber: 1,
+            instructions: "R1S1Instructions",
+            ingredients: {
+              create: [{
+                amount: "R1S1I1Amount",
+                description: "R1S1I1Description"
+              }]
+            }
+          }
+        ]
+      }
+
+    });
+  });
 });
