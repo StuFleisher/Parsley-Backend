@@ -10,10 +10,6 @@ import {
 } from "../test/test_common";
 import { NotFoundError } from '../utils/expressError';
 
-beforeAll(commonBeforeAll);
-beforeEach(commonBeforeEach);
-afterEach(commonAfterEach);
-
 const testRecipe1: IRecipeWithMetadata = {
   name: "R1Name",
   description: "R1Description",
@@ -47,6 +43,10 @@ const testRecipe2: IRecipeWithMetadata = {
     }
   ]
 };
+
+beforeAll(commonBeforeAll);
+beforeEach(commonBeforeEach);
+afterEach(commonAfterEach);
 
 /********************** CREATE *******************************/
 describe("Test Create Recipe", function () {
@@ -170,6 +170,91 @@ describe("Test getRecipeById", function () {
 
     try {
       await RecipeFactory.getRecipeById(0);
+      throw new Error("Fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+});
+
+
+/**************** UPDATE BY ID **************************/
+
+
+/**************** DELETE BY ID **************************/
+describe("Test deleteRecipeById", function () {
+
+  test("Deletes the correct record", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+
+    expect(deletedRecipe.name).toEqual("R1Name");
+    expect(deletedRecipe.description).toEqual("R1Description");
+    expect(deletedRecipe.sourceUrl).toEqual("R1SourceUrl");
+    expect(deletedRecipe.sourceName).toEqual("R1SourceName");
+
+    try {
+      await RecipeFactory.getRecipeById(recipe1.recipeId);
+      throw new Error("Fail test.  You shouldn't get here");
+    } catch(err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("Deletes submodel data", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+
+    const stepId = deletedRecipe.steps[0].stepId;
+    const ingredientId = deletedRecipe.steps[0].ingredients[0].ingredientId;
+
+    expect(
+      await prisma.step.findUnique({
+        where:{
+          stepId:stepId,
+        }
+      })
+    ).toBe(null);
+
+    expect(
+      await prisma.ingredient.findUnique({
+        where:{
+          ingredientId:ingredientId,
+        }
+      })
+    ).toBe(null);
+
+  });
+
+  test("Returns the correct record", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+
+    expect(result.name).toEqual("R1Name");
+    expect(result.description).toEqual("R1Description");
+    expect(result.sourceUrl).toEqual("R1SourceUrl");
+    expect(result.sourceName).toEqual("R1SourceName");
+  });
+
+  test("Returns submodel data", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+
+    expect(result.steps[0].stepNumber).toEqual(1);
+    expect(result.steps[0].instructions).toEqual("R1S1Instructions");
+    expect(result.steps[0].ingredients[0].amount)
+      .toEqual("R1S1I1Amount");
+    expect(result.steps[0].ingredients[0].description)
+      .toEqual("R1S1I1Description");
+  });
+
+  test("Throws a NotFound error if record doesn't exist", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+
+    try {
+      console.log("attempting to generate error")
+      await RecipeFactory.deleteRecipeById(0);
       throw new Error("Fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();

@@ -47,7 +47,7 @@ class RecipeFactory {
   }
 
 
-  /** Fetches a single recipe record and its submodels from the database
+  /** Fetches and returns a single recipe record and its submodels from the database
    *  by recipeId.
    *
    * @param: id : number --> The recipeId to query
@@ -57,27 +57,62 @@ class RecipeFactory {
    * Throws an error if record is not found.
   */
 
-  static async getRecipeById(id:number):Promise<RecipeData>{
-    const recipe =  await prisma.recipe.findUnique({
-      where:{
-        recipeId:id
-      },
-      include:{
-        steps:{
-          include:{
-            ingredients:true,
+  static async getRecipeById(id: number): Promise<RecipeData> {
+    try{
+      const recipe = await prisma.recipe.findUniqueOrThrow({
+        where: {
+          recipeId: id
+        },
+        include: {
+          steps: {
+            include: {
+              ingredients: true,
+            }
           }
         }
-      }
-    })
+      });
+      return recipe;
+    } catch (err){
+      //use our custom error instead
+      throw new NotFoundError("Recipe not found");
+    }
 
-    if (recipe) return recipe;
-    throw new NotFoundError("Recipe not found");
   }
 
   //Update
 
-  //Delete
+  /** Fetches and deletes a single recipe record and its submodels from the database
+   *  by recipeId.  Returns the RecipeData of the deleted record.
+   *
+   * @param: id : number --> The recipeId to query
+   * @returns: RecipeData (Promise)
+   * {recipeId, name, description, sourceUrl, sourceName, steps}
+   *
+   * Throws an error if record is not found.
+  */
+
+  static async deleteRecipeById(id: number): Promise<RecipeData> {
+    console.log("running deleteRecipeById with id", id);
+    try{
+      const recipe = await prisma.recipe.delete({
+        where: {
+          recipeId: id
+        },
+        include: {
+          steps: {
+            include: {
+              ingredients: true,
+            }
+          }
+        }
+      });
+      return recipe;
+    } catch(err){
+      //use our custom error instead
+      throw new NotFoundError("Recipe not found");
+    }
+  }
+
 
   /** Accepts an IRecipeWithMetadata object and reshapes it to be appropriate
    * for use in Prisma create commands.  (Submodels will be wrapped in a
