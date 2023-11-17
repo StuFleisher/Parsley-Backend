@@ -1,5 +1,5 @@
 { "recipes":
-  {
+  [{
     "name":"PB&J Sandwich",
     "steps":[
       {
@@ -25,7 +25,7 @@
           {"amount":"1 tbsp",
           "description":"Jelly"}
         ]
-      }
+      },
       {
         "step_number":3,
         "instructions":"Close the bread and enjoy",
@@ -127,5 +127,5 @@
         ]
       }
     ]
-  }
+  }]
 }
