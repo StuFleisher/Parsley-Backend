@@ -1,16 +1,20 @@
 "use strict";
 
 import '../config'; //sets the correct database!
-import {commonBeforeAll, commonBeforeEach, commonAfterEach}
-  from "../test/test_common";
 import prisma from "../client";
 import RecipeFactory from "./recipe";
+import {
+  commonBeforeAll,
+  commonBeforeEach,
+  commonAfterEach,
+} from "../test/test_common";
+import { NotFoundError } from '../utils/expressError';
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 
-const testRecipe1:IRecipeWithMetadata = {
+const testRecipe1: IRecipeWithMetadata = {
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "R1SourceUrl",
@@ -27,7 +31,7 @@ const testRecipe1:IRecipeWithMetadata = {
   ]
 };
 
-const testRecipe2:IRecipeWithMetadata = {
+const testRecipe2: IRecipeWithMetadata = {
   name: "R2Name",
   description: "R2Description",
   sourceUrl: "R2SourceUrl",
@@ -56,7 +60,7 @@ describe("Test Create Recipe", function () {
     expect(recipe.sourceName).toEqual("R1SourceName");
   });
 
-  test("Returns with submodel data", async function (){
+  test("Returns with submodel data", async function () {
     const recipe = await RecipeFactory.saveRecipe(testRecipe1);
     expect(recipe.steps[0].stepNumber).toEqual(1);
     expect(recipe.steps[0].instructions).toEqual("R1S1Instructions");
@@ -65,23 +69,23 @@ describe("Test Create Recipe", function () {
       .toEqual("R1S1I1Amount");
     expect(recipe.steps[0].ingredients[0].description)
       .toEqual("R1S1I1Description");
-  })
+  });
 
   test("Creates a record in the database", async function () {
     const recipe = await RecipeFactory.saveRecipe(testRecipe1);
 
     const result: RecipeData = await prisma.recipe.findUnique({
-      where:{
-        recipeId:recipe.recipeId,
+      where: {
+        recipeId: recipe.recipeId,
       },
-      include:{
-        steps:{
-          include:{
-            ingredients:true
+      include: {
+        steps: {
+          include: {
+            ingredients: true
           }
         }
       }
-    })
+    });
 
     expect(result.name).toEqual(testRecipe1.name);
     expect(result.description).toEqual(testRecipe1.description);
@@ -93,17 +97,17 @@ describe("Test Create Recipe", function () {
     const recipe = await RecipeFactory.saveRecipe(testRecipe1);
 
     const result: RecipeData = await prisma.recipe.findUnique({
-      where:{
-        recipeId:recipe.recipeId,
+      where: {
+        recipeId: recipe.recipeId,
       },
-      include:{
-        steps:{
-          include:{
-            ingredients:true
+      include: {
+        steps: {
+          include: {
+            ingredients: true
           }
         }
       }
-    })
+    });
 
     expect(result.steps[0].stepNumber).toEqual(1);
     expect(result.steps[0].instructions).toEqual("R1S1Instructions");
@@ -117,21 +121,59 @@ describe("Test Create Recipe", function () {
 
 
 /**************** GET ALL **************************/
-describe("Test getAllRecipes", function(){
+describe("Test getAllRecipes", function () {
 
-  test("Returns multiple recipes", async function(){
+  test("Returns multiple recipes", async function () {
     const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
     const recipe2 = await RecipeFactory.saveRecipe(testRecipe2);
     const recipes = await RecipeFactory.getAllRecipes();
 
     expect(recipes.length).toBe(2);
-  })
+  });
 
-  test("Does not return submodel data", async function(){
+  test("Does not return submodel data", async function () {
     const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
     const recipe2 = await RecipeFactory.saveRecipe(testRecipe2);
     const recipes = await RecipeFactory.getAllRecipes();
 
     expect(recipes[0]).not.toHaveProperty("steps");
-  })
-})
+  });
+});
+
+/**************** GET BY ID **************************/
+describe("Test getRecipeById", function () {
+
+  test("Returns the correct record", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
+
+    expect(result.name).toEqual("R1Name");
+    expect(result.description).toEqual("R1Description");
+    expect(result.sourceUrl).toEqual("R1SourceUrl");
+    expect(result.sourceName).toEqual("R1SourceName");
+  });
+
+  test("Returns submodel data", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
+
+    expect(result.steps[0].stepNumber).toEqual(1);
+    expect(result.steps[0].instructions).toEqual("R1S1Instructions");
+    expect(result.steps[0].ingredients[0].amount)
+      .toEqual("R1S1I1Amount");
+    expect(result.steps[0].ingredients[0].description)
+      .toEqual("R1S1I1Description");
+  });
+
+  test("Throws a NotFound error if record doesn't exist", async function () {
+    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+
+    try {
+      await RecipeFactory.getRecipeById(0);
+      throw new Error("Fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+});

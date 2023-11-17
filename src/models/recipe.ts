@@ -3,6 +3,7 @@
 import { Prisma } from '@prisma/client';
 import prisma from "../client";
 import { DATABASE_URL } from '../config';
+import { NotFoundError } from '../utils/expressError';
 
 console.log("DB from recipes.ts", DATABASE_URL);
 
@@ -46,7 +47,33 @@ class RecipeFactory {
   }
 
 
-  //Get One
+  /** Fetches a single recipe record and its submodels from the database
+   *  by recipeId.
+   *
+   * @param: id : number --> The recipeId to query
+   * @returns: RecipeData (Promise)
+   * {recipeId, name, description, sourceUrl, sourceName, steps}
+   *
+   * Throws an error if record is not found.
+  */
+
+  static async getRecipeById(id:number):Promise<RecipeData>{
+    const recipe =  await prisma.recipe.findUnique({
+      where:{
+        recipeId:id
+      },
+      include:{
+        steps:{
+          include:{
+            ingredients:true,
+          }
+        }
+      }
+    })
+
+    if (recipe) return recipe;
+    throw new NotFoundError("Recipe not found");
+  }
 
   //Update
 
