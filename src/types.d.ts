@@ -14,6 +14,7 @@ interface IRecipeWithMetadata extends IRecipeBase {
 //A full recipe including system generated values. Extends IRecipeWithMetadata
 type RecipeData = IRecipeWithMetadata & {
   recipeId:number;
+  steps:IStep[];
 }
 
 //A less detailed recipe for summary views with no submodel data
@@ -32,7 +33,8 @@ interface IStepBase {
 }
 
 interface IStep extends IStepBase{
-  stepId:number
+  stepId:number,
+  ingredients:IIngredient[]
 }
 
 interface IIngredientBase {
