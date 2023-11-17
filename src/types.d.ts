@@ -17,7 +17,7 @@ type RecipeData = IRecipeWithMetadata & {
 }
 
 //A less detailed recipe for summary views with no submodel data
-type SimpleRecipeData {
+type SimpleRecipeData = {
   recipeId:number;
   name:string;
   description: string;
