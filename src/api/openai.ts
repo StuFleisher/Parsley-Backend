@@ -40,7 +40,7 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
 
 function printRecipe(steps:IStep[]):void {
   for (const step of steps){
-    console.log(step.step_number);
+    console.log(step.stepNumber);
     for (const i of step.ingredients){
       console.log("* ", i.amount, i.description);
     }
