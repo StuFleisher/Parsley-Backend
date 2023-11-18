@@ -2,15 +2,15 @@
 
 import '../config'; //sets the correct database!
 import prisma from "../client";
-import RecipeFactory from "./recipe";
+import RecipeFactory from "./recipe.js";
 import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   testRecipe1,
   testRecipe2,
-} from "../test/test_common";
-import { NotFoundError } from '../utils/expressError';
+} from "../test/test_common.js";
+import { NotFoundError } from '../utils/expressError.js';
 
 
 beforeAll(commonBeforeAll);
@@ -25,7 +25,7 @@ describe("Test Create Recipe", function () {
     expect(recipe).toHaveProperty("recipeId");
     expect(recipe.name).toEqual("R1Name");
     expect(recipe.description).toEqual("R1Description");
-    expect(recipe.sourceUrl).toEqual("R1SourceUrl");
+    expect(recipe.sourceUrl).toEqual("http://R1SourceUrl.com");
     expect(recipe.sourceName).toEqual("R1SourceName");
   });
 
@@ -118,7 +118,7 @@ describe("Test getRecipeById", function () {
 
     expect(result.name).toEqual("R1Name");
     expect(result.description).toEqual("R1Description");
-    expect(result.sourceUrl).toEqual("R1SourceUrl");
+    expect(result.sourceUrl).toEqual("http://R1SourceUrl.com");
     expect(result.sourceName).toEqual("R1SourceName");
   });
 
@@ -160,7 +160,7 @@ describe("Test deleteRecipeById", function () {
 
     expect(deletedRecipe.name).toEqual("R1Name");
     expect(deletedRecipe.description).toEqual("R1Description");
-    expect(deletedRecipe.sourceUrl).toEqual("R1SourceUrl");
+    expect(deletedRecipe.sourceUrl).toEqual("http://R1SourceUrl.com");
     expect(deletedRecipe.sourceName).toEqual("R1SourceName");
 
     try {
@@ -202,7 +202,7 @@ describe("Test deleteRecipeById", function () {
 
     expect(result.name).toEqual("R1Name");
     expect(result.description).toEqual("R1Description");
-    expect(result.sourceUrl).toEqual("R1SourceUrl");
+    expect(result.sourceUrl).toEqual("http://R1SourceUrl.com");
     expect(result.sourceName).toEqual("R1SourceName");
   });
 
@@ -239,7 +239,7 @@ describe("Test _pojoToPrismaRecipeInput", function () {
     expect(RecipeFactory._pojoToPrismaRecipeInput(testRecipe1)).toEqual({
       name: "R1Name",
       description: "R1Description",
-      sourceUrl: "R1SourceUrl",
+      sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
       steps: {
         create: [

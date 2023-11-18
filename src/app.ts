@@ -3,8 +3,8 @@
 //load modules
 import express, { ErrorRequestHandler, NextFunction } from "express";
 import cors from "cors";
-import { NotFoundError } from './utils/expressError';
-import recipesRoutes from "./routes/recipes"
+import { NotFoundError } from './utils/expressError.js';
+import recipesRoutes from "./routes/recipes.js"
 
 const app=express();
 
@@ -18,6 +18,7 @@ app.use("/recipes", recipesRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {
+  console.log("hittin the old 404")
   throw new NotFoundError();
 });
 

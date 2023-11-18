@@ -1,17 +1,17 @@
 "use strict";
 
 import request from "supertest";
-import app from "../app";
+import app from "../app.js";
 
-import RecipeFactory from "../models/recipe";
+import RecipeFactory from "../models/recipe.js";
 import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   testRecipe1,
   testRecipe2,
-} from "../test/test_common";
-import { NotFoundError } from '../utils/expressError';
+} from "../test/test_common.js";
+import { NotFoundError } from '../utils/expressError.js';
 
 
 beforeAll(commonBeforeAll);
@@ -38,7 +38,7 @@ describe("POST /recipes", function () {
     //should return correct data
     expect(resp.body.name).toEqual("R1Name");
     expect(resp.body.description).toEqual("R1Description");
-    expect(resp.body.sourceUrl).toEqual("R1SourceUrl");
+    expect(resp.body.sourceUrl).toEqual("http://R1SourceUrl.com");
     expect(resp.body.sourceName).toEqual("R1SourceName");
     expect(resp.body.steps[0].stepNumber).toEqual(1);
     expect(resp.body.steps[0].instructions).toEqual("R1S1Instructions");
@@ -64,7 +64,7 @@ describe("POST /recipes", function () {
     const invalidRecipe = { //missing steps prop
       name: "R1Name",
       description: "R1Description",
-      sourceUrl: "R1SourceUrl",
+      sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
     }
     const resp = await request(app)

@@ -4,10 +4,10 @@
 
 import jsonschema from "jsonschema";
 import express from "express";
-import { BadRequestError } from "../utils/expressError";
-import RecipeFactory from "../models/recipe";
+import { BadRequestError } from "../utils/expressError.js";
+import RecipeFactory from "../models/recipe.js";
 
-import recipeNewSchema from "../schemas/recipeNew.json";
+import recipeNewSchema from "../schemas/recipeNew.json" assert { type: "json" };
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ const router = express.Router();
  */
 
 router.post("/", async function (req,res,next){
+  console.log("you hit the route")
   const validator = jsonschema.validate(
     req.body,
     recipeNewSchema,

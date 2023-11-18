@@ -1,9 +1,9 @@
 "use strict";
 
 import { Prisma } from '@prisma/client';
-import prisma from "../client";
-import { DATABASE_URL } from '../config';
-import { NotFoundError } from '../utils/expressError';
+import prisma from "../client.js";
+import { DATABASE_URL } from '../config.js';
+import { NotFoundError } from '../utils/expressError.js';
 
 console.log("DB from recipes.ts", DATABASE_URL);
 

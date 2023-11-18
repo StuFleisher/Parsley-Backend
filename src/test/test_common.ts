@@ -1,7 +1,7 @@
 "use strict"
 
 import prisma from '../client';
-import { DATABASE_URL } from '../config';
+import { DATABASE_URL } from '../config.js';
 import { execSync } from 'child_process';
 
 console.log("DB from recipes.test.ts", DATABASE_URL);
@@ -25,7 +25,7 @@ async function commonAfterEach(){
 const testRecipe1: IRecipeWithMetadata = {
   name: "R1Name",
   description: "R1Description",
-  sourceUrl: "R1SourceUrl",
+  sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
   steps: [
     {

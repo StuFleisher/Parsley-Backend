@@ -31,7 +31,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon",
+    "dev": "nodemon --exec 'npm run build && node dist/server.js'",
     "test": "NODE_ENV=test prisma migrate deploy && jest"
   },
   "nodemonConfig": {
