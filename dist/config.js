@@ -1,6 +1,9 @@
 "use strict";
-// import "dotenv/config.js";
-import dotenv from "dotenv";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const dotenv = require("dotenv");
 if (process.env.NODE_ENV === 'test') {
     dotenv.config({ path: '.env.test' });
 }
@@ -9,11 +12,10 @@ else {
 }
 const OPENAI_API_KEY = process.env.API_KEY;
 const PORT = +process.env.PORT || 3001;
+const DATABASE_URL = process.env.DATABASE_URL;
 console.log("database:", process.env.DATABASE_URL);
-// /** Returns the correct database for the current environment */
-// function getDatabaseUri() {
-//   return (process.env.NODE_ENV === "test")
-//       ? "postgresql:///parsley_test"
-//       : process.env.DATABASE_URL || "postgresql:///parsely";
-// }
-export { OPENAI_API_KEY, PORT, };
+module.exports = {
+    DATABASE_URL,
+    OPENAI_API_KEY,
+    PORT,
+};

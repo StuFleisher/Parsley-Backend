@@ -1,5 +1,8 @@
 "use strict";
-/** Database setup for parsley. */
-import { PrismaClient } from '@prisma/client';
+Object.defineProperty(exports, "__esModule", { value: true });
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-export default prisma;
+module.exports = prisma;

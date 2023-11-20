@@ -1,8 +1,18 @@
 "use strict"
 /** This file contains methods for handling interactions with the openai api*/
 
-import { RECIPE_CONVERSION_BASE_PROMPT } from "./prompts.js";
-import OpenAI from "openai";
+// import { RECIPE_CONVERSION_BASE_PROMPT } from "./prompts.js";
+// import OpenAI from "openai";
+
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
+
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const { RECIPE_CONVERSION_BASE_PROMPT } =require("./prompts.js");
+const OpenAI =require("openai");
 
 const openai = new OpenAI();
 
@@ -48,4 +58,4 @@ function printRecipe(steps:IStep[]):void {
   }
 }
 
-export {textToRecipe}
+module.exports = {textToRecipe}

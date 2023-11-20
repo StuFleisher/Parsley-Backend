@@ -1,10 +1,23 @@
 "use strict"
-
 //load modules
-import express, { ErrorRequestHandler, NextFunction } from "express";
-import cors from "cors";
-import { NotFoundError } from './utils/expressError.js';
-import recipesRoutes from "./routes/recipes.js"
+// import express, { ErrorRequestHandler, NextFunction } from "express";
+// import cors from "cors";
+// import { NotFoundError } from './utils/expressError.js';
+// import recipesRoutes from "./routes/recipes.js"
+
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
+import { ErrorRequestHandler,Request, Response, NextFunction } from "express";
+
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const express = require("express");
+// const { ErrorRequestHandler, NextFunction } = require("express");
+const cors = require('cors');
+const { NotFoundError } = require('./utils/expressError');
+const recipesRoutes = require('./routes/recipes')
 
 const app=express();
 
@@ -17,7 +30,7 @@ app.use("/recipes", recipesRoutes);
 
 
 /** Handle 404 errors -- this matches everything */
-app.use(function (req, res, next) {
+app.use(function (req:Request, res:Response, next:NextFunction) {
   console.log("hittin the old 404")
   throw new NotFoundError();
 });
@@ -34,4 +47,4 @@ const genericErrorHandler:ErrorRequestHandler = (err,req,res,next) =>{
 }
 app.use(genericErrorHandler);
 
-export default app;
+module.exports = app;

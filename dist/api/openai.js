@@ -1,7 +1,10 @@
 "use strict";
-/** This file contains methods for handling interactions with the openai api*/
-import { RECIPE_CONVERSION_BASE_PROMPT } from "./prompts.js";
-import OpenAI from "openai";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const { RECIPE_CONVERSION_BASE_PROMPT } = require("./prompts.js");
+const OpenAI = require("openai");
 const openai = new OpenAI();
 /** Accepts a string containing raw text for a recipe and returns an IRecipe
  *
@@ -34,11 +37,11 @@ async function textToRecipe(recipeText) {
 /** Prints the recipe to the console for logging/troubleshooting */
 function printRecipe(steps) {
     for (const step of steps) {
-        console.log(step.step_number);
+        console.log(step.stepNumber);
         for (const i of step.ingredients) {
             console.log("* ", i.amount, i.description);
         }
         console.log("Instructions:", step.instructions);
     }
 }
-export { textToRecipe };
+module.exports = { textToRecipe };

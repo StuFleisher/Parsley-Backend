@@ -1,9 +1,21 @@
 "use strict";
 
-import { Prisma } from '@prisma/client';
-import prisma from "../client.js";
-import { DATABASE_URL } from '../config.js';
-import { NotFoundError } from '../utils/expressError.js';
+// import { Prisma } from '@prisma/client';
+// import prisma from "../client.js";
+// import { DATABASE_URL } from '../config.js';
+// import { NotFoundError } from '../utils/expressError.js';
+
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
+import {Prisma} from '@prisma/client';
+
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+const prisma = require('../client');
+const {DATABASE_URL} = require('../config');
+const {NotFoundError} = require('../utils/expressError');
 
 console.log("DB from recipes.ts", DATABASE_URL);
 
@@ -143,4 +155,4 @@ class RecipeFactory {
 
 }
 
-export default RecipeFactory;
+module.exports = RecipeFactory;

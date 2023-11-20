@@ -1,17 +1,34 @@
 "use strict";
+// import '../config'; //sets the correct database!
+// import prisma from "../client";
+// import RecipeFactory from "./recipe.js";
+// import {
+//   commonBeforeAll,
+//   commonBeforeEach,
+//   commonAfterEach,
+//   testRecipe1,
+//   testRecipe2,
+// } from "../test/test_common.js";
+// import { NotFoundError } from '../utils/expressError.js';
 
-import '../config'; //sets the correct database!
-import prisma from "../client";
-import RecipeFactory from "./recipe.js";
-import {
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
+
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+require('../config');
+const prisma = require('../client');
+const RecipeFactory = require('./recipe')
+const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   testRecipe1,
-  testRecipe2,
-} from "../test/test_common.js";
-import { NotFoundError } from '../utils/expressError.js';
-
+  testRecipe2
+} = require('../test/test_common');
+const {NotFoundError} = require('../utils/expressError');
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);

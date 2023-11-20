@@ -1,10 +1,15 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
 /** ExpressError extends normal JS error so we can
  *  add ;a status when we make an instance of it.
  *
  *  The error-handling middleware will return this.
  */
 class ExpressError extends Error {
+    status;
     constructor(message, status) {
         super();
         this.message = message;
@@ -35,4 +40,17 @@ class ForbiddenError extends ExpressError {
         super(message, 403);
     }
 }
-export { ExpressError, NotFoundError, UnauthorizedError, BadRequestError, ForbiddenError, };
+// export {
+//   ExpressError,
+//   NotFoundError,
+//   UnauthorizedError,
+//   BadRequestError,
+//   ForbiddenError,
+// };
+module.exports = {
+    ExpressError,
+    NotFoundError,
+    UnauthorizedError,
+    BadRequestError,
+    ForbiddenError,
+};

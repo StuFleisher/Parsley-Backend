@@ -1,6 +1,11 @@
 "use strict"
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
 
-const RECIPE_CONVERSION_BASE_PROMPT = (
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */const RECIPE_CONVERSION_BASE_PROMPT = (
   `I will give you the text of a recipe.  I would like you to convert it into structured JSON following these rules.  1- Maintain the original text and intent of the recipe whenever possible. 2- Keep each step simple. 3-Ignore stray content that may have been copy pasted into the recipe by accident.
 
   Below is an example of how a recipe should be converted.
@@ -184,4 +189,4 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-export {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT}
+module.exports = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT}

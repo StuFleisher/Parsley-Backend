@@ -1,8 +1,20 @@
 "use strict"
+export {};
+// import prisma from '../client';
+// import { DATABASE_URL } from '../config.js';
+// import { execSync } from 'child_process';
 
-import prisma from '../client';
-import { DATABASE_URL } from '../config.js';
-import { execSync } from 'child_process';
+/**We have to use ESM syntax to handle typing and to get ts to recognize this as
+ * a module instead of a script */
+export {};
+
+/**We use common js for other imports to avoid a transpiling issue related to
+ * extensions and paths differing in testing and dev environments
+ */
+
+const prisma = require('../client');
+const {DATABASE_URL} = require('../config');
+const {execSync} = require('child_process');
 
 console.log("DB from recipes.test.ts", DATABASE_URL);
 
@@ -13,7 +25,6 @@ async function commonBeforeAll(){
 
 //prints to console to clarify logging within individual tests
 async function commonBeforeEach(){
-  console.log("********************************")
 }
 
 //resets the test database
@@ -57,7 +68,7 @@ const testRecipe2: IRecipeWithMetadata = {
 };
 
 
-export {
+module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
