@@ -3,12 +3,52 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-const jsonschema = require('jsonschema');
+const RecipeFactory = require('../models/recipe');
 const express = require('express');
 const { BadRequestError } = require('../utils/expressError');
-const RecipeFactory = require('../models/recipe');
+const jsonschema = require('jsonschema');
 const recipeNewSchema = require("../schemas/recipeNew.json");
+const textToRecipe = require("../api/openai");
 const router = express.Router();
+/** POST /generate {recipeText}=>{recipeData}
+ *
+ * @params recipeText:
+ *
+ *  {
+ *    recipeText: string (the copy/paste recipe from another source)
+ *  }
+ *
+ * @returns recipeData: IRecipeBase
+ *  {
+ *    name: string
+ *    steps:[
+ *      {
+ *        stepNumber:number,
+          instructions: string,
+          ingredients:[
+            {
+              amount: string;
+              description: string;
+            }
+          ],
+        }
+ *    ]
+ *  }
+ */
+router.post("/generate", async function (req, res, next) {
+    const rawRecipe = req.body.recipeText;
+    let recipe;
+    try {
+        recipe = await textToRecipe(rawRecipe);
+    }
+    catch (errs) {
+        recipe = {
+            message: "There was an issue processing your recipe",
+            errors: errs
+        };
+    }
+    return res.json({ recipe });
+});
 /** POST / {recipe} => {recipe}
  *
  * @params recipe: {name, description, sourceUrl, sourceName, steps[] }

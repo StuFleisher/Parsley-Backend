@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
- */ const RECIPE_CONVERSION_BASE_PROMPT = (`I will give you the text of a recipe.  I would like you to convert it into structured JSON following these rules.  1- Maintain the original text and intent of the recipe whenever possible. 2- Keep each step simple. 3-Ignore stray content that may have been copy pasted into the recipe by accident.
+ */ const RECIPE_CONVERSION_BASE_PROMPT = (`I will give you the text of a recipe.  I would like you to convert it into structured JSON following these rules.  1- Maintain the original text and intent of the recipe whenever possible. 2- Keep each step simple. 3-Ignore stray content that may have been copy pasted into the recipe by accident. 4. Follow the data structure below exactly
 
   Below is an example of how a recipe should be converted.
   2 teaspoons canola oil
@@ -42,7 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
       "name":"Spicy Thai Coconut Chicken Soup",
       "steps":[
         {
-          "step_number":1,
+          "stepNumber":1,
           "instructions":"Heat a Dutch oven over medium heat. Add oil to coat the pan. Then add mushrooms, bell pepper, ginger, garlic, and lemongrass; cook for 3 minutes, stirring occasionally.",
           "ingredients": [
             {
@@ -72,7 +72,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
           ]
         },
         {
-          "step_number":2,
+          "stepNumber":2,
           "instructions":"Add chile paste to the pan; cook for 1 minute, stirring continuously.",
           "ingredients": [
             {
@@ -82,7 +82,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
           ]
         },
         {
-          "step_number":3,
+          "stepNumber":3,
           "instructions":"Add chicken stock, coconut milk, fish sauce, and sugar to the pan; bring to a simmer. Then reduce heat to low and simmer for 10 minutes.",
           "ingredients": [
             {
@@ -104,7 +104,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
           ]
         },
         {
-          "step_number":4,
+          "stepNumber":4,
           "instructions":"Add chicken to the pan and cook for 1 minute or until thoroughly heated.",
           "ingredients": [
             {
@@ -114,7 +114,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
           ]
         },
         {
-          "step_number":5,
+          "stepNumber":5,
           "instructions":"Discard lemongrass. Top the soup with green onions, cilantro, and lime juice before serving.",
           "ingredients": [
             {
@@ -134,9 +134,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
       ]
     }
 
-  Please respond with ONLY the converted JSON, no additional text.
+  DO NOT OMIT ANY PROPERTIES IN YOUR RESPONSE!
 
-  Here is the recipe to convert:
+  If the text below can't be made into a recipe, please return {error:"Invalid recipe input"}. Here is the recipe to convert:
   `);
 const TEST_RECIPE_TEXT = (`
 Prep

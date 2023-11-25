@@ -12,13 +12,53 @@ import { ErrorRequestHandler, Request, Response, NextFunction } from "express";
  * extensions and paths differing in testing and dev environments
  */
 const RecipeFactory = require('../models/recipe');
-const jsonschema = require('jsonschema');
 const express = require('express');
 const { BadRequestError } = require('../utils/expressError');
+const jsonschema = require('jsonschema');
 const recipeNewSchema = require("../schemas/recipeNew.json");
-
+const textToRecipe = require("../api/openai");
 
 const router = express.Router();
+
+/** POST /generate {recipeText}=>{recipeData}
+ *
+ * @params recipeText:
+ *
+ *  {
+ *    recipeText: string (the copy/paste recipe from another source)
+ *  }
+ *
+ * @returns recipeData: IRecipeBase
+ *  {
+ *    name: string
+ *    steps:[
+ *      {
+ *        stepNumber:number,
+          instructions: string,
+          ingredients:[
+            {
+              amount: string;
+              description: string;
+            }
+          ],
+        }
+ *    ]
+ *  }
+ */
+router.post("/generate", async function (req: Request, res:Response, next: NextFunction){
+  const rawRecipe = req.body.recipeText;
+  let recipe;
+  try {
+    recipe = await textToRecipe(rawRecipe);
+  } catch(errs){
+    recipe = {
+      message:"There was an issue processing your recipe",
+      errors:errs
+    }
+  }
+  return res.json({recipe});
+})
+
 
 /** POST / {recipe} => {recipe}
  *

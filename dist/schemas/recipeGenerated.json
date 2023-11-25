@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://parsley.stufleisher.com/recipeGenerated.schema.json",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "steps": {
+        "type": "array",
+        "items": {
+            "stepNumber":{
+                "type":"integer"
+            },
+            "instructions":{
+                "type":"string"
+            },
+            "ingredients":{
+                "type":"array",
+                "items":{
+                    "amount":{
+                        "type": "string"
+                    },
+                    "description":{
+                        "type":"string"
+                    },
+                    "required":["description"]
+                }
+            },
+        "required": ["stepNumber","instructions","ingredients"]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "name",
+      "steps"
+    ]
+  }

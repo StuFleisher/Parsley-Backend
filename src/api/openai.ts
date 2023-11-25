@@ -13,6 +13,8 @@ export {};
  */
 const { RECIPE_CONVERSION_BASE_PROMPT } =require("./prompts.js");
 const OpenAI =require("openai");
+const jsonschema = require('jsonschema');
+const recipeGeneratedSchema = require("../schemas/recipeGenerated.json");
 
 const openai = new OpenAI();
 
@@ -27,22 +29,40 @@ const openai = new OpenAI();
  *    instructions: string
  *  },{step2},{step3}...]
  * }
+ *
+ * Throws an error if chat gpt cannot format the recipe correctly
  */
 
 async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
-  console.log("connecting to openai...");
-  const completion = await openai.chat.completions.create({
-    messages: [{
-      role: "system",
-      content: `${RECIPE_CONVERSION_BASE_PROMPT}${recipeText}`
-    }],
-    model: "gpt-3.5-turbo-1106",
-    response_format: { type: "json_object" },
-    temperature: 0
-  });
-  const recipeData = completion.choices[0].message.content;
-  const recipe = JSON.parse(recipeData);
-  printRecipe(recipe.steps);
+  let recipe;
+
+  if(recipeText.length>10){
+    console.log("connecting to openai...");
+    const completion = await openai.chat.completions.create({
+      messages: [{
+        role: "system",
+        content: `${RECIPE_CONVERSION_BASE_PROMPT}${recipeText}`
+      }],
+      model: "gpt-3.5-turbo-1106",
+      response_format: { type: "json_object" },
+      temperature: 0
+    });
+    const recipeData = completion.choices[0].message.content;
+    recipe = JSON.parse(recipeData);
+  }
+
+  const validator = jsonschema.validate(
+    recipe,
+    recipeGeneratedSchema,
+    {required: true}
+  );
+
+  if(!validator.valid) {
+    const errs: string[] = validator.errors.map((e: Error) => e.stack);
+    throw new Error(errs.join(", "));
+  }
+
+  // printRecipe(recipe.steps);
   return recipe;
 }
 
@@ -58,4 +78,4 @@ function printRecipe(steps:IStep[]):void {
   }
 }
 
-module.exports = {textToRecipe}
+module.exports = textToRecipe
