@@ -31,7 +31,6 @@ app.use("/recipes", recipesRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req:Request, res:Response, next:NextFunction) {
-  console.log("hittin the old 404")
   throw new NotFoundError();
 });
 

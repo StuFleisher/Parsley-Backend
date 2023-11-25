@@ -3,14 +3,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
+require('../config'); //this loads the test database
 const request = require('supertest');
 const app = require('../app');
 const RecipeFactory = require('../models/recipe');
 const { commonBeforeAll, commonBeforeEach, commonAfterEach, testRecipe1, testRecipe2 } = require('../test/test_common');
 const { NotFoundError } = require('../utils/expressError');
 beforeAll(commonBeforeAll);
-beforeEach(commonBeforeEach);
+beforeEach(async function () {
+    console.log("loading db for tests");
+    await RecipeFactory.saveRecipe(testRecipe1);
+    commonBeforeEach();
+});
 afterEach(commonAfterEach);
+/************************** GET ALL **********************/
+describe("GET /", function () {
+    test("OK", async function () {
+        const resp = await request(app).get("/recipes");
+        expect(resp.statusCode).toEqual(200);
+        console.log(resp.body.recipes);
+        expect(resp.body.recipes[0].name).toEqual("R1Name");
+        expect(resp.body.recipes[0].description).toEqual("R1Description");
+        expect(resp.body.recipes[0].sourceName).toEqual("R1SourceName");
+        expect(resp.body.recipes[0].sourceUrl).toEqual("http://R1SourceUrl.com");
+    });
+});
+/************************** GET BY ID **********************/
+// describe("GET /", function(){
+//   test("OK", async function(){
+//     const resp = await request(app).get(`/recipes/${}`);
+//     expect(resp.statusCode).toEqual(200);
+//     expect(resp.body).toEqual({
+//       recipes:[]
+//     })
+//   })
+// })
 /************************** POST *************************/
 describe("POST /recipes", function () {
     test("OK", async function () {
@@ -20,7 +47,6 @@ describe("POST /recipes", function () {
         //response should be OK
         expect(resp.statusCode).toEqual(201);
         //should generate ids
-        console.log("****ID:", resp.body.recipe.recipeId);
         expect(resp.body.recipe).toHaveProperty("recipeId");
         expect(resp.body.recipe.steps[0]).toHaveProperty("stepId");
         expect(resp.body.recipe.steps[0].ingredients[0]).toHaveProperty("ingredientId");

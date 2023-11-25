@@ -14,7 +14,6 @@ app.use(express.json());
 app.use("/recipes", recipesRoutes);
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {
-    console.log("hittin the old 404");
     throw new NotFoundError();
 });
 /** Generic error handler; anything unhandled goes here. */

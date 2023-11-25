@@ -1,15 +1,4 @@
 "use strict";
-// import '../config'; //sets the correct database!
-// import prisma from "../client";
-// import RecipeFactory from "./recipe.js";
-// import {
-//   commonBeforeAll,
-//   commonBeforeEach,
-//   commonAfterEach,
-//   testRecipe1,
-//   testRecipe2,
-// } from "../test/test_common.js";
-// import { NotFoundError } from '../utils/expressError.js';
 
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
@@ -18,7 +7,7 @@ export {};
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-require('../config');
+require('../config'); //this loads the test database
 const prisma = require('../client');
 const RecipeFactory = require('./recipe')
 const {
@@ -239,7 +228,6 @@ describe("Test deleteRecipeById", function () {
     const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
 
     try {
-      console.log("attempting to generate error");
       await RecipeFactory.deleteRecipeById(0);
       throw new Error("Fail test, you shouldn't get here");
     } catch (err) {

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-require('../config');
+require('../config'); //this loads the test database
 const prisma = require('../client');
 const RecipeFactory = require('./recipe');
 const { commonBeforeAll, commonBeforeEach, commonAfterEach, testRecipe1, testRecipe2 } = require('../test/test_common');
@@ -172,7 +172,6 @@ describe("Test deleteRecipeById", function () {
     test("Throws a NotFound error if record doesn't exist", async function () {
         const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
         try {
-            console.log("attempting to generate error");
             await RecipeFactory.deleteRecipeById(0);
             throw new Error("Fail test, you shouldn't get here");
         }

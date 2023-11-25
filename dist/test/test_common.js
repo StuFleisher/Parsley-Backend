@@ -17,7 +17,6 @@ async function commonBeforeEach() {
 //resets the test database
 async function commonAfterEach() {
     const recipeCount = await prisma.recipe.deleteMany({});
-    console.log(`Deleted ${recipeCount.count} recipes`);
 }
 const testRecipe1 = {
     name: "R1Name",

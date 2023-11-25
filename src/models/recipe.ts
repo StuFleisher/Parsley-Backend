@@ -17,7 +17,6 @@ const prisma = require('../client');
 const {DATABASE_URL} = require('../config');
 const {NotFoundError} = require('../utils/expressError');
 
-console.log("DB from recipes.ts", DATABASE_URL);
 
 /** Data and functionality for recipes */
 
@@ -104,7 +103,6 @@ class RecipeFactory {
   */
 
   static async deleteRecipeById(id: number): Promise<RecipeData> {
-    console.log("running deleteRecipeById with id", id);
     try{
       const recipe = await prisma.recipe.delete({
         where: {

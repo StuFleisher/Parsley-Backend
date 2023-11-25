@@ -22,7 +22,6 @@ const router = express.Router();
  * TODO: add Auth Required: loggedIn
  */
 router.post("/", async function (req, res, next) {
-    console.log("you hit the route");
     const validator = jsonschema.validate(req.body, recipeNewSchema, { required: true });
     if (!validator.valid) {
         const errs = validator.errors.map((e) => e.stack);
@@ -30,5 +29,31 @@ router.post("/", async function (req, res, next) {
     }
     const recipe = await RecipeFactory.saveRecipe(req.body);
     return res.status(201).json({ recipe });
+});
+/** GET /[id] {id} => {recipe}
+ *
+ * @params id (unique recipeId)
+ *
+ * @returns recipe: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ *          step: {stepId, stepNumber,instructions, ingredients[] }
+ *          ingredient: {ingredientId, amount, description}
+ *
+ * TODO: add Auth Required: loggedIn
+ */
+router.get("/:id", async function (req, res, next) {
+    const recipe = await RecipeFactory.getRecipeById(+req.params.id);
+    return res.json({ recipe });
+});
+/** GET /
+ *  Returns a list of all recipes without submodel data
+ *
+ * @returns recipes: [{recipeId, name, description, sourceUrl, sourceName},...]
+ *
+ *
+ * TODO: add Auth Required: loggedIn
+ */
+router.get("/", async function (req, res, next) {
+    const recipes = await RecipeFactory.getAllRecipes();
+    return res.json({ recipes });
 });
 module.exports = router;

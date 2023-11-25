@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const prisma = require('../client');
 const { DATABASE_URL } = require('../config');
 const { NotFoundError } = require('../utils/expressError');
-console.log("DB from recipes.ts", DATABASE_URL);
 /** Data and functionality for recipes */
 class RecipeFactory {
     /** Create a recipe from data, store it to the database, then return data
@@ -81,7 +80,6 @@ class RecipeFactory {
      * Throws an error if record is not found.
     */
     static async deleteRecipeById(id) {
-        console.log("running deleteRecipeById with id", id);
         try {
             const recipe = await prisma.recipe.delete({
                 where: {
