@@ -46,7 +46,7 @@ describe("GET /", function(){
 })
 
 /************************** GET BY ID **********************/
-describe("GET /", function(){
+describe("GET /{id}", function(){
 
   test("OK", async function(){
     const recipe =  await RecipeFactory.saveRecipe(testRecipe1);
