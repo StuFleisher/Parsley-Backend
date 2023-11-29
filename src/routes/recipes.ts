@@ -16,7 +16,7 @@ const express = require('express');
 const { BadRequestError } = require('../utils/expressError');
 const jsonschema = require('jsonschema');
 const recipeNewSchema = require("../schemas/recipeNew.json");
-const textToRecipe = require("../api/openai");
+const { textToRecipe } = require("../api/openai");
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ const router = express.Router();
  *    recipeText: string (the copy/paste recipe from another source)
  *  }
  *
- * @returns recipeData: IRecipeBase
+ * @returns JSON recipeData: IRecipeBase
  *  {
  *    name: string
  *    steps:[
@@ -45,19 +45,19 @@ const router = express.Router();
  *    ]
  *  }
  */
-router.post("/generate", async function (req: Request, res:Response, next: NextFunction){
+router.post("/generate", async function (req: Request, res: Response, next: NextFunction) {
   const rawRecipe = req.body.recipeText;
   let recipe;
   try {
     recipe = await textToRecipe(rawRecipe);
-  } catch(errs){
-    recipe = {
-      message:"There was an issue processing your recipe",
-      errors:errs
-    }
+  } catch (err) {
+    return res.status(400).json({
+      message: "There was an issue processing your recipe",
+      errors: err.message,
+    });
   }
-  return res.json({recipe});
-})
+  return res.json({ recipe });
+});
 
 
 /** POST / {recipe} => {recipe}
@@ -102,8 +102,7 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
 
 router.get(
   "/:id",
-  async function (req: Request, res: Response, next:NextFunction)
-  {
+  async function (req: Request, res: Response, next: NextFunction) {
     const recipe = await RecipeFactory.getRecipeById(+req.params.id);
     return res.json({ recipe });
   }
@@ -121,8 +120,7 @@ router.get(
 
 router.get(
   "/",
-  async function (req: Request, res: Response, next:NextFunction)
-  {
+  async function (req: Request, res: Response, next: NextFunction) {
     const recipes = await RecipeFactory.getAllRecipes();
     return res.json({ recipes });
   }

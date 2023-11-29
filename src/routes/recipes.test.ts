@@ -1,15 +1,25 @@
 "use strict";
 
+import { text } from "stream/consumers";
+
 
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
-export {};
+export { };
 
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
 */
 require('../config'); //this loads the test database
+
+jest.mock("../api/openai",()=>{
+  return {
+    textToRecipe: jest.fn(),
+  }
+})
+const {textToRecipe} = require("../api/openai");
+
 const request = require('supertest');
 const app = require('../app');
 const RecipeFactory = require('../models/recipe');
@@ -18,20 +28,58 @@ const {
   commonBeforeEach,
   commonAfterEach,
   userSubmittedRecipe1,
+  generatedRecipe1,
 } = require('../test/test_common');
-// const {NotFoundError} = require('../utils/expressError');
+const TEST_RECIPE_TEXT = require('../api/prompts');
+const {BadRequestError} = require('../utils/expressError');
 
 
 beforeAll(commonBeforeAll);
-beforeEach(async function(){
+beforeEach(async function () {
   await RecipeFactory.saveRecipe(userSubmittedRecipe1);
   commonBeforeEach();
-})
+});
 afterEach(commonAfterEach);
 
+
+/************************** GENERATE *********************/
+describe("POST /generate", function () {
+  beforeEach(()=>{
+    textToRecipe.mockClear();
+  })
+
+  test("OK", async function () {
+    textToRecipe.mockResolvedValue(generatedRecipe1);
+
+    const resp = await request(app)
+      .post("/recipes/generate")
+      .send(TEST_RECIPE_TEXT);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body.recipe).toEqual(generatedRecipe1);
+  });
+
+  test("Returns well formatted error from bad input", async function(){
+    textToRecipe.mockImplementation(async ()=>{
+      throw new BadRequestError("Error1, Error2");
+    });
+
+    const resp = await request(app)
+      .post("/recipes/generate")
+      .send(TEST_RECIPE_TEXT);
+
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body).toEqual({
+      message:"There was an issue processing your recipe",
+      errors:"Error1, Error2"
+    });
+  })
+});
+
+
 /************************** GET ALL **********************/
-describe("GET /", function(){
-  test("OK", async function(){
+describe("GET /", function () {
+  test("OK", async function () {
     const resp = await request(app).get("/recipes");
 
     expect(resp.statusCode).toEqual(200);
@@ -39,46 +87,45 @@ describe("GET /", function(){
     expect(resp.body.recipes[0].description).toEqual("R1Description");
     expect(resp.body.recipes[0].sourceName).toEqual("R1SourceName");
     expect(resp.body.recipes[0].sourceUrl).toEqual("http://R1SourceUrl.com");
-  })
-})
+  });
+});
 
 /************************** GET BY ID **********************/
-describe("GET /{id}", function(){
+describe("GET /{id}", function () {
 
-  test("OK", async function(){
-    const recipe =  await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+  test("OK", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const resp = await request(app).get(`/recipes/${recipe.recipeId}`);
 
-    console.log(userSubmittedRecipe1.steps)
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
-      recipe:{
+      recipe: {
         ...userSubmittedRecipe1,
-        recipeId:recipe.recipeId,
-        steps:[
+        recipeId: recipe.recipeId,
+        steps: [
           {
             ...userSubmittedRecipe1.steps[0],
-            stepId:recipe.steps[0].stepId,
-            recipeId:recipe.recipeId,
-            ingredients:[
+            stepId: recipe.steps[0].stepId,
+            recipeId: recipe.recipeId,
+            ingredients: [
               {
                 ...userSubmittedRecipe1.steps[0].ingredients[0],
-                ingredientId:recipe.steps[0].ingredients[0].ingredientId,
-                step:recipe.steps[0].stepId
+                ingredientId: recipe.steps[0].ingredients[0].ingredientId,
+                step: recipe.steps[0].stepId
               }
             ]
           }
         ]
       }
-    })
-  })
+    });
+  });
 
-  test("404 for bad ID", async function(){
-      const resp = await request(app).get(`/recipes/0`);
-      expect(resp.statusCode).toEqual(404);
-  })
+  test("404 for bad ID", async function () {
+    const resp = await request(app).get(`/recipes/0`);
+    expect(resp.statusCode).toEqual(404);
+  });
 
-})
+});
 
 
 /************************** POST *************************/
@@ -113,8 +160,8 @@ describe("POST /recipes", function () {
   test("Invalid data should throw BadRequestError", async function () {
     const invalidRecipe = {
       ...userSubmittedRecipe1,
-      name:"",
-    }
+      name: "",
+    };
     const resp = await request(app)
       .post("/recipes")
       .send(invalidRecipe);
@@ -128,7 +175,7 @@ describe("POST /recipes", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
-    }
+    };
     const resp = await request(app)
       .post("/recipes")
       .send(invalidRecipe);

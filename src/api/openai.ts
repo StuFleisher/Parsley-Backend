@@ -76,4 +76,4 @@ function printRecipe(steps:IStep[]):void {
   }
 }
 
-module.exports = {openai, textToRecipe}
+module.exports = {textToRecipe}
