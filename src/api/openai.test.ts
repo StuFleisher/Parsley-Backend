@@ -11,22 +11,21 @@ const {
   generatedRecipe1,
 } = require('../test/test_common');
 
-const mockCreate = jest.fn().mockImplementation(async ()=>{return "recipe text"})
+const mockCreate = jest.fn().mockImplementation(async () => { return "recipe text"; });
 jest.mock('openai', () => { // moduleFactory function
-  return jest.fn().mockImplementation(()=> {      // returns a constructor
+  return jest.fn().mockImplementation(() => {      // returns a constructor
     return {                // this is our mocked constructor
       chat: {
         completions: {
           create: mockCreate
         }
       }
-    }
+    };
   });
 });
 const OpenAI = require('openai');
-const {textToRecipe} = require('./openai');
-
-const VALID_RECIPE_INPUT = "Valid recipes are at least 10 chars";
+const { textToRecipe } = require('./openai');
+const { TEST_RECIPE_TEXT } = require('./prompts');
 
 describe("Tests for openai", function () {
 
@@ -37,9 +36,9 @@ describe("Tests for openai", function () {
   test("Works with valid input", async function () {
 
     mockCreate.mockResolvedValue({
-      choices: [{ message: { content: JSON.stringify(generatedRecipe1)} }]
-    })
-    const recipe = await textToRecipe(VALID_RECIPE_INPUT);
+      choices: [{ message: { content: JSON.stringify(generatedRecipe1) } }]
+    });
+    const recipe = await textToRecipe(TEST_RECIPE_TEXT);
     expect(mockCreate).toHaveBeenCalledTimes(1);
     expect(recipe).toEqual(generatedRecipe1);
   });
