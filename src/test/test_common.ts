@@ -16,8 +16,6 @@ const prisma = require('../client');
 const {DATABASE_URL} = require('../config');
 const {execSync} = require('child_process');
 
-console.log("DB from recipes.test.ts", DATABASE_URL);
-
 //runs any migrations using the test database
 async function commonBeforeAll(){
   execSync('npx prisma migrate deploy', { env: process.env });
@@ -32,7 +30,7 @@ async function commonAfterEach(){
   const recipeCount = await prisma.recipe.deleteMany({});
 }
 
-const testRecipe1: IRecipeWithMetadata = {
+const userSubmittedRecipe1: IRecipeWithMetadata = {
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
@@ -49,7 +47,23 @@ const testRecipe1: IRecipeWithMetadata = {
   ]
 };
 
-const testRecipe2: IRecipeWithMetadata = {
+const generatedRecipe1: IRecipeBase = {
+  name: "R1Name",
+  steps: [
+    {
+      stepNumber: 1,
+      instructions: "R1S1Instructions",
+      ingredients: [{
+        amount: "R1S1I1Amount",
+        description: "R1S1I1Description"
+      }]
+    }
+  ]
+};
+
+
+
+const userSubmittedRecipe2: IRecipeWithMetadata = {
   name: "R2Name",
   description: "R2Description",
   sourceUrl: "R2SourceUrl",
@@ -71,6 +85,7 @@ module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  testRecipe1,
-  testRecipe2,
+  userSubmittedRecipe1,
+  generatedRecipe1,
+  userSubmittedRecipe2,
 }

@@ -50,7 +50,6 @@ describe("GET /{id}", function(){
 
   test("OK", async function(){
     const recipe =  await RecipeFactory.saveRecipe(testRecipe1);
-    console.log(recipe);
     const resp = await request(app).get(`/recipes/${recipe.recipeId}`);
 
     expect(resp.statusCode).toEqual(200);
