@@ -1,8 +1,5 @@
 "use strict"
 export {};
-// import prisma from '../client';
-// import { DATABASE_URL } from '../config.js';
-// import { execSync } from 'child_process';
 
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */

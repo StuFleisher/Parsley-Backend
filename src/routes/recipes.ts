@@ -6,7 +6,7 @@
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
 export { };
-import { ErrorRequestHandler, Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments

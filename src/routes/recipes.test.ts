@@ -17,16 +17,14 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  testRecipe1,
-  testRecipe2
+  userSubmittedRecipe1,
 } = require('../test/test_common');
-const {NotFoundError} = require('../utils/expressError');
+// const {NotFoundError} = require('../utils/expressError');
 
 
 beforeAll(commonBeforeAll);
 beforeEach(async function(){
-  console.log("loading db for tests")
-  await RecipeFactory.saveRecipe(testRecipe1);
+  await RecipeFactory.saveRecipe(userSubmittedRecipe1);
   commonBeforeEach();
 })
 afterEach(commonAfterEach);
@@ -37,7 +35,6 @@ describe("GET /", function(){
     const resp = await request(app).get("/recipes");
 
     expect(resp.statusCode).toEqual(200);
-    console.log(resp.body.recipes);
     expect(resp.body.recipes[0].name).toEqual("R1Name");
     expect(resp.body.recipes[0].description).toEqual("R1Description");
     expect(resp.body.recipes[0].sourceName).toEqual("R1SourceName");
@@ -49,22 +46,23 @@ describe("GET /", function(){
 describe("GET /{id}", function(){
 
   test("OK", async function(){
-    const recipe =  await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe =  await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const resp = await request(app).get(`/recipes/${recipe.recipeId}`);
 
+    console.log(userSubmittedRecipe1.steps)
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       recipe:{
-        ...testRecipe1,
+        ...userSubmittedRecipe1,
         recipeId:recipe.recipeId,
         steps:[
           {
-            ...testRecipe1.steps[0],
+            ...userSubmittedRecipe1.steps[0],
             stepId:recipe.steps[0].stepId,
             recipeId:recipe.recipeId,
             ingredients:[
               {
-                ...testRecipe1.steps[0].ingredients[0],
+                ...userSubmittedRecipe1.steps[0].ingredients[0],
                 ingredientId:recipe.steps[0].ingredients[0].ingredientId,
                 step:recipe.steps[0].stepId
               }
@@ -89,7 +87,7 @@ describe("POST /recipes", function () {
   test("OK", async function () {
     const resp = await request(app)
       .post("/recipes")
-      .send(testRecipe1);
+      .send(userSubmittedRecipe1);
 
     //response should be OK
     expect(resp.statusCode).toEqual(201);
@@ -114,7 +112,7 @@ describe("POST /recipes", function () {
 
   test("Invalid data should throw BadRequestError", async function () {
     const invalidRecipe = {
-      ...testRecipe1,
+      ...userSubmittedRecipe1,
       name:"",
     }
     const resp = await request(app)

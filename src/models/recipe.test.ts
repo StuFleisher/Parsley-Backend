@@ -14,8 +14,8 @@ const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  testRecipe1,
-  testRecipe2
+  userSubmittedRecipe1,
+  userSubmittedRecipe2
 } = require('../test/test_common');
 const {NotFoundError} = require('../utils/expressError');
 
@@ -27,7 +27,7 @@ afterEach(commonAfterEach);
 describe("Test Create Recipe", function () {
 
   test("Returns the correct Recipe with id", async function () {
-    const recipe = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     expect(recipe).toHaveProperty("recipeId");
     expect(recipe.name).toEqual("R1Name");
     expect(recipe.description).toEqual("R1Description");
@@ -36,7 +36,7 @@ describe("Test Create Recipe", function () {
   });
 
   test("Returns with submodel data", async function () {
-    const recipe = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     expect(recipe.steps[0].stepNumber).toEqual(1);
     expect(recipe.steps[0].instructions).toEqual("R1S1Instructions");
 
@@ -47,7 +47,7 @@ describe("Test Create Recipe", function () {
   });
 
   test("Creates a record in the database", async function () {
-    const recipe = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
 
     const result: RecipeData = await prisma.recipe.findUnique({
       where: {
@@ -62,14 +62,14 @@ describe("Test Create Recipe", function () {
       }
     });
 
-    expect(result.name).toEqual(testRecipe1.name);
-    expect(result.description).toEqual(testRecipe1.description);
-    expect(result.sourceUrl).toEqual(testRecipe1.sourceUrl);
-    expect(result.sourceName).toEqual(testRecipe1.sourceName);
+    expect(result.name).toEqual(userSubmittedRecipe1.name);
+    expect(result.description).toEqual(userSubmittedRecipe1.description);
+    expect(result.sourceUrl).toEqual(userSubmittedRecipe1.sourceUrl);
+    expect(result.sourceName).toEqual(userSubmittedRecipe1.sourceName);
   });
 
   test("Creates submodel records in the database", async function () {
-    const recipe = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
 
     const result: RecipeData = await prisma.recipe.findUnique({
       where: {
@@ -99,16 +99,16 @@ describe("Test Create Recipe", function () {
 describe("Test getAllRecipes", function () {
 
   test("Returns multiple recipes", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
-    const recipe2 = await RecipeFactory.saveRecipe(testRecipe2);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe2 = await RecipeFactory.saveRecipe(userSubmittedRecipe2);
     const recipes = await RecipeFactory.getAllRecipes();
 
     expect(recipes.length).toEqual(2);
   });
 
   test("Does not return submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
-    const recipe2 = await RecipeFactory.saveRecipe(testRecipe2);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe2 = await RecipeFactory.saveRecipe(userSubmittedRecipe2);
     const recipes = await RecipeFactory.getAllRecipes();
 
     expect(recipes[0]).not.toHaveProperty("steps");
@@ -119,7 +119,7 @@ describe("Test getAllRecipes", function () {
 describe("Test getRecipeById", function () {
 
   test("Returns the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
 
     expect(result.name).toEqual("R1Name");
@@ -129,7 +129,7 @@ describe("Test getRecipeById", function () {
   });
 
   test("Returns submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
 
     expect(result.steps[0].stepNumber).toEqual(1);
@@ -141,7 +141,7 @@ describe("Test getRecipeById", function () {
   });
 
   test("Throws a NotFound error if record doesn't exist", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
 
     try {
       await RecipeFactory.getRecipeById(0);
@@ -161,7 +161,7 @@ describe("Test getRecipeById", function () {
 describe("Test deleteRecipeById", function () {
 
   test("Deletes the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
 
     expect(deletedRecipe.name).toEqual("R1Name");
@@ -178,7 +178,7 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Deletes submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
 
     const stepId = deletedRecipe.steps[0].stepId;
@@ -203,7 +203,7 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Returns the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
 
     expect(result.name).toEqual("R1Name");
@@ -213,7 +213,7 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Returns submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
     const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
 
     expect(result.steps[0].stepNumber).toEqual(1);
@@ -225,7 +225,7 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Throws a NotFound error if record doesn't exist", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(testRecipe1);
+    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
 
     try {
       await RecipeFactory.deleteRecipeById(0);
@@ -241,7 +241,7 @@ describe("Test deleteRecipeById", function () {
 /**************** _INTERNAL METHODS **************************/
 describe("Test _pojoToPrismaRecipeInput", function () {
   test("Returns correct object", function () {
-    expect(RecipeFactory._pojoToPrismaRecipeInput(testRecipe1)).toEqual({
+    expect(RecipeFactory._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
       name: "R1Name",
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
