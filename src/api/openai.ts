@@ -64,16 +64,4 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
   return recipe;
 }
 
-/** Prints the recipe to the console for logging/troubleshooting */
-
-function printRecipe(steps:IStep[]):void {
-  for (const step of steps){
-    console.log(step.stepNumber);
-    for (const i of step.ingredients){
-      console.log("* ", i.amount, i.description);
-    }
-    console.log("Instructions:",step.instructions)
-  }
-}
-
 module.exports = {textToRecipe}

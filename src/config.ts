@@ -21,9 +21,6 @@ const OPENAI_API_KEY = process.env.API_KEY;
 const PORT = +process.env.PORT || 3001;
 const DATABASE_URL = process.env.DATABASE_URL
 
-console.log("database:", process.env.DATABASE_URL)
-
-
 module.exports = {
   DATABASE_URL,
   OPENAI_API_KEY,
