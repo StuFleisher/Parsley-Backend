@@ -17,9 +17,9 @@ const { BadRequestError } = require('../utils/expressError');
 
 const openai = new OpenAI();
 
-/** Accepts a string containing raw text for a recipe and returns an IRecipe
+/** Accepts a string containing raw text for a recipe and returns an IRecipeBase
  *
- * IRecipe format:
+ * IRecipeBase format:
  * {
  *  name: string,
  *  steps: [{
@@ -46,6 +46,7 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
       response_format: { type: "json_object" },
       temperature: 0
     });
+    console.log(completion)
     const recipeData = completion.choices[0].message.content;
     recipe = JSON.parse(recipeData);
   }

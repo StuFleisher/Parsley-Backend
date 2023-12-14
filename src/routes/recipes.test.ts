@@ -183,4 +183,43 @@ describe("POST /recipes", function () {
     expect(resp.statusCode).toEqual(400);
   });
 
+/************************** DELETE *************************/
+
+  describe("DELETE /{id}", function () {
+
+    test("OK", async function () {
+      const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+      const resp = await request(app).delete(`/recipes/${recipe.recipeId}`);
+
+      expect(resp.statusCode).toEqual(200);
+      expect(resp.body).toEqual({
+        deleted: {
+          ...userSubmittedRecipe1,
+          recipeId: recipe.recipeId,
+          steps: [
+            {
+              ...userSubmittedRecipe1.steps[0],
+              stepId: recipe.steps[0].stepId,
+              recipeId: recipe.recipeId,
+              ingredients: [
+                {
+                  ...userSubmittedRecipe1.steps[0].ingredients[0],
+                  ingredientId: recipe.steps[0].ingredients[0].ingredientId,
+                  step: recipe.steps[0].stepId
+                }
+              ]
+            }
+          ]
+        }
+      });
+    });
+
+    test("404 for bad ID", async function () {
+      const resp = await request(app).delete(`/recipes/0`);
+      expect(resp.statusCode).toEqual(404);
+    });
+
+  });
+
+
 });

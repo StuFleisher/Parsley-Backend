@@ -126,7 +126,46 @@ router.get(
   }
 );
 
+/** DELETE /[id]
+ *  Deletes a recipe and its submodel data
+ *
+ * @returns deleted: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ *          step: {stepId, stepNumber,instructions, ingredients[] }
+ *          ingredient: {ingredientId, amount, description}
+*/
 
+router.delete(
+  "/:id",
+  async function (req: Request, res: Response, next: NextFunction){
+    const deleted = await RecipeFactory.deleteRecipeById(+req.params.id);
+    return res.json({deleted})
+  }
+)
+
+/** PUT /[id]
+ * Updates a recipe and its submodel data
+ *
+ * @returns recipe: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ *          step: {stepId, stepNumber,instructions, ingredients[] }
+ *          ingredient: {ingredientId, amount, description}
+ */
+router.put(
+  "/:id",
+  async function (req: Request, res: Response, next: NextFunction){
+    // const validator = jsonschema.validate(
+    //   req.body,
+    //   recipeNewSchema,
+    //   { required: true }
+    // );
+    // if (!validator.valid) {
+    //   const errs: string[] = validator.errors.map((e: Error) => e.stack);
+    //   throw new BadRequestError(errs.join(", "));
+    // }
+
+    const recipe = await RecipeFactory.updateRecipe(req.body);
+    return res.json({ recipe });
+  }
+)
 
 module.exports = router;
 // export default router
