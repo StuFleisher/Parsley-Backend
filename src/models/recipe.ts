@@ -45,6 +45,7 @@ class RecipeFactory {
     });
   }
 
+
   /** Fetches a list of all recipes from the database. Does not include submodel
    *  data (steps or ingredients)
    *
@@ -58,8 +59,8 @@ class RecipeFactory {
   }
 
 
-  /** Fetches and returns a single recipe record and its submodels from the database
-   *  by recipeId.
+  /** Fetches and returns a single recipe record and its submodels from the
+   * database by recipeId.
    *
    * @param: id : number --> The recipeId to query
    * @returns: RecipeData (Promise)
@@ -78,7 +79,7 @@ class RecipeFactory {
           steps: {
             orderBy: { stepNumber: 'asc' },
             include: {
-              ingredients: true,
+              ingredients: { orderBy: { ingredientId: 'asc' } },
             }
           }
         }
@@ -90,6 +91,7 @@ class RecipeFactory {
     }
 
   }
+
 
   /**Fetches and updates a single recipe record and its submodel data
    * Returns the updated RecipeData
@@ -103,6 +105,9 @@ class RecipeFactory {
 
   static async updateRecipe(newRecipe: IRecipeForUpdate): Promise<RecipeData> {
 
+    //TODO: handle id from url param, not request body
+    //TODO: prevent manual changes to stepId & ingredientId
+
     let updatedRecipe: RecipeData;
     const currentRecipe: RecipeData = await prisma.recipe.findUniqueOrThrow({
       where: { recipeId: newRecipe.recipeId },
@@ -110,136 +115,11 @@ class RecipeFactory {
         steps: { include: { ingredients: true, } }
       }
     });
-    
-    const ingredientsFromCurrentRecipe = currentRecipe.steps.flatMap(currentStep => {
-      return currentStep.ingredients;
-    });
-    const ingredientsFromNewRecipe = newRecipe.steps.flatMap(newStep => {
-      return newStep.ingredients;
-    });
 
     try {
-
       await prisma.$transaction(async (prisma: PrismaClient) => {
 
-        //Sort steps from both recipes by category: Create, Update, or Delete
-        const stepsToCreate = newRecipe.steps.filter((newStep) => {
-          return newStep.stepId === undefined;
-        });
-
-        const stepsToUpdate = newRecipe.steps.filter((newStep) => {
-          return currentRecipe.steps.some(
-            (currentStep) => { return newStep.stepId === currentStep.stepId; }
-          );
-        });
-
-        const stepsToDelete = currentRecipe.steps.filter((currentStep) => {
-          return !newRecipe.steps.some(
-            (newStep) => { newStep.stepId === currentStep.stepId; }
-          );
-        });
-
-        //Sort ingredients from both recipes by category:Create, Update, or Delete
-        const ingredientsToCreate = ingredientsFromNewRecipe.filter(newIngredient => {
-          return newIngredient.ingredientId === undefined;
-        });
-
-        const ingredientsToUpdate = ingredientsFromNewRecipe.filter(
-          newIngredient => {
-            ingredientsFromCurrentRecipe.some(currentIngredient => {
-              return currentIngredient.ingredientId === newIngredient.ingredientId;
-            });
-          }
-        );
-
-        const ingredientsToDelete = ingredientsFromCurrentRecipe.filter(currentIngredient => {
-          return !ingredientsFromNewRecipe.some(
-            (newIngredient) => { currentIngredient.ingredientId === newIngredient.ingredientId; }
-          );
-        });
-
-
-        //CREATE STEPS
-        for (const step of stepsToCreate) {
-          const { stepNumber, instructions } = step;
-          const createdStep = await prisma.step.create({
-            data: { stepNumber, instructions, recipeId: currentRecipe.recipeId }
-          });
-
-          //create ingredients for the new steps
-          for (const ingredient of step.ingredients) {
-            const { amount, description } = ingredient;
-            await prisma.ingredient.create({
-              data: { amount, description, step: step.stepId }
-            });
-          }
-        }
-
-        //UPDATE STEPS
-        for (const step of stepsToUpdate) {
-          const { stepNumber, stepId, instructions } = step;
-
-          //Create new ingredients
-          const toCreate = step.ingredients.filter(stepIngred => {
-            return ingredientsToCreate.some(ingred => {
-              return ingred.ingredientId === stepIngred.ingredientId;
-            });
-          });
-          await prisma.ingredient.createMany({
-            data: toCreate.map(ingred => {
-              return {
-                amount: ingred.amount,
-                description: ingred.description,
-                step: step.stepId,
-              };
-            })
-          });
-
-          //Update existing ingredients
-          const toUpdate = step.ingredients.filter(stepIngred => {
-            return ingredientsToUpdate.some(ingred => {
-              return ingred.ingredientId === stepIngred.ingredientId;
-            });
-          });
-          for (const ingredient of toUpdate) {
-            await prisma.ingredient.update({
-              where: { ingredientId: ingredient.ingredientId },
-              data: {
-                ...ingredient,
-                step: step.stepId,
-              }
-            });
-          }
-
-          //Delete extra ingredients
-          const toDelete = step.ingredients.filter(stepIngred => {
-            return ingredientsToDelete.some(ingred => {
-              return ingred.ingredientId === stepIngred.ingredientId;
-            });
-          });
-          for (const ingredient of toDelete) {
-            await prisma.ingredient.delete({
-              where: { ingredientId: ingredient.ingredientId },
-            });
-          }
-
-          //update step data
-          await prisma.step.update({
-            where: { stepId: stepId },
-            data: { stepNumber, instructions },
-          });
-
-        }
-
-        //DELETE STEPS
-        for (const step of stepsToDelete) {
-          const { stepNumber, instructions } = step;
-          const createdStep = await prisma.step.delete({
-            where: { stepId: step.stepId }
-          });
-        }
-
-        //Update recipe data
+        //Update base recipe data
         await prisma.recipe.update({
           where: { recipeId: currentRecipe.recipeId },
           data: {
@@ -248,15 +128,40 @@ class RecipeFactory {
             sourceName: newRecipe.sourceName,
             sourceUrl: newRecipe.sourceUrl,
           },
-          include: { steps: { include: { ingredients: true } } },
         });
+
+        const sortedSteps = this.sortSteps(
+          currentRecipe.steps,
+          newRecipe.steps
+        );
+        // console.log("sortedSteps:",sortedSteps)
+
+        //delete
+        for (const step of sortedSteps.toDelete) {
+          await prisma.step.delete({
+            where: { stepId: step.stepId }
+          });
+        }
+
+        //create
+        for (const step of sortedSteps.toCreate) {
+          await this.createStep(prisma, step, currentRecipe.recipeId);
+        }
+
+        //update
+        for (const step of sortedSteps.toUpdate) {
+          await this.updateStep(prisma, step);
+        }
 
         await prisma.$queryRaw`COMMIT`;
 
         updatedRecipe = await prisma.recipe.findUnique({
           where: { recipeId: newRecipe.recipeId },
           include: {
-            steps: { include: { ingredients: true } },
+            steps: {
+              include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
+              orderBy: { stepNumber: 'asc' },
+            },
           },
         });
       });//end transaction func
@@ -270,8 +175,174 @@ class RecipeFactory {
   }
 
 
-  /** Fetches and deletes a single recipe record and its submodels from the database
-   *  by recipeId.  Returns the RecipeData of the deleted record.
+  /** Compares new and existing ingredient data and returns a sorted object:
+   * toCreate -> exists in new but not current
+   * toUpdate -> exists in both lists
+   * toDelete -> exists in current but not new
+   *
+   * @param currentIngredients
+   * @param newIngredients
+   * @returns {toCreate, toUpdate, toDelete}
+   */
+
+  static sortIngredients(
+    currentIngredients: IIngredient[],
+    newIngredients: IIngredientForUpdate[],
+  ) {
+    const ingredientsToDelete = currentIngredients.filter(currentIngredient => {
+      return !newIngredients.some(
+        (newIngredient) => {
+          return currentIngredient.ingredientId === newIngredient.ingredientId;
+        }
+      );
+    });
+
+    const ingredientsToCreate = newIngredients.filter(newIngredient => {
+      return newIngredient.ingredientId === undefined;
+    });
+
+    const ingredientsToUpdate = newIngredients.filter(
+      newIngredient => {
+        return currentIngredients.some(currentIngredient => {
+          return currentIngredient.ingredientId === newIngredient.ingredientId;
+        });
+      }
+    );
+
+    return {
+      toCreate: ingredientsToCreate,
+      toUpdate: ingredientsToUpdate,
+      toDelete: ingredientsToDelete,
+    };
+  }
+
+
+  /** Compares new and existing step data and returns a sorted object:
+   * toCreate -> exists in new but not current
+   * toUpdate -> exists in both lists
+   * toDelete -> exists in current but not new
+   *
+   * @param prisma
+   * @param currentIngredients
+   * @param newIngredients
+   * @returns {toCreate, toUpdate, toDelete}
+   */
+
+  static sortSteps(
+    currentSteps: IStep[],
+    newSteps: IStepForUpdate[]
+  ) {
+    const stepsToCreate = newSteps.filter((newStep) => {
+      return newStep.stepId === undefined;
+    });
+
+    const stepsToUpdate = newSteps.filter((newStep) => {
+      return currentSteps.some(
+        (currentStep) => { return newStep.stepId === currentStep.stepId; }
+      );
+    });
+
+    const stepsToDelete = currentSteps.filter((currentStep) => {
+      return !newSteps.some(
+        (newStep) => { return newStep.stepId === currentStep.stepId; }
+      );
+    });
+
+    return {
+      toCreate: stepsToCreate,
+      toUpdate: stepsToUpdate,
+      toDelete: stepsToDelete,
+    };
+  }
+
+
+  /** Creates Step records in the database belonging to a specific recipe
+   * @param prisma a PrismaClient instance
+   * @param stepsToCreate a list of the steps to create
+   * @param recipe the recipe that the steps belongs to
+   */
+
+  static async createStep(
+    prisma: PrismaClient,
+    step: IStepForUpdate,
+    recipeId: number
+  ) {
+    const { stepNumber, instructions } = step;
+    const createdStep = await prisma.step.create({
+      data: { stepNumber, instructions, recipeId: recipeId }
+    });
+
+    //create ingredients for the new steps
+    for (const ingredient of step.ingredients) {
+      const { amount, description } = ingredient;
+      await prisma.ingredient.create({
+        data: { amount, description, step: createdStep.stepId }
+      });
+    }
+  }
+
+  /**Updates an existing Step record in the database to match the passed step
+   *
+   * @param prisma: PrismaClient instance
+   * @param newStep: Step with updated values
+   */
+
+  static async updateStep(
+    prisma: PrismaClient,
+    newStep: IStepForUpdate,
+  ) {
+    const currentStep = await prisma.step.findUnique({
+      where: { stepId: newStep.stepId },
+      include: { ingredients: { orderBy: { ingredientId: 'asc' } } }
+    });
+
+    const { stepNumber, stepId, instructions } = newStep;
+
+    //update base step data
+    await prisma.step.update({
+      where: { stepId: stepId },
+      data: { stepNumber, instructions },
+    });
+
+    const { toCreate, toDelete, toUpdate } = this.sortIngredients(
+      currentStep.ingredients,
+      newStep.ingredients
+    );
+
+    //delete omitted ingredients from this step
+    for (const ingredient of toDelete) {
+      await prisma.ingredient.delete({
+        where: { ingredientId: ingredient.ingredientId }
+      });
+    }
+
+    //create added ingredients for this step
+    await prisma.ingredient.createMany({
+      data: toCreate.map(ingred => {
+        return {
+          amount: ingred.amount,
+          description: ingred.description,
+          step: currentStep.stepId,
+        };
+      })
+    });
+
+    //update existing ingredients for this step
+    for (const ingredient of toUpdate) {
+      await prisma.ingredient.update({
+        where: { ingredientId: ingredient.ingredientId },
+        data: {
+          ...ingredient,
+          step: currentStep.stepId,
+        }
+      });
+    }
+
+  }
+
+
+  /** Fetches and deletes a single recipe record and its submodels from the
+   * database by recipeId.  Returns the RecipeData of the deleted record.
    *
    * @param: id : number --> The recipeId to query
    * @returns: RecipeData (Promise)
@@ -306,6 +377,7 @@ class RecipeFactory {
    * for use in Prisma create commands.  (Submodels will be wrapped in a
    * 'create' property)
    */
+
   static _pojoToPrismaRecipeInput(recipe: IRecipeBase): Prisma.RecipeCreateInput {
     const { steps, ...metadata } = recipe;
     return {

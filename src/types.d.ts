@@ -40,6 +40,7 @@ interface IStepBase {
 
 interface IStep extends IStepBase{
   stepId:number,
+  recipeId:number,
   ingredients:IIngredient[]
 }
 
@@ -55,6 +56,7 @@ interface IIngredientBase {
 
 interface IIngredient extends IIngredientBase {
   ingredientId: number;
+  step: number;
 }
 
 interface IIngredientForUpdate extends IIngredientBase {
