@@ -1,6 +1,8 @@
 "use strict";
 
 import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { describe } from "node:test";
 
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
@@ -235,10 +237,8 @@ describe("Test updateRecipe", function () {
       ...currentRecipe,
     };
     newRecipe.steps[0].ingredients.pop();
-    console.log("newRecipe", newRecipe);
 
     const result = await RecipeFactory.updateRecipe(newRecipe);
-    console.log("ingredients on result:", result.steps[0].ingredients);
     expect(result.steps[0].ingredients.length).toEqual(0);
   });
 
@@ -296,7 +296,6 @@ describe("Test updateRecipe", function () {
     };
 
     const result = await RecipeFactory.updateRecipe(newRecipe);
-    console.log("result", result);
     expect(result.steps[0].recipeId).toEqual(currentRecipe.recipeId);
     expect(result.steps[0].stepId).toEqual(currentRecipe.steps[0].stepId);
     expect(result.steps[0].stepNumber).toEqual(2);
@@ -320,23 +319,23 @@ describe("Test updateRecipe", function () {
     const newRecipe = {
       ...currentRecipe,
     };
-    const deletedIngredientId = currentRecipe.steps[0].ingredients[0].ingredientId
+    const deletedIngredientId = currentRecipe.steps[0].ingredients[0].ingredientId;
     newRecipe.steps.pop();
 
     const result = await RecipeFactory.updateRecipe(newRecipe);
 
     expect(result.steps.length).toEqual(0);
 
-    const updatedRecipe = await RecipeFactory.getRecipeById(currentRecipe.recipeId)
+    const updatedRecipe = await RecipeFactory.getRecipeById(currentRecipe.recipeId);
     expect(updatedRecipe.steps.length).toEqual(0);
 
     //ingredients should be deleted from database
-    try{
+    try {
       await prisma.ingredient.findUniqueOrThrow({
-        where:{ingredientId:deletedIngredientId}
+        where: { ingredientId: deletedIngredientId }
       });
-      throw new Error("Fail test. You shouldn't get here")
-    } catch(err){
+      throw new Error("Fail test. You shouldn't get here");
+    } catch (err) {
       expect(err instanceof Prisma.PrismaClientKnownRequestError).toBeTruthy();
     }
 
@@ -344,130 +343,230 @@ describe("Test updateRecipe", function () {
 
 });
 
-describe("Tests for sortIngredients", function(){
+describe("Tests for sortIngredients", function () {
   //sorts toDelete correctly
-  test("Sorts toDelete correctly", async function(){
+  test("Sorts toDelete correctly", async function () {
     const currentIngredients = [{
-      ingredientId:1,
-      amount:"testAmount",
-      description:"testDescription"
+      ingredientId: 1,
+      amount: "testAmount",
+      description: "testDescription"
     }];
-    const newIngredients:IIngredientForUpdate[] = [];
+    const newIngredients: IIngredientForUpdate[] = [];
 
-    const result = RecipeFactory.sortIngredients(currentIngredients,newIngredients)
+    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
 
     expect(result).toEqual({
-      toDelete:currentIngredients,
-      toUpdate:[],
-      toCreate:[],
-    })
-  })
+      toDelete: currentIngredients,
+      toUpdate: [],
+      toCreate: [],
+    });
+  });
 
   //sorts toUpdate correctly
-  test("Sorts toUpdate correctly", async function(){
+  test("Sorts toUpdate correctly", async function () {
     const currentIngredients = [{
-      ingredientId:1,
-      amount:"testAmount",
-      description:"testDescription"
+      ingredientId: 1,
+      amount: "testAmount",
+      description: "testDescription"
     }];
-    const newIngredients:IIngredientForUpdate[] = [{
-      ingredientId:1,
-      amount:"newAmount",
-      description:"newDescription"
+    const newIngredients: IIngredientForUpdate[] = [{
+      ingredientId: 1,
+      amount: "newAmount",
+      description: "newDescription"
     }];
 
-    const result = RecipeFactory.sortIngredients(currentIngredients,newIngredients)
+    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
 
     expect(result).toEqual({
-      toDelete:[],
-      toUpdate:newIngredients,
-      toCreate:[],
-    })
-  })
+      toDelete: [],
+      toUpdate: newIngredients,
+      toCreate: [],
+    });
+  });
 
   //sorts toCreate correctly
-  test("Sorts toCreate correctly", async function(){
-    const currentIngredients:IIngredient[] = [];
-    const newIngredients:IIngredientForUpdate[] = [{
-      amount:"newAmount",
-      description:"newDescription"
+  test("Sorts toCreate correctly", async function () {
+    const currentIngredients: IIngredient[] = [];
+    const newIngredients: IIngredientForUpdate[] = [{
+      amount: "newAmount",
+      description: "newDescription"
     }];
 
-    const result = RecipeFactory.sortIngredients(currentIngredients,newIngredients)
+    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
 
     expect(result).toEqual({
-      toDelete:[],
-      toUpdate:[],
-      toCreate:newIngredients,
-    })
-  })
-})
+      toDelete: [],
+      toUpdate: [],
+      toCreate: newIngredients,
+    });
+  });
+});
 
 //************************ */
-describe("Tests for sortSteps", function(){
+describe("Tests for sortSteps", function () {
   //sorts toDelete correctly
-  test("Sorts toDelete correctly", async function(){
-    const currentSteps:IStep[] = [{
-      recipeId:1,
-      stepNumber:1,
-      stepId:1,
-      ingredients:[],
-      instructions:"testInstructions"
+  test("Sorts toDelete correctly", async function () {
+    const currentSteps: IStep[] = [{
+      recipeId: 1,
+      stepNumber: 1,
+      stepId: 1,
+      ingredients: [],
+      instructions: "testInstructions"
     }];
-    const newSteps:IStepForUpdate[] = [];
+    const newSteps: IStepForUpdate[] = [];
 
-    const result = RecipeFactory.sortSteps(currentSteps,newSteps)
+    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
 
     expect(result).toEqual({
-      toDelete:currentSteps,
-      toUpdate:[],
-      toCreate:[],
-    })
-  })
+      toDelete: currentSteps,
+      toUpdate: [],
+      toCreate: [],
+    });
+  });
 
   //sorts toUpdate correctly
-  test("Sorts toUpdate correctly", async function(){
-    const currentSteps:IStep[] = [{
-      recipeId:1,
-      stepNumber:1,
-      stepId:1,
-      ingredients:[],
-      instructions:"testInstructions"
+  test("Sorts toUpdate correctly", async function () {
+    const currentSteps: IStep[] = [{
+      recipeId: 1,
+      stepNumber: 1,
+      stepId: 1,
+      ingredients: [],
+      instructions: "testInstructions"
     }];
-    const newSteps:IStepForUpdate[] = [{
-      stepNumber:1,
-      stepId:1,
-      ingredients:[],
-      instructions:"testInstructions"
+    const newSteps: IStepForUpdate[] = [{
+      stepNumber: 1,
+      stepId: 1,
+      ingredients: [],
+      instructions: "testInstructions"
     }];
 
-    const result = RecipeFactory.sortSteps(currentSteps,newSteps)
+    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
 
     expect(result).toEqual({
-      toDelete:[],
-      toUpdate:newSteps,
-      toCreate:[],
-    })
-  })
+      toDelete: [],
+      toUpdate: newSteps,
+      toCreate: [],
+    });
+  });
 
   //sorts toCreate correctly
-  test("Sorts toCreate correctly", async function(){
-    const currentSteps:IStep[] = [];
-    const newSteps:IStepForUpdate[] = [{
-      stepNumber:1,
-      ingredients:[],
-      instructions:"testInstructions"
+  test("Sorts toCreate correctly", async function () {
+    const currentSteps: IStep[] = [];
+    const newSteps: IStepForUpdate[] = [{
+      stepNumber: 1,
+      ingredients: [],
+      instructions: "testInstructions"
     }];
 
-    const result = RecipeFactory.sortSteps(currentSteps,newSteps)
-    console.log("result",result);
+    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
     expect(result).toEqual({
-      toDelete:[],
-      toUpdate:[],
-      toCreate:newSteps,
-    })
-  })
-})
+      toDelete: [],
+      toUpdate: [],
+      toCreate: newSteps,
+    });
+  });
+});
+
+describe("Test createStep", function () {
+  test("Creates a step", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const step: IStepForUpdate = {
+      stepNumber: 2,
+      instructions: "R2S2Instructions",
+      ingredients: []
+    };
+
+    const result = await RecipeFactory.createStep(prisma, step, recipe.recipeId);
+    expect(result.recipeId).toEqual(recipe.recipeId);
+    expect(result.stepId).toBeDefined();
+    expect(result.stepNumber).toEqual(2);
+    expect(result.instructions).toEqual("R2S2Instructions");
+    expect(result.ingredients).toEqual([]);
+
+  });
+});
+
+describe("Test updateStep", function () {
+  //updates base data
+  test("Updates base step data", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const newStep = {
+      ...recipe.steps[0],
+      stepNumber: 2,
+      instructions: "newInstructions",
+    };
+
+    const result = await RecipeFactory.updateStep(prisma, newStep);
+
+    expect(result).toEqual({
+      ...recipe.steps[0],
+      stepNumber: 2,
+      instructions: "newInstructions",
+    });
+  });
+
+  //deletes extra ingredients
+  test("Deletes extra ingredients", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const newStep = {
+      ...recipe.steps[0],
+      ingredients: [],
+    };
+
+    const result = await RecipeFactory.updateStep(prisma, newStep);
+
+    expect(result).toEqual({
+      ...recipe.steps[0],
+      ingredients: [],
+    });
+
+    try {
+      await prisma.ingredient.findUniqueOrThrow({
+        where: { ingredientId: recipe.steps[0].ingredients[0].ingredientId }
+      });
+      throw new Error("Fail test. You shouldn't get here");
+    } catch (err) {
+      expect(err instanceof PrismaClientKnownRequestError).toBeTruthy();
+    }
+  });
+
+  //creates new ingredients
+  test("Creates new ingredients", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const newStep = {
+      ...recipe.steps[0],
+    };
+    newStep.ingredients.push({
+      amount: "testAmount",
+      description: "testDescription"
+    });
+
+    const result = await RecipeFactory.updateStep(prisma, newStep);
+
+    expect(result.ingredients.length).toEqual(2);
+    expect(result.ingredients[1].amount).toEqual("testAmount");
+    expect(result.ingredients[1].description).toEqual("testDescription");
+    expect(result.ingredients[1].step).toEqual(newStep.stepId);
+    expect(result.ingredients[1].ingredientId).toBeDefined();
+
+  });
+
+  //updates existing ingredients
+  test("Creates new ingredients", async function () {
+    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const newStep = {
+      ...recipe.steps[0],
+    };
+    newStep.ingredients[0]={
+      ...newStep.ingredients[0],
+      amount: "testAmount",
+      description: "testDescription"
+    };
+
+    const result = await RecipeFactory.updateStep(prisma, newStep);
+    expect(result).toEqual(newStep)
+  });
+});
 
 
 /**************** DELETE BY ID **************************/

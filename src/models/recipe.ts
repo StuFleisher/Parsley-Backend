@@ -9,6 +9,7 @@
  * a module instead of a script */
 export { };
 import { Prisma, PrismaClient } from '@prisma/client';
+import { create } from 'domain';
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
@@ -259,7 +260,10 @@ class RecipeFactory {
   /** Creates Step records in the database belonging to a specific recipe
    * @param prisma a PrismaClient instance
    * @param stepsToCreate a list of the steps to create
-   * @param recipe the recipe that the steps belongs to
+   * @param recipeId PK for the recipe that the steps belongs to
+   *
+   * @returns createdStep:IStep
+   * { recipeId, stepId, stepNumber, instructions, ingredients }
    */
 
   static async createStep(
@@ -269,7 +273,7 @@ class RecipeFactory {
   ) {
     const { stepNumber, instructions } = step;
     const createdStep = await prisma.step.create({
-      data: { stepNumber, instructions, recipeId: recipeId }
+      data: { stepNumber, instructions, recipeId }
     });
 
     //create ingredients for the new steps
@@ -279,6 +283,11 @@ class RecipeFactory {
         data: { amount, description, step: createdStep.stepId }
       });
     }
+
+    return prisma.step.findUniqueOrThrow({
+      where: { stepId: createdStep.stepId },
+      include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
+    });
   }
 
   /**Updates an existing Step record in the database to match the passed step
@@ -337,6 +346,11 @@ class RecipeFactory {
         }
       });
     }
+
+    return prisma.step.findUniqueOrThrow({
+      where: { stepId: newStep.stepId },
+      include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
+    });
 
   }
 
