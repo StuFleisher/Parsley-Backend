@@ -152,6 +152,7 @@ router.delete(
 router.put(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction){
+    //TODO: update validation
     // const validator = jsonschema.validate(
     //   req.body,
     //   recipeNewSchema,
@@ -161,7 +162,7 @@ router.put(
     //   const errs: string[] = validator.errors.map((e: Error) => e.stack);
     //   throw new BadRequestError(errs.join(", "));
     // }
-
+    console.log("routing");
     const recipe = await RecipeFactory.updateRecipe(req.body);
     return res.json({ recipe });
   }
