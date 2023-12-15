@@ -58,8 +58,6 @@ const generatedRecipe1: IRecipeBase = {
   ]
 };
 
-
-
 const userSubmittedRecipe2: IRecipeWithMetadata = {
   name: "R2Name",
   description: "R2Description",
@@ -76,6 +74,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
     }
   ]
 };
+
 
 
 module.exports = {
