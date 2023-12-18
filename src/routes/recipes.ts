@@ -11,7 +11,7 @@ import { Request, Response, NextFunction } from "express";
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-const RecipeFactory = require('../models/recipe');
+const RecipeManager = require('../models/recipe');
 const express = require('express');
 const { BadRequestError } = require('../utils/expressError');
 const jsonschema = require('jsonschema');
@@ -84,7 +84,7 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
     throw new BadRequestError(errs.join(", "));
   }
 
-  const recipe = await RecipeFactory.saveRecipe(req.body);
+  const recipe = await RecipeManager.saveRecipe(req.body);
   return res.status(201).json({ recipe });
 });
 
@@ -103,7 +103,7 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
 router.get(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction) {
-    const recipe = await RecipeFactory.getRecipeById(+req.params.id);
+    const recipe = await RecipeManager.getRecipeById(+req.params.id);
     return res.json({ recipe });
   }
 );
@@ -121,7 +121,7 @@ router.get(
 router.get(
   "/",
   async function (req: Request, res: Response, next: NextFunction) {
-    const recipes = await RecipeFactory.getAllRecipes();
+    const recipes = await RecipeManager.getAllRecipes();
     return res.json({ recipes });
   }
 );
@@ -137,7 +137,7 @@ router.get(
 router.delete(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction){
-    const deleted = await RecipeFactory.deleteRecipeById(+req.params.id);
+    const deleted = await RecipeManager.deleteRecipeById(+req.params.id);
     return res.json({deleted})
   }
 )
@@ -163,7 +163,7 @@ router.put(
     //   throw new BadRequestError(errs.join(", "));
     // }
     console.log("routing");
-    const recipe = await RecipeFactory.updateRecipe(req.body);
+    const recipe = await RecipeManager.updateRecipe(req.body);
     return res.json({ recipe });
   }
 )

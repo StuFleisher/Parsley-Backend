@@ -12,14 +12,16 @@ export { };
  * extensions and paths differing in testing and dev environments
  */
 require('../config'); //this loads the test database
-const prisma = require('../client');
-const RecipeFactory = require('./recipe');
+const getPrismaClient = require('../client');
+const prisma = getPrismaClient();
+const RecipeManager = require('./recipe');
 const {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   userSubmittedRecipe1,
   userSubmittedRecipe2,
+  storedRecipe1,
 } = require('../test/test_common');
 const { NotFoundError } = require('../utils/expressError');
 
@@ -30,71 +32,23 @@ afterEach(commonAfterEach);
 /********************** CREATE *******************************/
 describe("Test Create Recipe", function () {
 
-  test("Returns the correct Recipe with id", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    expect(recipe).toHaveProperty("recipeId");
-    expect(recipe.name).toEqual("R1Name");
-    expect(recipe.description).toEqual("R1Description");
-    expect(recipe.sourceUrl).toEqual("http://R1SourceUrl.com");
-    expect(recipe.sourceName).toEqual("R1SourceName");
-  });
+  test("Returns created model with submodels", async function () {
+    prisma.recipe.create.mockReturnValueOnce(storedRecipe1)
 
-  test("Returns with submodel data", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    expect(recipe.steps[0].stepNumber).toEqual(1);
-    expect(recipe.steps[0].instructions).toEqual("R1S1Instructions");
-
-    expect(recipe.steps[0].ingredients[0].amount)
-      .toEqual("R1S1I1Amount");
-    expect(recipe.steps[0].ingredients[0].description)
-      .toEqual("R1S1I1Description");
-  });
-
-  test("Creates a record in the database", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-
-    const result: RecipeData = await prisma.recipe.findUnique({
-      where: {
-        recipeId: recipe.recipeId,
-      },
-      include: {
-        steps: {
-          include: {
-            ingredients: true
-          }
-        }
-      }
-    });
-
-    expect(result.name).toEqual(userSubmittedRecipe1.name);
-    expect(result.description).toEqual(userSubmittedRecipe1.description);
-    expect(result.sourceUrl).toEqual(userSubmittedRecipe1.sourceUrl);
-    expect(result.sourceName).toEqual(userSubmittedRecipe1.sourceName);
-  });
-
-  test("Creates submodel records in the database", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-
-    const result: RecipeData = await prisma.recipe.findUnique({
-      where: {
-        recipeId: recipe.recipeId,
-      },
-      include: {
-        steps: {
-          include: {
-            ingredients: true
-          }
-        }
-      }
-    });
-
-    expect(result.steps[0].stepNumber).toEqual(1);
-    expect(result.steps[0].instructions).toEqual("R1S1Instructions");
-
-    expect(result.steps[0].ingredients[0].amount)
-      .toEqual("R1S1I1Amount");
-    expect(result.steps[0].ingredients[0].description)
-      .toEqual("R1S1I1Description");
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
+    expect(prisma.recipe.create).toHaveBeenCalledTimes(1);
+    expect(recipe.steps[0]).toEqual({
+        recipeId:1,
+        stepId:1,
+        stepNumber: 1,
+        instructions: "R1S1Instructions",
+        ingredients: [{
+          ingredientId:1,
+          step:1,
+          amount: "R1S1I1Amount",
+          description: "R1S1I1Description"
+        }]
+      })
   });
 });
 
@@ -102,53 +56,59 @@ describe("Test Create Recipe", function () {
 /**************** GET ALL **************************/
 describe("Test getAllRecipes", function () {
 
-  test("Returns multiple recipes", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const recipe2 = await RecipeFactory.saveRecipe(userSubmittedRecipe2);
-    const recipes = await RecipeFactory.getAllRecipes();
+  const queryResult = [
+    {
+      recipeId:1,
+      name: "R1Name",
+      description: "R1Description",
+      sourceUrl: "http://R1SourceUrl.com",
+      sourceName: "R1SourceName",
+    },
+    {
+      recipeId:2,
+      name: "R2Name",
+      description: "R2Description",
+      sourceUrl: "http://R2SourceUrl.com",
+      sourceName: "R2SourceName",
+    },
+  ]
 
+  test("Returns multiple recipes", async function () {
+    prisma.recipe.findMany.mockReturnValueOnce(queryResult)
+
+    const recipes = await RecipeManager.getAllRecipes();
     expect(recipes.length).toEqual(2);
+    expect(recipes).toEqual(queryResult)
   });
 
   test("Does not return submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const recipe2 = await RecipeFactory.saveRecipe(userSubmittedRecipe2);
-    const recipes = await RecipeFactory.getAllRecipes();
+    prisma.recipe.findMany.mockReturnValueOnce(queryResult)
 
+    const recipes = await RecipeManager.getAllRecipes();
     expect(recipes[0]).not.toHaveProperty("steps");
   });
 });
 
-/**************** GET BY ID **************************/
+// /**************** GET BY ID **************************/
 describe("Test getRecipeById", function () {
 
-  test("Returns the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
+  test("Returns the correct record with submodels", async function () {
+    prisma.recipe.findUniqueOrThrow.mockReturnValueOnce(storedRecipe1)
 
-    expect(result.name).toEqual("R1Name");
-    expect(result.description).toEqual("R1Description");
-    expect(result.sourceUrl).toEqual("http://R1SourceUrl.com");
-    expect(result.sourceName).toEqual("R1SourceName");
-  });
+    const result = await RecipeManager.getRecipeById(1);
 
-  test("Returns submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const result = await RecipeFactory.getRecipeById(recipe1.recipeId);
-
-    expect(result.steps[0].stepNumber).toEqual(1);
-    expect(result.steps[0].instructions).toEqual("R1S1Instructions");
-    expect(result.steps[0].ingredients[0].amount)
-      .toEqual("R1S1I1Amount");
-    expect(result.steps[0].ingredients[0].description)
-      .toEqual("R1S1I1Description");
+    expect(result).toEqual(storedRecipe1);
   });
 
   test("Throws a NotFound error if record doesn't exist", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    prisma.recipe.findUniqueOrThrow.mockImplementationOnce(()=>{
+      throw new Error();
+    })
+
+    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
 
     try {
-      await RecipeFactory.getRecipeById(0);
+      await RecipeManager.getRecipeById(0);
       throw new Error("Fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -158,12 +118,36 @@ describe("Test getRecipeById", function () {
 });
 
 
-/**************** UPDATE **************************/
+// /**************** UPDATE **************************/
 describe("Test updateRecipe", function () {
+
+  const updatedRecipe = {
+    recipeId:1,
+    name: "UpdatedName",
+    description: "UpdatedDescription",
+    sourceUrl: "http://updatedSourceUrl.com",
+    sourceName: "updatedSourceName",
+  }
+
+  const updatedStep = {
+    recipeId:1,
+    stepId:1,
+    stepNumber: 1,
+    instructions: "UpdatedInstructions",
+  }
+
+  const updatedIngredient = {
+    ingredientId:1,
+    step:1,
+    amount: "R1S1I1Amount",
+    description: "R1S1I1Description"
+  }
 
   //Updates base recipe data
   test("Updates base recipe data", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    // TODO: rewrite testing starting here
+
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
       name: 'newName',
@@ -172,7 +156,7 @@ describe("Test updateRecipe", function () {
       sourceUrl: 'newSourceUrl'
     };
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
 
     expect(result.name).toEqual("newName");
     expect(result.description).toEqual("newDescription");
@@ -182,7 +166,7 @@ describe("Test updateRecipe", function () {
 
   //Adds new ingredient to existing step
   test("Adds new ingredient to existing step", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
@@ -192,7 +176,7 @@ describe("Test updateRecipe", function () {
       description: "newDescription",
     });
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
 
     //note: This test depends on the orderBy for ingredients
     expect(result.steps[0].ingredients.length).toEqual(2);
@@ -210,7 +194,7 @@ describe("Test updateRecipe", function () {
 
   //Updates existing ingredient on existing step
   test("Updates existing ingredient on existing step", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
@@ -220,7 +204,7 @@ describe("Test updateRecipe", function () {
       description: "newDescription",
     };
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
 
     expect(result.steps[0].ingredients[0]).toEqual({
       ingredientId: currentRecipe.steps[0].ingredients[0].ingredientId,
@@ -232,19 +216,20 @@ describe("Test updateRecipe", function () {
 
   //Deletes missing ingredient from existing step
   test("Deletes ingredients from existing step", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
     newRecipe.steps[0].ingredients.pop();
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
     expect(result.steps[0].ingredients.length).toEqual(0);
   });
 
-  //Adds new step
+  //Adds new step*******************hangs
   test("Creates new steps", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    console.log('starting hanging test');
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
@@ -258,8 +243,11 @@ describe("Test updateRecipe", function () {
         }
       ]
     });
+    console.log('hanging test 263')
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
+    console.log('hanging test 266')
+
     expect(result.steps[1].recipeId).toEqual(currentRecipe.recipeId);
     expect(result.steps[1].stepId).toBeDefined();
     expect(result.steps[1].stepNumber).toEqual(2);
@@ -279,7 +267,7 @@ describe("Test updateRecipe", function () {
 
   //Updates existing step
   test("Updates existing step", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
@@ -295,7 +283,7 @@ describe("Test updateRecipe", function () {
       ]
     };
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
     expect(result.steps[0].recipeId).toEqual(currentRecipe.recipeId);
     expect(result.steps[0].stepId).toEqual(currentRecipe.steps[0].stepId);
     expect(result.steps[0].stepNumber).toEqual(2);
@@ -311,22 +299,24 @@ describe("Test updateRecipe", function () {
     expect(result.steps[0].ingredients[0].description).toEqual(
       "newDescription"
     );
+
+
   });
 
   //Deletes missing step and its ingredients
   test("Deletes missing step and its ingredients", async function () {
-    const currentRecipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const currentRecipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newRecipe = {
       ...currentRecipe,
     };
     const deletedIngredientId = currentRecipe.steps[0].ingredients[0].ingredientId;
     newRecipe.steps.pop();
 
-    const result = await RecipeFactory.updateRecipe(newRecipe);
+    const result = await RecipeManager.updateRecipe(newRecipe);
 
     expect(result.steps.length).toEqual(0);
 
-    const updatedRecipe = await RecipeFactory.getRecipeById(currentRecipe.recipeId);
+    const updatedRecipe = await RecipeManager.getRecipeById(currentRecipe.recipeId);
     expect(updatedRecipe.steps.length).toEqual(0);
 
     //ingredients should be deleted from database
@@ -341,68 +331,23 @@ describe("Test updateRecipe", function () {
 
   });
 
+//   // test failed transaction throws an error
+//   // test("Failed transaction throws an error", async function () {
+//   //   const recipeWithInvalidStep = {
+//   //     ...userSubmittedRecipe1,
+//   //   }
+//   //   recipeWithInvalidStep.steps[0].stepId = -1;
+
+//   //   try {
+//   //     await RecipeManager.updateRecipe(recipeWithInvalidStep);
+//   //     throw new Error("Fail test, you shouldn't get here")
+//   //   } catch (err){
+//   //     expect(err).toEqual(new Error("Database Transaction Error"));
+//   //   }
+//   // })
+
 });
 
-describe("Tests for sortIngredients", function () {
-  //sorts toDelete correctly
-  test("Sorts toDelete correctly", async function () {
-    const currentIngredients = [{
-      ingredientId: 1,
-      amount: "testAmount",
-      description: "testDescription"
-    }];
-    const newIngredients: IIngredientForUpdate[] = [];
-
-    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
-
-    expect(result).toEqual({
-      toDelete: currentIngredients,
-      toUpdate: [],
-      toCreate: [],
-    });
-  });
-
-  //sorts toUpdate correctly
-  test("Sorts toUpdate correctly", async function () {
-    const currentIngredients = [{
-      ingredientId: 1,
-      amount: "testAmount",
-      description: "testDescription"
-    }];
-    const newIngredients: IIngredientForUpdate[] = [{
-      ingredientId: 1,
-      amount: "newAmount",
-      description: "newDescription"
-    }];
-
-    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
-
-    expect(result).toEqual({
-      toDelete: [],
-      toUpdate: newIngredients,
-      toCreate: [],
-    });
-  });
-
-  //sorts toCreate correctly
-  test("Sorts toCreate correctly", async function () {
-    const currentIngredients: IIngredient[] = [];
-    const newIngredients: IIngredientForUpdate[] = [{
-      amount: "newAmount",
-      description: "newDescription"
-    }];
-
-    const result = RecipeFactory.sortIngredients(currentIngredients, newIngredients);
-
-    expect(result).toEqual({
-      toDelete: [],
-      toUpdate: [],
-      toCreate: newIngredients,
-    });
-  });
-});
-
-//************************ */
 describe("Tests for sortSteps", function () {
   //sorts toDelete correctly
   test("Sorts toDelete correctly", async function () {
@@ -415,7 +360,7 @@ describe("Tests for sortSteps", function () {
     }];
     const newSteps: IStepForUpdate[] = [];
 
-    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
+    const result = RecipeManager.sortSteps(currentSteps, newSteps);
 
     expect(result).toEqual({
       toDelete: currentSteps,
@@ -440,7 +385,7 @@ describe("Tests for sortSteps", function () {
       instructions: "testInstructions"
     }];
 
-    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
+    const result = RecipeManager.sortSteps(currentSteps, newSteps);
 
     expect(result).toEqual({
       toDelete: [],
@@ -458,7 +403,7 @@ describe("Tests for sortSteps", function () {
       instructions: "testInstructions"
     }];
 
-    const result = RecipeFactory.sortSteps(currentSteps, newSteps);
+    const result = RecipeManager.sortSteps(currentSteps, newSteps);
     expect(result).toEqual({
       toDelete: [],
       toUpdate: [],
@@ -469,14 +414,15 @@ describe("Tests for sortSteps", function () {
 
 describe("Test createStep", function () {
   test("Creates a step", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    console.log("running test for create a step")
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const step: IStepForUpdate = {
       stepNumber: 2,
       instructions: "R2S2Instructions",
       ingredients: []
     };
 
-    const result = await RecipeFactory.createStep(prisma, step, recipe.recipeId);
+    const result = await RecipeManager.createStep(step, recipe.recipeId);
     expect(result.recipeId).toEqual(recipe.recipeId);
     expect(result.stepId).toBeDefined();
     expect(result.stepNumber).toEqual(2);
@@ -489,14 +435,14 @@ describe("Test createStep", function () {
 describe("Test updateStep", function () {
   //updates base data
   test("Updates base step data", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newStep = {
       ...recipe.steps[0],
       stepNumber: 2,
       instructions: "newInstructions",
     };
 
-    const result = await RecipeFactory.updateStep(prisma, newStep);
+    const result = await RecipeManager.updateStep(newStep);
 
     expect(result).toEqual({
       ...recipe.steps[0],
@@ -507,13 +453,13 @@ describe("Test updateStep", function () {
 
   //deletes extra ingredients
   test("Deletes extra ingredients", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newStep = {
       ...recipe.steps[0],
       ingredients: [],
     };
 
-    const result = await RecipeFactory.updateStep(prisma, newStep);
+    const result = await RecipeManager.updateStep(newStep);
 
     expect(result).toEqual({
       ...recipe.steps[0],
@@ -532,7 +478,7 @@ describe("Test updateStep", function () {
 
   //creates new ingredients
   test("Creates new ingredients", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newStep = {
       ...recipe.steps[0],
     };
@@ -541,7 +487,7 @@ describe("Test updateStep", function () {
       description: "testDescription"
     });
 
-    const result = await RecipeFactory.updateStep(prisma, newStep);
+    const result = await RecipeManager.updateStep(newStep);
 
     expect(result.ingredients.length).toEqual(2);
     expect(result.ingredients[1].amount).toEqual("testAmount");
@@ -553,17 +499,20 @@ describe("Test updateStep", function () {
 
   //updates existing ingredients
   test("Creates new ingredients", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const newStep = {
       ...recipe.steps[0],
     };
+    console.log("initial step data", newStep)
     newStep.ingredients[0]={
       ...newStep.ingredients[0],
       amount: "testAmount",
       description: "testDescription"
     };
+    console.log("updated step data", newStep)
 
-    const result = await RecipeFactory.updateStep(prisma, newStep);
+    const result = await RecipeManager.updateStep(newStep);
+    console.log("result", result)
     expect(result).toEqual(newStep)
   });
 });
@@ -573,8 +522,8 @@ describe("Test updateStep", function () {
 describe("Test deleteRecipeById", function () {
 
   test("Deletes the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
+    const deletedRecipe = await RecipeManager.deleteRecipeById(recipe1.recipeId);
 
     expect(deletedRecipe.name).toEqual("R1Name");
     expect(deletedRecipe.description).toEqual("R1Description");
@@ -582,7 +531,7 @@ describe("Test deleteRecipeById", function () {
     expect(deletedRecipe.sourceName).toEqual("R1SourceName");
 
     try {
-      await RecipeFactory.getRecipeById(recipe1.recipeId);
+      await RecipeManager.getRecipeById(recipe1.recipeId);
       throw new Error("Fail test.  You shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -590,8 +539,8 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Deletes submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const deletedRecipe = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
+    const deletedRecipe = await RecipeManager.deleteRecipeById(recipe1.recipeId);
 
     const stepId = deletedRecipe.steps[0].stepId;
     const ingredientId = deletedRecipe.steps[0].ingredients[0].ingredientId;
@@ -615,8 +564,8 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Returns the correct record", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
+    const result = await RecipeManager.deleteRecipeById(recipe1.recipeId);
 
     expect(result.name).toEqual("R1Name");
     expect(result.description).toEqual("R1Description");
@@ -625,8 +574,8 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Returns submodel data", async function () {
-    const recipe1 = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
-    const result = await RecipeFactory.deleteRecipeById(recipe1.recipeId);
+    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
+    const result = await RecipeManager.deleteRecipeById(recipe1.recipeId);
 
     expect(result.steps[0].stepNumber).toEqual(1);
     expect(result.steps[0].instructions).toEqual("R1S1Instructions");
@@ -637,10 +586,10 @@ describe("Test deleteRecipeById", function () {
   });
 
   test("Throws a NotFound error if record doesn't exist", async function () {
-    await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    await RecipeManager.saveRecipe(userSubmittedRecipe1);
 
     try {
-      await RecipeFactory.deleteRecipeById(0);
+      await RecipeManager.deleteRecipeById(0);
       throw new Error("Fail test, you shouldn't get here");
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -653,7 +602,7 @@ describe("Test deleteRecipeById", function () {
 /**************** _INTERNAL METHODS **************************/
 describe("Test _pojoToPrismaRecipeInput", function () {
   test("Returns correct object", function () {
-    expect(RecipeFactory._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
+    expect(RecipeManager._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
       name: "R1Name",
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",

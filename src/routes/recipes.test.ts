@@ -22,7 +22,7 @@ const {textToRecipe} = require("../api/openai");
 
 const request = require('supertest');
 const app = require('../app');
-const RecipeFactory = require('../models/recipe');
+const RecipeManager = require('../models/recipe');
 const {
   commonBeforeAll,
   commonBeforeEach,
@@ -36,7 +36,7 @@ const {BadRequestError} = require('../utils/expressError');
 
 beforeAll(commonBeforeAll);
 beforeEach(async function () {
-  await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+  await RecipeManager.saveRecipe(userSubmittedRecipe1);
   commonBeforeEach();
 });
 afterEach(commonAfterEach);
@@ -94,7 +94,7 @@ describe("GET /", function () {
 describe("GET /{id}", function () {
 
   test("OK", async function () {
-    const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const resp = await request(app).get(`/recipes/${recipe.recipeId}`);
 
     expect(resp.statusCode).toEqual(200);
@@ -188,7 +188,7 @@ describe("POST /recipes", function () {
   describe("DELETE /{id}", function () {
 
     test("OK", async function () {
-      const recipe = await RecipeFactory.saveRecipe(userSubmittedRecipe1);
+      const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
       const resp = await request(app).delete(`/recipes/${recipe.recipeId}`);
 
       expect(resp.statusCode).toEqual(200);

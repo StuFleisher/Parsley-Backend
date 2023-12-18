@@ -9,7 +9,8 @@ export {};
  * extensions and paths differing in testing and dev environments
  */
 
-const prisma = require('../client');
+const getPrismaClient = require('../client');
+const prisma = getPrismaClient();
 const {DATABASE_URL} = require('../config');
 const {execSync} = require('child_process');
 
@@ -43,6 +44,28 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
     }
   ]
 };
+
+const storedRecipe1: RecipeData = {
+  recipeId:1,
+  name: "R1Name",
+  description: "R1Description",
+  sourceUrl: "http://R1SourceUrl.com",
+  sourceName: "R1SourceName",
+  steps: [
+    {
+      recipeId:1,
+      stepId:1,
+      stepNumber: 1,
+      instructions: "R1S1Instructions",
+      ingredients: [{
+        ingredientId:1,
+        step:1,
+        amount: "R1S1I1Amount",
+        description: "R1S1I1Description"
+      }]
+    }
+  ]
+}
 
 const generatedRecipe1: IRecipeBase = {
   name: "R1Name",
@@ -84,4 +107,5 @@ module.exports = {
   userSubmittedRecipe1,
   generatedRecipe1,
   userSubmittedRecipe2,
+  storedRecipe1,
 }

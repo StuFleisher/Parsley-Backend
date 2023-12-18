@@ -1,27 +1,25 @@
 "use strict";
 
-// import { Prisma } from '@prisma/client';
-// import prisma from "../client.js";
-// import { DATABASE_URL } from '../config.js';
-// import { NotFoundError } from '../utils/expressError.js';
-
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
 export { };
 import { Prisma, PrismaClient } from '@prisma/client';
-import { create } from 'domain';
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-const prisma = require('../client');
+
 const { DATABASE_URL } = require('../config');
+
+const getPrismaClient = require('../client');
+const prisma = getPrismaClient();
 const { NotFoundError } = require('../utils/expressError');
 
+const IngredientManager = require('./ingredient');
 
 /** Data and functionality for recipes */
 
-class RecipeFactory {
+class RecipeManager {
 
   /** Create a recipe from data, store it to the database, then return data
    * from the new record
@@ -33,7 +31,7 @@ class RecipeFactory {
    *  */
 
   static async saveRecipe(clientRecipe: IRecipeBase): Promise<RecipeData> {
-    let recipe = RecipeFactory._pojoToPrismaRecipeInput(clientRecipe);
+    let recipe = RecipeManager._pojoToPrismaRecipeInput(clientRecipe);
     return await prisma.recipe.create({
       data: recipe,
       include: {
@@ -108,7 +106,6 @@ class RecipeFactory {
 
     //TODO: handle id from url param, not request body
     //TODO: prevent manual changes to stepId & ingredientId
-
     let updatedRecipe: RecipeData;
     const currentRecipe: RecipeData = await prisma.recipe.findUniqueOrThrow({
       where: { recipeId: newRecipe.recipeId },
@@ -118,7 +115,7 @@ class RecipeFactory {
     });
 
     try {
-      await prisma.$transaction(async (prisma: PrismaClient) => {
+      await prisma.$transaction(async () => {
 
         //Update base recipe data
         await prisma.recipe.update({
@@ -146,12 +143,12 @@ class RecipeFactory {
 
         //create
         for (const step of sortedSteps.toCreate) {
-          await this.createStep(prisma, step, currentRecipe.recipeId);
+          await this.createStep(step, currentRecipe.recipeId);
         }
 
         //update
         for (const step of sortedSteps.toUpdate) {
-          await this.updateStep(prisma, step);
+          await this.updateStep(step);
         }
 
         await prisma.$queryRaw`COMMIT`;
@@ -165,58 +162,16 @@ class RecipeFactory {
             },
           },
         });
-      });//end transaction func
+        console.log(updatedRecipe)
+      });//end transaction
     } catch (error) {
       console.log("Error in transaction", error.message);
       await prisma.$queryRaw`ROLLBACK`;
-      throw error;
+      throw new Error("Database Transaction Error");
     }
 
     return updatedRecipe;
   }
-
-
-  /** Compares new and existing ingredient data and returns a sorted object:
-   * toCreate -> exists in new but not current
-   * toUpdate -> exists in both lists
-   * toDelete -> exists in current but not new
-   *
-   * @param currentIngredients
-   * @param newIngredients
-   * @returns {toCreate, toUpdate, toDelete}
-   */
-
-  static sortIngredients(
-    currentIngredients: IIngredient[],
-    newIngredients: IIngredientForUpdate[],
-  ) {
-    const ingredientsToDelete = currentIngredients.filter(currentIngredient => {
-      return !newIngredients.some(
-        (newIngredient) => {
-          return currentIngredient.ingredientId === newIngredient.ingredientId;
-        }
-      );
-    });
-
-    const ingredientsToCreate = newIngredients.filter(newIngredient => {
-      return newIngredient.ingredientId === undefined;
-    });
-
-    const ingredientsToUpdate = newIngredients.filter(
-      newIngredient => {
-        return currentIngredients.some(currentIngredient => {
-          return currentIngredient.ingredientId === newIngredient.ingredientId;
-        });
-      }
-    );
-
-    return {
-      toCreate: ingredientsToCreate,
-      toUpdate: ingredientsToUpdate,
-      toDelete: ingredientsToDelete,
-    };
-  }
-
 
   /** Compares new and existing step data and returns a sorted object:
    * toCreate -> exists in new but not current
@@ -267,7 +222,7 @@ class RecipeFactory {
    */
 
   static async createStep(
-    prisma: PrismaClient,
+    // prisma: PrismaClient,
     step: IStepForUpdate,
     recipeId: number
   ) {
@@ -279,9 +234,10 @@ class RecipeFactory {
     //create ingredients for the new steps
     for (const ingredient of step.ingredients) {
       const { amount, description } = ingredient;
-      await prisma.ingredient.create({
-        data: { amount, description, step: createdStep.stepId }
-      });
+      await IngredientManager.createIngredient(
+        amount,
+        description,
+        createdStep.stepId)
     }
 
     return prisma.step.findUniqueOrThrow({
@@ -297,7 +253,6 @@ class RecipeFactory {
    */
 
   static async updateStep(
-    prisma: PrismaClient,
     newStep: IStepForUpdate,
   ) {
     const currentStep = await prisma.step.findUnique({
@@ -313,38 +268,33 @@ class RecipeFactory {
       data: { stepNumber, instructions },
     });
 
-    const { toCreate, toDelete, toUpdate } = this.sortIngredients(
+    const { toCreate, toDelete, toUpdate } = IngredientManager.sortIngredients(
       currentStep.ingredients,
       newStep.ingredients
     );
 
     //delete omitted ingredients from this step
     for (const ingredient of toDelete) {
-      await prisma.ingredient.delete({
-        where: { ingredientId: ingredient.ingredientId }
-      });
+      await IngredientManager.deleteIngredient(
+        ingredient.ingredientId
+      )
     }
 
     //create added ingredients for this step
-    await prisma.ingredient.createMany({
-      data: toCreate.map(ingred => {
-        return {
-          amount: ingred.amount,
-          description: ingred.description,
-          step: currentStep.stepId,
-        };
-      })
-    });
+    for(const ingredient of toCreate){
+      await IngredientManager.createIngredient(
+        ingredient.amount,
+        ingredient.description,
+        stepId,
+      )
+    }
 
     //update existing ingredients for this step
     for (const ingredient of toUpdate) {
-      await prisma.ingredient.update({
-        where: { ingredientId: ingredient.ingredientId },
-        data: {
-          ...ingredient,
-          step: currentStep.stepId,
-        }
-      });
+      await IngredientManager.updateIngredient(
+        ingredient,
+        stepId,
+      )
     }
 
     return prisma.step.findUniqueOrThrow({
@@ -418,4 +368,4 @@ class RecipeFactory {
 
 }
 
-module.exports = RecipeFactory;
+module.exports = RecipeManager;
