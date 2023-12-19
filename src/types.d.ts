@@ -33,6 +33,7 @@ type SimpleRecipeData = {
 }
 
 interface IStepBase {
+  recipeId: number,
   stepNumber:number,
   ingredients:IIngredientBase[],
   instructions: string
