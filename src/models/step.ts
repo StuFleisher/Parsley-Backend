@@ -158,8 +158,8 @@ class StepManager {
    * toDelete -> exists in current but not new
    *
    * @param prisma
-   * @param currentIngredients
-   * @param newIngredients
+   * @param currentSteps
+   * @param newSteps
    * @returns {toCreate, toUpdate, toDelete}
    */
 
