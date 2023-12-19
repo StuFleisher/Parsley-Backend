@@ -1,7 +1,5 @@
 "use strict";
 
-import { describe } from "node:test";
-
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
 export { };
