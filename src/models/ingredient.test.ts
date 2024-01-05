@@ -94,7 +94,48 @@ describe("Tests for updateIngredient", function (){
   })
 })
 //*************************** DELETE ******************************************/
+describe("Test deleteIngredient", function () {
 
+  test("Returns the correct record with submodel data", async function () {
+
+    //mock dependencies
+    prisma.ingredient.delete.mockReturnValueOnce({
+      ingredientId:1,
+      step:1,
+      amount:"testAmount",
+      description:"testDescription"
+    });
+    //do test
+    const result = await IngredientManager.deleteIngredient(1);
+
+    expect(prisma.ingredient.delete).toHaveBeenCalledWith({
+      where: { ingredientId: 1 },
+    });
+    expect(result).toEqual({
+      ingredientId:1,
+      step:1,
+      amount:"testAmount",
+      description:"testDescription"
+    });
+
+  });
+
+
+  test("Throws a NotFound error if record doesn't exist", async function () {
+    prisma.ingredient.delete.mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    try {
+      await IngredientManager.deleteIngredient(0);
+      throw new Error("Fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+      expect(err.message).toEqual("Ingredient not found");
+    }
+  });
+
+});
 
 
 //**************************SORT INGREDIENTS ******************************** */

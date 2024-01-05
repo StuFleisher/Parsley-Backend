@@ -71,10 +71,14 @@ class IngredientManager {
    * @returns deletedIngredient {ingredientId, step, amount, description}
    */
   static async deleteIngredient(ingredientId: number): Promise<IIngredient> {
-    const deletedIngredient = await prisma.ingredient.delete({
-      where: { ingredientId: ingredientId }
-    });
-    return deletedIngredient;
+    try{
+      const deletedIngredient = await prisma.ingredient.delete({
+        where: { ingredientId: ingredientId }
+      });
+      return deletedIngredient;
+    } catch {
+      throw new NotFoundError("Ingredient not found")
+    }
   }
 
 
