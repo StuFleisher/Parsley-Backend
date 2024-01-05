@@ -1,7 +1,7 @@
 //The base format for a recipe as provided by the raw-text parser
 interface IRecipeBase {
   name:string;
-  steps:IStepBase[] | IStep[];
+  steps:IStepBase[] | IStep[] | IStepForCreate[];
 }
 
 //Additional metadata from the user.  Extends IRecipeBase.
@@ -30,6 +30,12 @@ type SimpleRecipeData = {
   description: string;
   sourceUrl: string|undefined;
   sourceName: string;
+}
+
+interface IStepForCreate {
+  stepNumber:number,
+  ingredients:IIngredientBase[],
+  instructions: string
 }
 
 interface IStepBase {

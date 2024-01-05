@@ -33,13 +33,14 @@ class NotFoundError extends ExpressError {
   }
 }
 
+
 /** 401 UNAUTHORIZED error. */
 
-// class UnauthorizedError extends ExpressError {
-//   constructor(message = "Unauthorized") {
-//     super(message, 401);
-//   }
-// }
+class UnauthorizedError extends ExpressError {
+  constructor(message = "Unauthorized") {
+    super(message, 401);
+  }
+}
 
 /** 400 BAD REQUEST error. */
 
@@ -51,25 +52,17 @@ class BadRequestError extends ExpressError {
 
 /** 403 FORBIDDEN error. */
 
-// class ForbiddenError extends ExpressError {
-//   constructor(message = "Forbidden") {
-//     super(message, 403);
-//   }
-// }
-
-// export {
-//   ExpressError,
-//   NotFoundError,
-//   UnauthorizedError,
-//   BadRequestError,
-//   ForbiddenError,
-// };
+class ForbiddenError extends ExpressError {
+  constructor(message = "Forbidden") {
+    super(message, 403);
+  }
+}
 
 module.exports = {
   ExpressError,
   NotFoundError,
-  // UnauthorizedError,
+  UnauthorizedError,
   BadRequestError,
-  // ForbiddenError,
+  ForbiddenError,
 };
 
