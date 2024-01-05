@@ -28,6 +28,8 @@ describe("Tests for createIngredient", function (){
   //Works
   test("Creates Ingredient", async function(){
 
+    console.log("running test for createIngredient")
+
     prisma.ingredient.create.mockReturnValueOnce({
       ingredientId:1,
       step:1,

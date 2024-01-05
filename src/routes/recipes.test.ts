@@ -218,3 +218,35 @@ describe("POST /recipes", function () {
     });
 
   });
+
+  /************************** PUT *************************/
+
+  describe("PUT /{id}", function () {
+
+    test("OK", async function () {
+
+      const updateRecipeMock = jest.spyOn(RecipeManager,"updateRecipe");
+      updateRecipeMock.mockReturnValueOnce(storedRecipe1)
+
+      const resp = await request(app)
+        .put(`/recipes/1`)
+        .send(storedRecipe1);
+
+      expect(updateRecipeMock).toHaveBeenCalledWith(storedRecipe1)
+      expect(resp.statusCode).toEqual(200);
+      expect(resp.body).toEqual({
+        recipe: storedRecipe1,
+      });
+    });
+
+    test("404 for bad ID", async function () {
+      const updateRecipeMock = jest.spyOn(RecipeManager,"updateRecipe");
+      updateRecipeMock.mockImplementation( async function (){
+        throw new NotFoundError();
+      })
+
+      const resp = await request(app).delete(`/recipes/0`);
+      expect(resp.statusCode).toEqual(404);
+    });
+
+  });

@@ -1,7 +1,7 @@
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
 export { };
-import { Prisma, PrismaClient } from '@prisma/client';
+// import { Prisma, PrismaClient } from '@prisma/client';TODO:  Is this doing anything?
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
@@ -31,6 +31,7 @@ class IngredientManager {
     stepId: number
   ): Promise<IIngredient|void> {
 
+    console.log("running this.createIngredient")
     const ingredient = await prisma.ingredient.create({
       data: {
         amount: amount,
