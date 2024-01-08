@@ -35,3 +35,13 @@ model Step {
   recipe        Recipe        @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade, onUpdate: NoAction)
   @@map("steps")
 }
+
+model User {
+  userId        Int          @id @default(autoincrement())
+  username      String       @db.VarChar(25) @unique
+  password      String       @db.VarChar(25)
+  firstName     String       @db.VarChar(100)
+  lastName      String       @db.VarChar(100)
+  email         String       @db.VarChar(100) @unique
+  isAdmin       Boolean
+}

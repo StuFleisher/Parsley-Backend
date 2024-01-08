@@ -18,11 +18,15 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 const OPENAI_API_KEY = process.env.API_KEY;
+const SECRET_KEY = process.env.SECRET_KEY;
+const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 13;
 const PORT = +process.env.PORT || 3001;
 const DATABASE_URL = process.env.DATABASE_URL
 
 module.exports = {
   DATABASE_URL,
   OPENAI_API_KEY,
+  SECRET_KEY,
+  BCRYPT_WORK_FACTOR,
   PORT,
 };
