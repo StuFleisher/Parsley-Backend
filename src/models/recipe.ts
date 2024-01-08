@@ -16,8 +16,6 @@ const prisma = getPrismaClient();
 const { NotFoundError } = require('../utils/expressError');
 const StepManager = require('./step')
 
-const IngredientManager = require('./ingredient');
-
 /** Data and functionality for recipes */
 
 class RecipeManager {
