@@ -13,6 +13,7 @@ const getPrismaClient = require('../client');
 const prisma = getPrismaClient();
 const {DATABASE_URL} = require('../config');
 const {execSync} = require('child_process');
+const {createToken} = require('../utils/tokens')
 
 //runs any migrations using the test database
 async function commonBeforeAll(){
@@ -21,6 +22,7 @@ async function commonBeforeAll(){
 
 //prints to console to clarify logging within individual tests
 async function commonBeforeEach(){
+  jest.clearAllMocks();
 }
 
 //resets the test database
@@ -98,7 +100,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   ]
 };
 
-
+const adminToken = createToken({ username: "admin", isAdmin: true });
 
 module.exports = {
   commonBeforeAll,
@@ -108,4 +110,5 @@ module.exports = {
   generatedRecipe1,
   userSubmittedRecipe2,
   storedRecipe1,
+  adminToken,
 }

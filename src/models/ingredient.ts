@@ -45,8 +45,8 @@ class IngredientManager {
 
   /**Updates an ingredient and stores it in the database
    *
-   * @param ingredient
-   * @param stepId
+   * @param ingredient: {ingredientId, step, amount, description}
+   * @param stepId: number
    *
    * @returns updatedIngredient {ingredientId, step, amount, description}
    */

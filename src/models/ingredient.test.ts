@@ -74,17 +74,18 @@ describe("Tests for updateIngredient", function (){
 
     prisma.ingredient.update.mockReturnValueOnce(ingredientUpdateData)
     const ingredient = await IngredientManager.updateIngredient(
-      "testAmount",
-      "testDescription",
+      ingredientUpdateData,
       1
     )
 
-    expect(prisma.ingredient.create).toHaveBeenCalledWith({
+    expect(prisma.ingredient.update).toHaveBeenCalledWith({
         data: {
+          ingredientId: 1,
           amount:"testAmount",
           description:"testDescription",
           step: 1,
-        }
+        },
+        where: {ingredientId:1}
     })
     expect(ingredient).toEqual({
       ingredientId:1,
