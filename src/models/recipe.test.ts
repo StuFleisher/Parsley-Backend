@@ -365,7 +365,7 @@ describe("Test _updateRecipeSteps", function () {
     );
 
     expect(StepManager.deleteStepById).toHaveBeenCalledWith(100);
-    expect(StepManager.createStep).toHaveBeenCalledTimes(1);
+    expect(StepManager.deleteStepById).toHaveBeenCalledTimes(1);
 
   });
 
