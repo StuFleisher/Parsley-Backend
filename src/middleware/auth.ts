@@ -58,6 +58,7 @@ function ensureAdmin(req: Request, res: Response, next: NextFunction) {
   if (res.locals.user?.username && res.locals.user?.isAdmin === true) {
     return next();
   }
+
   throw new UnauthorizedError();
 
 }

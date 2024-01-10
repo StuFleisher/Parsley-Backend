@@ -1,9 +1,4 @@
 "use strict"
-//load modules
-// import express, { ErrorRequestHandler, NextFunction } from "express";
-// import cors from "cors";
-// import { NotFoundError } from './utils/expressError.js';
-// import recipesRoutes from "./routes/recipes.js"
 
 /**We have to use ESM syntax to handle typing and to get ts to recognize this as
  * a module instead of a script */
@@ -14,17 +9,24 @@ import { ErrorRequestHandler,Request, Response, NextFunction } from "express";
  * extensions and paths differing in testing and dev environments
  */
 const express = require("express");
-// const { ErrorRequestHandler, NextFunction } = require("express");
 const cors = require('cors');
 const { NotFoundError } = require('./utils/expressError');
+const { authenticateJWT } = require("./middleware/auth");
+
+const authRoutes = require('./routes/auth')
 const recipesRoutes = require('./routes/recipes')
+const usersRoutes = require('./routes/users')
 
 const app=express();
 
 app.use(cors());
 app.use(express.json());
+app.use(authenticateJWT);
 
+
+app.use("/auth", authRoutes);
 app.use("/recipes", recipesRoutes);
+app.use("/users", usersRoutes);
 
 
 

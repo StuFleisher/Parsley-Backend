@@ -43,7 +43,7 @@ type updateData = {
 class UserManager {
 
   /**Authenticate a user with username/password
-   * Returns userData
+   * Returns {username, firstName, lastName, email, isAdmin}
    * Throws UnauthorizedError is user not found or wrong password.
   */
   static async authenticate(username:string, password:string){
@@ -76,6 +76,8 @@ class UserManager {
 
     const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR)
     userData.password = hashedPassword;
+
+    console.log(userData)
 
     const newUser = await prisma.user.create({
       data: userData

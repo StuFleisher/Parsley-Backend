@@ -34,7 +34,8 @@
     "build": "tsc && cp src/schemas/*.json dist/schemas/",
     "start": "node dist/server.js",
     "dev": "nodemon",
-    "test": "NODE_ENV=test prisma migrate deploy && jest"
+    "test": "NODE_ENV=test prisma migrate deploy && jest",
+    "buildtest": "NODE_ENV=test prisma migrate deploy && npm run build && jest"
   },
   "nodemonConfig": {
     "watch": [

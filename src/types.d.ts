@@ -70,3 +70,12 @@ interface IIngredientForUpdate extends IIngredientBase {
   ingredientId?: number;
 }
 
+interface IUserBase {
+  userId?:number,
+  username: string,
+  password:string,
+  firstName:string,
+  lastName:string,
+  email:string,
+  isAdmin:boolean;
+}

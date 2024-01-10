@@ -100,6 +100,8 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   ]
 };
 
+const u1Token = createToken({ username: "u1", isAdmin: false });
+const u2Token = createToken({ username: "u2", isAdmin: false });
 const adminToken = createToken({ username: "admin", isAdmin: true });
 
 module.exports = {
@@ -111,4 +113,6 @@ module.exports = {
   userSubmittedRecipe2,
   storedRecipe1,
   adminToken,
+  u2Token,
+  u1Token,
 }

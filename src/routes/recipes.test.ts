@@ -44,9 +44,6 @@ afterEach(commonAfterEach);
 
 /************************** GENERATE *********************/
 describe("POST /generate", function () {
-  beforeEach(()=>{
-    textToRecipe.mockClear();
-  })
 
   test("OK", async function () {
     textToRecipe.mockResolvedValue(generatedRecipe1);
