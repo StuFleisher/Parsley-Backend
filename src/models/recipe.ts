@@ -124,7 +124,7 @@ class RecipeManager {
           },
         });
 
-        RecipeManager._updateRecipeSteps(
+        const temp = await RecipeManager._updateRecipeSteps(
           currentRecipe.steps,
           newRecipe.steps,
           newRecipe.recipeId

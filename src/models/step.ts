@@ -116,10 +116,12 @@ class StepManager {
       );
     }
 
-    return prisma.step.findUniqueOrThrow({
+    const updatedStep = await prisma.step.findUniqueOrThrow({
       where: { stepId: newStep.stepId },
       include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
     });
+    
+    return updatedStep;
   }
 
 

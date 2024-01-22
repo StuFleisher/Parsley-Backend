@@ -162,7 +162,6 @@ router.put(
     //   const errs: string[] = validator.errors.map((e: Error) => e.stack);
     //   throw new BadRequestError(errs.join(", "));
     // }
-    console.log("routing");
     const recipe = await RecipeManager.updateRecipe(req.body);
     return res.json({ recipe });
   }
