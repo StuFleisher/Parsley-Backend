@@ -20,14 +20,17 @@ class IngredientManager {
    *
    * @param amount string -> representation of the ingredient quantity needed
    * @param description string -> description of the ingredient
+   * @param instructionRef string -> text used in step instruction to refer to
+   *  this ingredient.
    * @param stepId number -> PK for the step this ingredient belongs to
    *
-   * @returns ingredient {ingredientId, step, amount, description}
+   * @returns ingredient {ingredientId, step, amount,instructionRef, description}
    */
 
   static async createIngredient(
     amount: string,
     description: string,
+    instructionRef: string,
     stepId: number
   ): Promise<IIngredient|void> {
 
@@ -36,6 +39,7 @@ class IngredientManager {
       data: {
         amount: amount,
         description: description,
+        instructionRef: instructionRef,
         step: stepId,
       }
     });
@@ -45,7 +49,7 @@ class IngredientManager {
 
   /**Updates an ingredient and stores it in the database
    *
-   * @param ingredient: {ingredientId, step, amount, description}
+   * @param ingredient: {ingredientId, step, amount, instructionRef, description}
    * @param stepId: number
    *
    * @returns updatedIngredient {ingredientId, step, amount, description}
@@ -69,7 +73,7 @@ class IngredientManager {
   /** Deletes an ingredient by ingredientId
    *
    * @param ingredientId
-   * @returns deletedIngredient {ingredientId, step, amount, description}
+   * @returns deletedIngredient {ingredientId, step, amount, instructionRef, description}
    */
   static async deleteIngredient(ingredientId: number): Promise<IIngredient> {
     try{

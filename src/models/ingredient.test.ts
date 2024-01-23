@@ -34,11 +34,13 @@ describe("Tests for createIngredient", function (){
       ingredientId:1,
       step:1,
       amount:"testAmount",
-      description:"testDescription"
+      description:"testDescription",
+      instructionRef:"testInstructionRef",
     })
     const ingredient = await IngredientManager.createIngredient(
       "testAmount",
       "testDescription",
+      "testInstructionRef",
       1
     )
 
@@ -46,6 +48,7 @@ describe("Tests for createIngredient", function (){
         data: {
           amount:"testAmount",
           description:"testDescription",
+          instructionRef:"testInstructionRef",
           step: 1,
         }
     })
@@ -53,7 +56,8 @@ describe("Tests for createIngredient", function (){
       ingredientId:1,
       step:1,
       amount:"testAmount",
-      description:"testDescription"
+      description:"testDescription",
+      instructionRef:"testInstructionRef",
     });
 
   })
@@ -69,7 +73,8 @@ describe("Tests for updateIngredient", function (){
       ingredientId:1,
       step:1,
       amount:"testAmount",
-      description:"testDescription"
+      description:"testDescription",
+      instructionRef: "testRef"
     }
 
     prisma.ingredient.update.mockReturnValueOnce(ingredientUpdateData)
@@ -83,6 +88,7 @@ describe("Tests for updateIngredient", function (){
           ingredientId: 1,
           amount:"testAmount",
           description:"testDescription",
+          instructionRef: "testRef",
           step: 1,
         },
         where: {ingredientId:1}
@@ -91,6 +97,7 @@ describe("Tests for updateIngredient", function (){
       ingredientId:1,
       step:1,
       amount:"testAmount",
+      instructionRef: "testRef",
       description:"testDescription"
     });
 
@@ -106,6 +113,7 @@ describe("Test deleteIngredient", function () {
       ingredientId:1,
       step:1,
       amount:"testAmount",
+      instructionRef: "testRef",
       description:"testDescription"
     });
     //do test
@@ -118,6 +126,7 @@ describe("Test deleteIngredient", function () {
       ingredientId:1,
       step:1,
       amount:"testAmount",
+      instructionRef: "testRef",
       description:"testDescription"
     });
 
@@ -149,6 +158,7 @@ describe("Tests for sortIngredients", function () {
     const currentIngredients = [{
       ingredientId: 1,
       amount: "testAmount",
+      instructionRef: "testRef",
       description: "testDescription"
     }];
     const newIngredients: IIngredientForUpdate[] = [];
@@ -167,12 +177,14 @@ describe("Tests for sortIngredients", function () {
     const currentIngredients = [{
       ingredientId: 1,
       amount: "testAmount",
-      description: "testDescription"
+      description: "testDescription",
+      instructionRef: "testRef"
     }];
     const newIngredients: IIngredientForUpdate[] = [{
       ingredientId: 1,
       amount: "newAmount",
-      description: "newDescription"
+      description: "newDescription",
+      instructionRef: "testRef"
     }];
 
     const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);
@@ -189,7 +201,8 @@ describe("Tests for sortIngredients", function () {
     const currentIngredients: IIngredient[] = [];
     const newIngredients: IIngredientForUpdate[] = [{
       amount: "newAmount",
-      description: "newDescription"
+      description: "newDescription",
+      instructionRef: "testRef",
     }];
 
     const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);

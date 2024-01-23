@@ -29,7 +29,7 @@ class RecipeManager {
    * fields
    *  */
 
-  static async saveRecipe(clientRecipe: IRecipeBase): Promise<RecipeData> {
+  static async saveRecipe(clientRecipe: IRecipeWithMetadata): Promise<RecipeData> {
     let recipe = RecipeManager._pojoToPrismaRecipeInput(clientRecipe);
     return await prisma.recipe.create({
       data: recipe,
@@ -222,7 +222,7 @@ class RecipeManager {
    * 'create' property)
    */
 
-  static _pojoToPrismaRecipeInput(recipe: IRecipeBase): Prisma.RecipeCreateInput {
+  static _pojoToPrismaRecipeInput(recipe: IRecipeWithMetadata): Prisma.RecipeCreateInput {
     const { steps, ...metadata } = recipe;
     return {
       ...metadata,
@@ -235,7 +235,8 @@ class RecipeManager {
               create: step.ingredients.map(ingredient => {
                 return {
                   amount: ingredient.amount,
-                  description: ingredient.description
+                  description: ingredient.description,
+                  instructionRef: ingredient.instructionRef,
                 };
               })
             }

@@ -58,6 +58,7 @@ describe("Test Create Recipe", function () {
               create: [{
                 amount: "R1S1I1Amount",
                 description: "R1S1I1Description",
+                instructionRef:"R1S1I1InstructionRef",
               }]
             }
           }]
@@ -425,7 +426,8 @@ describe("Test _pojoToPrismaRecipeInput", function () {
             ingredients: {
               create: [{
                 amount: "R1S1I1Amount",
-                description: "R1S1I1Description"
+                description: "R1S1I1Description",
+                instructionRef:"R1S1I1InstructionRef",
               }]
             }
           }

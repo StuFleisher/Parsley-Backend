@@ -41,7 +41,8 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
       instructions: "R1S1Instructions",
       ingredients: [{
         amount: "R1S1I1Amount",
-        description: "R1S1I1Description"
+        description: "R1S1I1Description",
+        instructionRef:"R1S1I1InstructionRef",
       }]
     }
   ]
@@ -63,7 +64,8 @@ const storedRecipe1: RecipeData = {
         ingredientId:1,
         step:1,
         amount: "R1S1I1Amount",
-        description: "R1S1I1Description"
+        description: "R1S1I1Description",
+        instructionRef:"R1S1I1InstructionRef",
       }]
     }
   ]
@@ -77,7 +79,8 @@ const generatedRecipe1: IRecipeBase = {
       instructions: "R1S1Instructions",
       ingredients: [{
         amount: "R1S1I1Amount",
-        description: "R1S1I1Description"
+        description: "R1S1I1Description",
+        instructionRef:"R1S1I1InstructionRef",
       }]
     }
   ]
@@ -95,6 +98,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
       ingredients: [{
         amount: "R2S1I1Amount",
         description: "R2S1I1Description",
+        instructionRef:"R2S1I1InstructionRef",
       }]
     }
   ]

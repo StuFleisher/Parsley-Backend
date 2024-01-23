@@ -144,11 +144,12 @@ describe("POST /recipes", function () {
       .post("/recipes")
       .send(userSubmittedRecipe1);
 
+    //should return correct data
+    expect(resp.body).toEqual({recipe:storedRecipe1})
+    
     //response should be OK
     expect(resp.statusCode).toEqual(201);
 
-    //should return correct data
-    expect(resp.body).toEqual({recipe:storedRecipe1})
   });
 
   test("Invalid data should throw BadRequestError", async function () {

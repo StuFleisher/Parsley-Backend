@@ -59,11 +59,13 @@ interface IStepForUpdate extends IStepBase{
 interface IIngredientBase {
   amount: string;
   description: string;
+  instructionRef: string;
 }
 
 interface IIngredient extends IIngredientBase {
   ingredientId: number;
   step: number;
+  instructionRef: string;
 }
 
 interface IIngredientForUpdate extends IIngredientBase {

@@ -25,6 +25,8 @@
       "steps": {
         "type": "array",
         "items": {
+          "type":"object",
+          "properties":{
             "stepNumber":{
                 "type":"integer"
             },
@@ -34,19 +36,28 @@
             "ingredients":{
                 "type":"array",
                 "items":{
-                    "amount":{
-                        "type": "string"
-                    },
-                    "description":{
+                  "type":"object",
+                  "properties":{
+                      "amount":{
+                          "type": "string"
+                      },
+                      "description":{
+                          "type":"string"
+                      },
+                      "instructionRef":{
                         "type":"string"
-                    },
-                    "required":["description"]
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required":["amount","description","instructionRef"]
                 }
-            },
-        "required": ["stepNumber","instructions"]
+            }
+          },
+        "additionalProperties": false,
+        "required": ["stepNumber","instructions","ingredients"]
         }
-      }
-    },
+      },
     "additionalProperties": false,
     "required": [
       "name",

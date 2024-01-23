@@ -8,20 +8,21 @@ datasource db {
 }
 
 model Ingredient {
-  ingredientId  Int     @id @default(autoincrement())
-  step          Int
-  amount        String? @db.VarChar(50)
-  description   String  @db.VarChar(75)
-  steps         Step    @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
+  ingredientId    Int     @id @default(autoincrement())
+  step            Int
+  amount          String  @db.VarChar(50) @default("")
+  description     String  @db.VarChar(75) @default("")
+  instructionRef  String  @db.VarChar(75) @default("")
+  steps           Step    @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
   @@map("ingredients")
 }
 
 model Recipe {
   recipeId    Int     @id @default(autoincrement())
   name        String  @db.VarChar(50)
-  description String? @db.VarChar(200)
-  sourceUrl   String? @map("source_url")
-  sourceName  String? @map("source_name") @db.VarChar(50)
+  description String  @db.VarChar(200)
+  sourceUrl   String  @map("source_url") @default("")
+  sourceName  String  @map("source_name") @db.VarChar(50)
   steps       Step[]
   @@map("recipes")
 }
