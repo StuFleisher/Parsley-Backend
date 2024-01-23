@@ -20,7 +20,7 @@ model Ingredient {
 model Recipe {
   recipeId    Int     @id @default(autoincrement())
   name        String  @db.VarChar(50)
-  description String  @db.VarChar(200)
+  description String  @db.VarChar(1000)
   sourceUrl   String  @map("source_url") @default("")
   sourceName  String  @map("source_name") @db.VarChar(50)
   steps       Step[]
