@@ -5,7 +5,87 @@ export {};
 
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
- */const RECIPE_CONVERSION_BASE_PROMPT = (
+ */
+const SHORT_BASE_PROMPT =  (
+    `Your job is to structure recipe data.
+    I will give you the text of a recipe.  I would like you to convert it into
+    structured JSON following these rules.
+    1- Maintain the original text and intent of the recipe whenever possible.
+    2- Keep each step simple.
+    3- Ignore stray content that may have been pasted into the recipe by accident.
+    4. Follow the data structure below exactly
+
+    Here is an example of the data structure:
+    Input: "Ingredients 2 (5 ounce) skinless, boneless chicken breast halves 1 medium lemon, juiced, divided salt and freshly ground black pepper to taste 1 tablespoon olive oil 1 pinch dried oregano 2 sprigs fresh parsley, chopped, for garnish Directions Place chicken in a bowl; pour 1/2 of the lemon juice over chicken and season with salt. Heat olive oil in a medium skillet over medium-low heat. Place chicken into hot oil. Add remaining lemon juice and oregano; season with black pepper. Cook chicken until golden brown and the juices run clear, 5 to 10 minutes per side. An instant-read thermometer inserted into the center should read at least 165 degrees F (74 degrees C). Garnish chicken with parsley to serve."
+
+    Output: {
+        "name": "Lemon Oregano Chicken",
+        "steps": [
+          {
+            "stepNumber": 1,
+            "instructions": "Place chicken in a bowl; pour 1/2 of the lemon juice over chicken and season with salt.",
+            "ingredients": [
+              {
+                "amount": "2 (5 ounce)",
+                "description": "skinless, boneless chicken breast halves",
+                "instructionRef":"chicken"
+              },
+              {
+                "amount": "1 medium",
+                "description": "lemon, juiced, divided",
+                "instructionRef": "lemon juice"
+              },
+              {
+                "amount":"",
+                "description": "salt",
+                "instructionRef":""salt"
+              }
+            ]
+          },
+          {
+            "stepNumber": 2,
+            "instructions": "Heat olive oil in a medium skillet over medium-low heat. Place chicken into hot oil. Add remaining lemon juice and oregano; season with black pepper.",
+            "ingredients": [
+              {
+                "amount": "1 tablespoon",
+                "description": "olive oil",
+                "instructionRef":"olive oil"
+              },
+              {
+                "amount":"1 pinch",
+                "description": "dried oregano",
+                "instructionRef":"oregano"
+              },
+              {
+                "amount":"",
+                "description": "freshly ground black pepper",
+                "instructionRef":"black pepper"
+              },
+            ]
+          },
+          {
+            "stepNumber": 3,
+            "instructions": "Cook chicken until golden brown and the juices run clear, 5 to 10 minutes per side. An instant-read thermometer inserted into the center should read at least 165 degrees F (74 degrees C).",
+            "ingredients": []
+          },
+          {
+            "stepNumber": 4,
+            "instructions": "Garnish chicken with parsley to serve.",
+            "ingredients": [
+              {
+                "amount":"2 sprigs",
+                "description": "fresh parsley, chopped, for garnish",
+                "instructionRef":"parsley"
+              }
+            ]
+          }
+        ]
+      }
+    `
+  )
+
+
+const RECIPE_CONVERSION_BASE_PROMPT = (
   `I will give you the text of a recipe.  I would like you to convert it into structured JSON following these rules.  1- Maintain the original text and intent of the recipe whenever possible. 2- Keep each step simple. 3-Ignore stray content that may have been copy pasted into the recipe by accident. 4. Follow the data structure below exactly
 
   Below is an example of how a recipe should be converted.
@@ -189,4 +269,4 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-module.exports = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT}
+module.exports = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}

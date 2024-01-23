@@ -9,7 +9,7 @@ export {};
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-const { RECIPE_CONVERSION_BASE_PROMPT } =require("./prompts");
+const { RECIPE_CONVERSION_BASE_PROMPT, SHORT_BASE_PROMPT } =require("./prompts");
 const OpenAI =require("openai");
 const jsonschema = require('jsonschema');
 const recipeGeneratedSchema = require("../schemas/recipeGenerated.json");
@@ -40,12 +40,13 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
     const completion = await openai.chat.completions.create({
       messages: [{
         role: "system",
-        content: `${RECIPE_CONVERSION_BASE_PROMPT}${recipeText}`
+        content: `${SHORT_BASE_PROMPT}${recipeText}`
       }],
       model: "gpt-3.5-turbo-1106",
       response_format: { type: "json_object" },
       temperature: 0
     });
+
     console.log(completion)
     const recipeData = completion.choices[0].message.content;
     recipe = JSON.parse(recipeData);
