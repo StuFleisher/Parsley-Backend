@@ -22,6 +22,10 @@
         "minLength": 1,
         "maxLength": 30
       },
+      "imageUrl": {
+        "type": "string",
+        "format":"uri"
+      },
       "steps": {
         "type": "array",
         "items": {

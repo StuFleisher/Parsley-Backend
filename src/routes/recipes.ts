@@ -93,7 +93,9 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
  *
  * @params id (unique recipeId)
  *
- * @returns recipe: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ * @returns
+ *      recipe:
+ *      {recipeId, name, description, sourceUrl, sourceName, imageUrl, steps[] }
  *          step: {stepId, stepNumber,instructions, ingredients[] }
  *          ingredient: {ingredientId, amount, description}
  *
@@ -112,7 +114,7 @@ router.get(
 /** GET /
  *  Returns a list of all recipes without submodel data
  *
- * @returns recipes: [{recipeId, name, description, sourceUrl, sourceName},...]
+ * @returns recipes: [{recipeId, name, description, sourceUrl, sourceName, imageUrl},...]
  *
  *
  * TODO: add Auth Required: loggedIn
@@ -129,7 +131,7 @@ router.get(
 /** DELETE /[id]
  *  Deletes a recipe and its submodel data
  *
- * @returns deleted: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ * @returns deleted: {recipeId, name, description, sourceUrl, sourceName, imageUrl, steps[] }
  *          step: {stepId, stepNumber,instructions, ingredients[] }
  *          ingredient: {ingredientId, amount, description}
 */
@@ -145,7 +147,7 @@ router.delete(
 /** PUT /[id]
  * Updates a recipe and its submodel data
  *
- * @returns recipe: {recipeId, name, description, sourceUrl, sourceName, steps[] }
+ * @returns recipe: {recipeId, name, description, sourceUrl, sourceName, imageUrl, steps[] }
  *          step: {stepId, stepNumber,instructions, ingredients[] }
  *          ingredient: {ingredientId, amount, description}
  */

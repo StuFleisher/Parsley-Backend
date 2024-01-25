@@ -50,6 +50,7 @@ describe("Test Create Recipe", function () {
         name: "R1Name",
         sourceName: "R1SourceName",
         sourceUrl: "http://R1SourceUrl.com",
+        imageUrl: "http://R1ImageUrl.com",
         steps: {
           create: [{
             instructions: "R1S1Instructions",
@@ -164,6 +165,7 @@ describe("Test updateRecipe", function () {
     description: "UpdatedDescription",
     sourceUrl: "http://updatedSourceUrl.com",
     sourceName: "updatedSourceName",
+    imageUrl: "http://R1ImageUrl.com",
   };
 
   //Updates base recipe data
@@ -179,6 +181,7 @@ describe("Test updateRecipe", function () {
       description: 'newDescription',
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
+      imageUrl: "newImageUrl",
       steps: [],
     };
 
@@ -210,6 +213,7 @@ describe("Test updateRecipe", function () {
         description: recipeAfterUpdate.description,
         sourceName: recipeAfterUpdate.sourceName,
         sourceUrl: recipeAfterUpdate.sourceUrl,
+        imageUrl: recipeAfterUpdate.imageUrl,
       },
     });
     expect(_updateRecipeSteps).toHaveBeenCalledTimes(1);
@@ -228,6 +232,7 @@ describe("Test updateRecipe", function () {
       description: 'newDescription',
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
+      imageUrl: "newImageUrl",
       steps: [],
     };
 
@@ -418,6 +423,7 @@ describe("Test _pojoToPrismaRecipeInput", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
+      imageUrl: "http://R1ImageUrl.com",
       steps: {
         create: [
           {
@@ -433,7 +439,6 @@ describe("Test _pojoToPrismaRecipeInput", function () {
           }
         ]
       }
-
     });
   });
 });

@@ -22,6 +22,7 @@ model Recipe {
   name        String  @db.VarChar(50)
   description String  @db.VarChar(1000)
   sourceUrl   String  @map("source_url") @default("")
+  imageUrl    String  @map("image_url") @default("")
   sourceName  String  @map("source_name") @db.VarChar(50)
   steps       Step[]
   @@map("recipes")

@@ -121,6 +121,7 @@ class RecipeManager {
             description: newRecipe.description,
             sourceName: newRecipe.sourceName,
             sourceUrl: newRecipe.sourceUrl,
+            imageUrl: newRecipe.imageUrl
           },
         });
 

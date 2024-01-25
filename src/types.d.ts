@@ -9,6 +9,7 @@ interface IRecipeWithMetadata extends IRecipeBase {
   description: string;
   sourceUrl: string|undefined;
   sourceName: string;
+  imageUrl: string;
 }
 
 //Recipe with an Id, but new steps/ingredients may have been created without ids
@@ -30,6 +31,7 @@ type SimpleRecipeData = {
   description: string;
   sourceUrl: string|undefined;
   sourceName: string;
+  imageUrl: string;
 }
 
 interface IStepForCreate {

@@ -35,6 +35,7 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
+  imageUrl: "http://R1ImageUrl.com",
   steps: [
     {
       stepNumber: 1,
@@ -54,6 +55,7 @@ const storedRecipe1: RecipeData = {
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
+  imageUrl: "http://R1ImageUrl.com",
   steps: [
     {
       recipeId:1,
@@ -91,6 +93,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   description: "R2Description",
   sourceUrl: "R2SourceUrl",
   sourceName: "R2SourceName",
+  imageUrl: "R2ImageUrl",
   steps: [
     {
       stepNumber: 1,
