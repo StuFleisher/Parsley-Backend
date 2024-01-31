@@ -30,7 +30,7 @@ describe("Tests for createIngredient", function (){
 
     console.log("running test for createIngredient")
 
-    prisma.ingredient.create.mockReturnValueOnce({
+    prisma.ingredient.create.mockResolvedValueOnce({
       ingredientId:1,
       step:1,
       amount:"testAmount",
@@ -77,7 +77,7 @@ describe("Tests for updateIngredient", function (){
       instructionRef: "testRef"
     }
 
-    prisma.ingredient.update.mockReturnValueOnce(ingredientUpdateData)
+    prisma.ingredient.update.mockResolvedValueOnce(ingredientUpdateData)
     const ingredient = await IngredientManager.updateIngredient(
       ingredientUpdateData,
       1
@@ -109,7 +109,7 @@ describe("Test deleteIngredient", function () {
   test("Returns the correct record with submodel data", async function () {
 
     //mock dependencies
-    prisma.ingredient.delete.mockReturnValueOnce({
+    prisma.ingredient.delete.mockResolvedValueOnce({
       ingredientId:1,
       step:1,
       amount:"testAmount",

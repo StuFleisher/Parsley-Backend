@@ -41,7 +41,7 @@ describe("Test Create Recipe", function () {
 
   test("Returns created model with submodels", async function () {
 
-    prisma.recipe.create.mockReturnValueOnce(storedRecipe1);
+    prisma.recipe.create.mockResolvedValueOnce(storedRecipe1);
 
     const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     expect(prisma.recipe.create).toHaveBeenCalledWith({
@@ -99,7 +99,7 @@ describe("Test getAllRecipes", function () {
   ];
 
   test("Returns multiple recipes", async function () {
-    prisma.recipe.findMany.mockReturnValueOnce(queryResult);
+    prisma.recipe.findMany.mockResolvedValueOnce(queryResult);
 
     const recipes = await RecipeManager.getAllRecipes();
     expect(recipes.length).toEqual(2);
@@ -107,7 +107,7 @@ describe("Test getAllRecipes", function () {
   });
 
   test("Does not return submodel data", async function () {
-    prisma.recipe.findMany.mockReturnValueOnce(queryResult);
+    prisma.recipe.findMany.mockResolvedValueOnce(queryResult);
 
     const recipes = await RecipeManager.getAllRecipes();
     expect(recipes[0]).not.toHaveProperty("steps");
@@ -118,7 +118,7 @@ describe("Test getAllRecipes", function () {
 describe("Test getRecipeById", function () {
 
   test("Returns the correct record with submodels", async function () {
-    prisma.recipe.findUniqueOrThrow.mockReturnValueOnce(storedRecipe1);
+    prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(storedRecipe1);
 
     const result = await RecipeManager.getRecipeById(1);
 
@@ -187,15 +187,15 @@ describe("Test updateRecipe", function () {
 
     //mock dependencies
     const getRecipeByIdSpy = jest.spyOn(RecipeManager, 'getRecipeById')
-      .mockReturnValueOnce(recipeBeforeUpdate)
-      .mockReturnValueOnce(recipeAfterUpdate);
+      .mockResolvedValueOnce(recipeBeforeUpdate)
+      .mockResolvedValueOnce(recipeAfterUpdate);
 
 
-    prisma.recipe.findUniqueOrThrow.mockReturnValueOnce(recipeBeforeUpdate);
+    prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(recipeBeforeUpdate);
     prisma.$transaction.mockImplementation(async (transaction: Function) => {
       await transaction();
     });
-    prisma.recipe.update.mockReturnValueOnce(recipeAfterUpdate);
+    prisma.recipe.update.mockResolvedValueOnce(recipeAfterUpdate);
     const _updateRecipeSteps = (
       jest.spyOn(RecipeManager, '_updateRecipeSteps')
     );
@@ -238,10 +238,10 @@ describe("Test updateRecipe", function () {
 
     //mock dependencies
     jest.spyOn(RecipeManager, 'getRecipeById')
-      .mockReturnValueOnce(recipeBeforeUpdate)
-      .mockReturnValueOnce(recipeAfterUpdate);
+      .mockResolvedValueOnce(recipeBeforeUpdate)
+      .mockResolvedValueOnce(recipeAfterUpdate);
 
-    prisma.recipe.findUniqueOrThrow.mockReturnValueOnce(recipeBeforeUpdate);
+    prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(recipeBeforeUpdate);
     prisma.$transaction.mockImplementation(async (transaction: Function) => {
       await transaction();
     });
@@ -267,7 +267,7 @@ describe("Test deleteRecipeById", function () {
   test("Returns the correct record with submodel data", async function () {
 
     //mock dependencies
-    prisma.recipe.delete.mockReturnValueOnce(storedRecipe1);
+    prisma.recipe.delete.mockResolvedValueOnce(storedRecipe1);
     //do test
     const result = await RecipeManager.deleteRecipeById(1);
 

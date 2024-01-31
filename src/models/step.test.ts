@@ -54,8 +54,8 @@ describe("Tests for createStep", function () {
 
   //Works
   test("Creates Step", async function () {
-    prisma.step.create.mockReturnValueOnce(createdStep);
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce(createdStep);
+    prisma.step.create.mockResolvedValueOnce(createdStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce(createdStep);
 
     const step = await StepManager.createStep(
       stepToCreate.recipeId,
@@ -93,12 +93,12 @@ describe("Tests for createStep", function () {
     };
 
     //mock dependencies
-    prisma.step.create.mockReturnValueOnce(createdStep);
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce({
+    prisma.step.create.mockResolvedValueOnce(createdStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce({
       ...createdStep,
       ingredients: [createdIngredient]
     });
-    IngredientManager.createIngredient.mockReturnValueOnce(createdIngredient);
+    IngredientManager.createIngredient.mockResolvedValueOnce(createdIngredient);
 
     //run test
     const step = await StepManager.createStep(
@@ -139,14 +139,14 @@ describe("Test updateStep", function () {
     };
 
     //mock dependencies
-    prisma.step.findUnique.mockReturnValueOnce(initialStep);
-    prisma.step.update.mockReturnValueOnce(updatedStep);
+    prisma.step.findUnique.mockResolvedValueOnce(initialStep);
+    prisma.step.update.mockResolvedValueOnce(updatedStep);
     IngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [],
       toUpdate: [],
     });
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce(updatedStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce(updatedStep);
 
     //do test
     const result = await StepManager.updateStep(updatedStep);
@@ -168,14 +168,14 @@ describe("Test updateStep", function () {
     };
 
     //mock dependencies
-    prisma.step.findUnique.mockReturnValueOnce(initialStep);
-    prisma.step.update.mockReturnValueOnce(updatedStep);
+    prisma.step.findUnique.mockResolvedValueOnce(initialStep);
+    prisma.step.update.mockResolvedValueOnce(updatedStep);
     IngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [ingredientToDelete],
       toUpdate: [],
     });
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce(updatedStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce(updatedStep);
 
     //do test
     const result = await StepManager.updateStep(updatedStep);
@@ -201,14 +201,14 @@ describe("Test updateStep", function () {
     };
 
     //mock dependencies
-    prisma.step.findUnique.mockReturnValueOnce(initialStep);
-    prisma.step.update.mockReturnValueOnce(updatedStep);
+    prisma.step.findUnique.mockResolvedValueOnce(initialStep);
+    prisma.step.update.mockResolvedValueOnce(updatedStep);
     IngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [ingredientToCreate],
       toDelete: [],
       toUpdate: [],
     });
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce(updatedStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce(updatedStep);
 
     //do test
     const result = await StepManager.updateStep(updatedStep);
@@ -233,14 +233,14 @@ describe("Test updateStep", function () {
     };
 
     //mock dependencies
-    prisma.step.findUnique.mockReturnValueOnce(initialStep);
-    prisma.step.update.mockReturnValueOnce(updatedStep);
+    prisma.step.findUnique.mockResolvedValueOnce(initialStep);
+    prisma.step.update.mockResolvedValueOnce(updatedStep);
     IngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [],
       toUpdate: [ingredientAfterUpdate],
     });
-    prisma.step.findUniqueOrThrow.mockReturnValueOnce(updatedStep);
+    prisma.step.findUniqueOrThrow.mockResolvedValueOnce(updatedStep);
 
     //do test
     const result = await StepManager.updateStep(updatedStep);
@@ -263,7 +263,7 @@ describe("Tests for deleteStep", function () {
   };
 
   test("Deletes Step", async function () {
-    prisma.step.delete.mockReturnValueOnce(deletedStep);
+    prisma.step.delete.mockResolvedValueOnce(deletedStep);
 
     const step = await StepManager.deleteStepById(deletedStep.stepId);
 

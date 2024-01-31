@@ -91,6 +91,9 @@ class StepManager {
       currentStep.ingredients,
       newStep.ingredients
     );
+    console.log("toDelete", toDelete)
+    console.log("toUpdate", toUpdate)
+    console.log("toCreate", toCreate)
 
     //delete omitted ingredients from this step
     for (const ingredient of toDelete) {
@@ -120,7 +123,7 @@ class StepManager {
       where: { stepId: newStep.stepId },
       include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
     });
-    
+
     return updatedStep;
   }
 
