@@ -1,0 +1,84 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://parsley.stufleisher.com/recipeNew.schema.json",
+    "type": "object",
+    "properties": {
+      "recipeId": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "description": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "sourceUrl": {
+        "type": "string",
+        "format":"uri"
+      },
+      "sourceName": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 30
+      },
+      "imageUrl": {
+        "type": "string",
+        "format":"uri"
+      },
+      "steps": {
+        "type": "array",
+        "items": {
+          "type":"object",
+          "properties":{
+            "recipeId":{
+              "type":"integer"
+            },
+            "stepId":{
+              "type":"integer"
+            },
+            "stepNumber":{
+                "type":"integer"
+            },
+            "instructions":{
+                "type":"string"
+            },
+            "ingredients":{
+                "type":"array",
+                "items":{
+                  "type":"object",
+                  "properties":{
+                      "step":{
+                        "type":"integer"
+                      },
+                      "amount":{
+                          "type": "string"
+                      },
+                      "description":{
+                          "type":"string"
+                      },
+                      "instructionRef":{
+                        "type":"string"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required":["amount","description","instructionRef"]
+                }
+            }
+          },
+        "additionalProperties": false,
+        "required": ["recipeId","stepNumber","instructions","ingredients"]
+        }
+      },
+    "additionalProperties": false,
+    "required": [
+      "name",
+      "description",
+      "sourceName",
+      "steps"
+    ]
+  }

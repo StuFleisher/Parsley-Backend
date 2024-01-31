@@ -39,14 +39,23 @@ class StepManager {
     instructions: string,
     ingredients: IIngredientBase[] = [],
   ) {
+    console.log("passing data to createStep:",{
+      data: {
+        recipeId,
+        stepNumber,
+        instructions,
+        ingredients,
+      }
+    })
+
     const createdStep = await prisma.step.create({
       data: {
         recipeId,
         stepNumber,
         instructions,
-      },
-      orderBy: {stepNumber:'asc'}
+      }
     });
+    console.log("CREATED", createdStep)
 
     // create ingredients for the new steps
     for (const ingredient of ingredients) {
@@ -54,13 +63,13 @@ class StepManager {
       await IngredientManager.createIngredient(
         amount,
         description,
+        ingredient.instructionRef,
         createdStep.stepId);
     }
 
     return prisma.step.findUniqueOrThrow({
       where: { stepId: createdStep.stepId },
       include: { ingredients: { orderBy: { ingredientId: 'asc' } } },
-      orderBy: {stepNumber:'asc'},
     });
   }
 
@@ -107,6 +116,7 @@ class StepManager {
       await IngredientManager.createIngredient(
         ingredient.amount,
         ingredient.description,
+        ingredient.instructionRef,
         stepId,
       );
     }

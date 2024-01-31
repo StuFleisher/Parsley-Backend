@@ -108,7 +108,6 @@ class IngredientManager {
         }
       );
     });
-    console.log("toDelete",ingredientsToDelete)
 
     const ingredientsToCreate = newIngredients.filter(newIngredient => {
       return newIngredient.ingredientId === undefined;

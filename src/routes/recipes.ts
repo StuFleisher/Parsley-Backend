@@ -16,6 +16,7 @@ const express = require('express');
 const { BadRequestError } = require('../utils/expressError');
 const jsonschema = require('jsonschema');
 const recipeNewSchema = require("../schemas/recipeNew.json");
+const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
 const { textToRecipe } = require("../api/openai");
 
 const router = express.Router();
@@ -155,15 +156,15 @@ router.put(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction){
     //TODO: update validation
-    // const validator = jsonschema.validate(
-    //   req.body,
-    //   recipeNewSchema,
-    //   { required: true }
-    // );
-    // if (!validator.valid) {
-    //   const errs: string[] = validator.errors.map((e: Error) => e.stack);
-    //   throw new BadRequestError(errs.join(", "));
-    // }
+    const validator = jsonschema.validate(
+      req.body,
+      recipeUpdateSchema,
+      { required: true }
+    );
+    if (!validator.valid) {
+      const errs: string[] = validator.errors.map((e: Error) => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
     const recipe = await RecipeManager.updateRecipe(req.body);
     return res.json({ recipe });
   }

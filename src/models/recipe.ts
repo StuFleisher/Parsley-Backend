@@ -125,6 +125,9 @@ class RecipeManager {
           },
         });
 
+        // console.log("***NEW***",newRecipe.steps)
+        // console.log("***CURRENT***",currentRecipe.steps)
+
         const temp = await RecipeManager._updateRecipeSteps(
           currentRecipe.steps,
           newRecipe.steps,
@@ -170,6 +173,8 @@ class RecipeManager {
       revisedSteps,
     );
 
+    console.log(sortedSteps)
+
     //delete
     for (const step of sortedSteps.toDelete) {
       await StepManager.deleteStepById(step.stepId)
@@ -177,7 +182,12 @@ class RecipeManager {
 
     //create
     for (const step of sortedSteps.toCreate) {
-      await StepManager.createStep(step, recipeId);
+      await StepManager.createStep(
+        recipeId,
+        step.stepNumber,
+        step.instructions,
+        step.ingredients,
+      );
     }
 
     //update
