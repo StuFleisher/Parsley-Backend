@@ -141,7 +141,7 @@ class UserManager {
     }
 
     try{
-      const user = prisma.user.update({
+      const user = await prisma.user.update({
         where:{
           username:username,
         },

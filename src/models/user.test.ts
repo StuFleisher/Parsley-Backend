@@ -50,14 +50,14 @@ describe("authenticate", function () {
       ...userData,
       password:encryptedPassword
     }
-    prisma.user.findUnique.mockReturnValueOnce(storedUser);
+    prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
     const user = await UserManager.authenticate("test username", "test password");
     expect(user).toEqual(returnedUser);
   });
 
   test("unauth if no such user", async function () {
-    prisma.user.findUnique.mockReturnValueOnce(undefined);
+    prisma.user.findUnique.mockResolvedValueOnce(undefined);
     try {
       await UserManager.authenticate("nope", "password");
       throw new Error("fail test, you shouldn't get here");
@@ -72,7 +72,7 @@ describe("authenticate", function () {
       ...userData,
       password:encryptedPassword
     }
-    prisma.user.findUnique.mockReturnValueOnce(storedUser);
+    prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
     try {
       await UserManager.authenticate("test username", "wrong");
@@ -113,8 +113,8 @@ describe("register", function () {
       password:encryptedPassword
     }
 
-    prisma.user.findUnique.mockReturnValueOnce(undefined);
-    prisma.user.create.mockReturnValueOnce(storedUser);
+    prisma.user.findUnique.mockResolvedValueOnce(undefined);
+    prisma.user.create.mockResolvedValueOnce(storedUser);
 
     let user = await UserManager.register(userData);
     expect(user).toEqual(returnedUser);
@@ -132,8 +132,8 @@ describe("register", function () {
       password:encryptedPassword
     }
 
-    prisma.user.findUnique.mockReturnValueOnce(undefined);
-    prisma.user.create.mockReturnValueOnce({...storedUser, isAdmin:true});
+    prisma.user.findUnique.mockResolvedValueOnce(undefined);
+    prisma.user.create.mockResolvedValueOnce({...storedUser, isAdmin:true});
 
     let user = await UserManager.register({
       ...userData,
@@ -153,7 +153,7 @@ describe("register", function () {
       password:encryptedPassword
     }
 
-    prisma.user.findUnique.mockReturnValueOnce(storedUser);
+    prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
 
     try {
@@ -195,7 +195,7 @@ describe("findAll", function () {
 
   test("works", async function () {
 
-    prisma.user.findMany.mockReturnValueOnce([userData1,userData2])
+    prisma.user.findMany.mockResolvedValueOnce([userData1,userData2])
 
     const users = await UserManager.findAll();
 
@@ -239,7 +239,7 @@ describe("get", function () {
   }
 
   test("works", async function () {
-    prisma.user.findUniqueOrThrow.mockReturnValueOnce(userData)
+    prisma.user.findUniqueOrThrow.mockResolvedValueOnce(userData)
 
     let user = await UserManager.getUser("test username");
     expect(user).toEqual(returnedUser);
@@ -249,7 +249,7 @@ describe("get", function () {
   });
 
   test("not found if no such user", async function () {
-    prisma.user.findUniqueOrThrow.mockReturnValueOnce(undefined);
+    prisma.user.findUniqueOrThrow.mockResolvedValueOnce(undefined);
 
     try {
       await UserManager.getUser("nope");
@@ -291,7 +291,7 @@ describe("update", function () {
   };
 
   test("works", async function () {
-    prisma.user.update.mockReturnValueOnce({...updateData,username: "test username"})
+    prisma.user.update.mockResolvedValueOnce({...updateData,username: "test username"})
 
     let user = await UserManager.updateUser("test username", updateData);
     expect(user).toEqual(returnData);
