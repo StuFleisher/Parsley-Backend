@@ -104,7 +104,7 @@ class UserManager {
    */
   static async getUser(username:string){
     try{
-      let user = prisma.user.findUniqueOrThrow({
+      let user = await prisma.user.findUniqueOrThrow({
         where:{username}
       })
       delete user.password;

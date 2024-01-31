@@ -239,7 +239,7 @@ describe("get", function () {
   }
 
   test("works", async function () {
-    prisma.user.findUniqueOrThrow.mockReturnValueOnce(returnedUser)
+    prisma.user.findUniqueOrThrow.mockReturnValueOnce(userData)
 
     let user = await UserManager.getUser("test username");
     expect(user).toEqual(returnedUser);
