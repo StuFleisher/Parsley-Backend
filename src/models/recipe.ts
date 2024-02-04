@@ -14,7 +14,10 @@ const { DATABASE_URL } = require('../config');
 const getPrismaClient = require('../client');
 const prisma = getPrismaClient();
 const { NotFoundError } = require('../utils/expressError');
+
 const StepManager = require('./step')
+const {uploadFile, deleteFile} = require("../api/s3");
+
 
 /** Data and functionality for recipes */
 
@@ -84,6 +87,7 @@ class RecipeManager {
       });
       return recipe;
     } catch (err) {
+      console.log("catching error")
       //use our custom error instead
       throw new NotFoundError("Recipe not found");
     }
@@ -209,6 +213,7 @@ class RecipeManager {
 
   static async deleteRecipeById(id: number): Promise<RecipeData> {
     try {
+      await this.deleteRecipeImage(id);
       const recipe = await prisma.recipe.delete({
         where: {
           recipeId: id
@@ -221,6 +226,7 @@ class RecipeManager {
           }
         }
       });
+
       return recipe;
     } catch (err) {
       //use our custom error instead
@@ -228,10 +234,51 @@ class RecipeManager {
     }
   };
 
+  /**************************** IMAGES ***************************************/
+
+  /**Uploads a file to s3 and stores the resulting uri in the imageUrl property
+   *
+   * @param file: the file to upload
+   * @param id: the recipeId for the record to update
+   *
+   * @returns the updated recipe
+   */
+  static async updateRecipeImage(file:Express.Multer.File, id:number){
+    const path= `recipeImage/recipe-${id}`
+    const s3Response = await uploadFile(file,path);
+
+    const recipe = await RecipeManager.getRecipeById(+id);
+    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${path}`
+    return await RecipeManager.updateRecipe(recipe)
+  }
+
+  /**Deletes the image associated with the recipeId from s3 and updates the
+   * imageUrl field.
+   *
+   * @param id: the recipeId for the record to update
+   *
+   * @returns {deleted:{imageUrl:string}}
+   */
+  static async deleteRecipeImage(id:number){
+    const path= `recipeImage/recipe-${id}`
+    const s3Response = await deleteFile(path);
+    console.log("s3Response",s3Response);
+
+    const recipe = await RecipeManager.getRecipeById(id);
+    const deleted = {imgUrl:recipe.imageUrl};
+    console.log(deleted)
+    recipe.imageUrl = ``
+    await RecipeManager.updateRecipe(recipe)
+    return deleted;
+  }
+
+  /************************ PRIVATE METHODS ***********************************/
+
    /** Accepts an IRecipeWithMetadata object and reshapes it to be appropriate
    * for use in Prisma create commands.  (Submodels will be wrapped in a
    * 'create' property)
    */
+
 
   static _pojoToPrismaRecipeInput(recipe: IRecipeWithMetadata): Prisma.RecipeCreateInput {
     const { steps, ...metadata } = recipe;

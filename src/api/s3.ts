@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 const { BadRequestError } = require("../utils/expressError");
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
@@ -22,28 +22,45 @@ function getS3():S3Client{
   return s3;
 }
 
-async function uploadFile(file:any, name:string, folder=""){
-
-  const key = (
-    folder.length
-      ? `${folder + '/' + name}`
-      : ""
-  );
+/** Accepts a file and the path for saving that file.
+ * Saves the file to the indicated path in the parsley s3 bucket.
+ *
+ * Returns the response from the s3 server.
+ */
+async function uploadFile(file:any, path:string){
 
   const params = {
     Bucket:BUCKET_NAME,
-    Key: key,
+    Key: path,
     Body: file.buffer,
     ContentType: file.mimetype,
   }
-  
-  try{
-    const command = new PutObjectCommand(params);
-    const response = await getS3().send(command);
-    return response;
-  } catch(e) {
-    throw new BadRequestError(e.message)
-  }
+
+  const command = new PutObjectCommand(params);
+  const response = await getS3().send(command);
+  return response;
 }
 
-module.exports = {uploadFile}
+/** Accepts a path to a file on the s3 server abdremoves that file.
+ *
+ * Returns the response from the s3 server.
+ */
+async function deleteFile(path:string){
+
+  const params = {
+    Bucket:BUCKET_NAME,
+    Key: path,
+  }
+
+  const command = new DeleteObjectCommand(params);
+  console.log("command",command)
+  const response = await getS3().send(command);
+  console.log(response)
+  return response;
+}
+
+
+
+
+
+module.exports = {uploadFile, deleteFile}

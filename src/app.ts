@@ -37,27 +37,15 @@ app.use(function (req:Request, res:Response, next:NextFunction) {
   throw new NotFoundError();
 });
 
-/** Handle Multer errors */
-const multerErrorHandler:ErrorRequestHandler = (err,req,res,next) =>{
-  if (err instanceof MulterError) {
-    // A Multer error occurred when uploading.
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      const status = 400;
-      const message = err.message;
-
-      return res.status(400).json(
-        {error:{message,status}});
-    }
-}
-}
-app.use(multerErrorHandler);
 
 /** Generic error handler; anything unhandled goes here. */
 const genericErrorHandler:ErrorRequestHandler = (err,req,res,next) =>{
   if (process.env.NODE_ENV !== "test") console.error(err.stack);
 
-  const status = err.status || 500;
+  let status = err.status || 500;
   const message = err.message;
+
+  if (err instanceof MulterError) status=400
 
   return res.status(status).json({
     error: { message, status },

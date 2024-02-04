@@ -28,7 +28,7 @@ const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
 const RecipeManager = require('../models/recipe');
 const { BadRequestError } = require('../utils/expressError');
 const { textToRecipe } = require("../api/openai");
-const {uploadFile} = require("../api/s3");
+const {uploadFile, deleteFile} = require("../api/s3");
 
 
 /** POST /generate {recipeText}=>{recipeData}
@@ -150,7 +150,9 @@ router.get(
 router.delete(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction){
+    console.log("route started")
     const deleted = await RecipeManager.deleteRecipeById(+req.params.id);
+    console.log("deleted", deleted)
     return res.json({deleted})
   }
 )
@@ -180,22 +182,39 @@ router.put(
   }
 )
 
+/** PUT /[id]/image
+ * Expects a Content:multipart/form-data
+ * Stores the attached image in s3 and updates the imageUrl accordingly
+ */
+
 router.put(
   "/:id/image",
   readMultipart('image'),
   async function(req: Request, res: Response, next: NextFunction){
-    const id = req.params.id
-    const s3Response = await uploadFile(req.file,id,'recipeImage');
 
-    const recipe = await RecipeManager.getRecipeById(+id);
-    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${id}`
-    const updatedRecipe = await RecipeManager.updateRecipe(recipe)
+    const recipe = await RecipeManager.updateRecipeImage(
+      req.file,
+      +req.params.id
+    )
 
-    return res.json({imageUrl:updatedRecipe.imageUrl});
-
-
+    return res.json({imageUrl:recipe.imageUrl});
   }
 )
+
+/** DELETE /[id]/image
+ * Deletes the image associated with the recipeId in params from s3
+ * and updates the imageUrl accordingly.
+ */
+router.delete(
+  "/:id/image",
+  async function(req: Request, res: Response, next: NextFunction){
+
+    const deleted = await RecipeManager.deleteRecipeImage(+req.params.id)
+    return res.json({deleted});
+  }
+)
+
+
 
 module.exports = router;
 // export default router
