@@ -21,7 +21,7 @@ const upload = multer({
   }
 })
 
-const readMultipart = function(fieldName:string){
+function readMultipart(fieldName:string){
   return upload.single(`${fieldName}`);
 }
 

@@ -184,10 +184,16 @@ router.put(
   "/:id/image",
   readMultipart('image'),
   async function(req: Request, res: Response, next: NextFunction){
-    console.log(req.file);
-    const response = await uploadFile(req.file,'recipeImage')
-    console.log(response)
-    return res.json({response});
+    const id = req.params.id
+    const s3Response = await uploadFile(req.file,id,'recipeImage');
+
+    const recipe = await RecipeManager.getRecipeById(+id);
+    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${id}`
+    const updatedRecipe = await RecipeManager.updateRecipe(recipe)
+
+    return res.json({imageUrl:updatedRecipe.imageUrl});
+
+
   }
 )
 

@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+const { BadRequestError } = require("../utils/expressError");
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;
@@ -21,11 +22,11 @@ function getS3():S3Client{
   return s3;
 }
 
-async function uploadFile(file:any, folder=""){
+async function uploadFile(file:any, name:string, folder=""){
 
   const key = (
     folder.length
-      ? `${folder + '/' + file.originalname}`
+      ? `${folder + '/' + name}`
       : ""
   );
 
@@ -35,10 +36,14 @@ async function uploadFile(file:any, folder=""){
     Body: file.buffer,
     ContentType: file.mimetype,
   }
-  const command = new PutObjectCommand(params);
-
-  const response = await getS3().send(command);
-  return response;
+  
+  try{
+    const command = new PutObjectCommand(params);
+    const response = await getS3().send(command);
+    return response;
+  } catch(e) {
+    throw new BadRequestError(e.message)
+  }
 }
 
 module.exports = {uploadFile}
