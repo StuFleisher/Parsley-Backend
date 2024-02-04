@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.504.0",
     "@prisma/client": "^5.6.0",
     "@types/cors": "^2.8.16",
+    "@types/multer": "^1.4.11",
     "@types/supertest": "^2.0.16",
     "axios": "^1.6.1",
     "bcrypt": "^5.1.1",
@@ -12,6 +14,7 @@
     "jest-mock-extended": "^3.0.5",
     "jsonschema": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "openai": "^4.17.4",
     "pg": "^8.11.3",
     "supertest": "^6.3.3",

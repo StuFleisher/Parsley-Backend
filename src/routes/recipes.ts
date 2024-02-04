@@ -11,15 +11,25 @@ import { Request, Response, NextFunction } from "express";
 /**We use common js for other imports to avoid a transpiling issue related to
  * extensions and paths differing in testing and dev environments
  */
-const RecipeManager = require('../models/recipe');
+
+//modules
 const express = require('express');
-const { BadRequestError } = require('../utils/expressError');
 const jsonschema = require('jsonschema');
+const router = express.Router();
+
+//middleware
+const readMultipart = require('../middleware/multer')
+
+//schemas
 const recipeNewSchema = require("../schemas/recipeNew.json");
 const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
-const { textToRecipe } = require("../api/openai");
 
-const router = express.Router();
+//modules
+const RecipeManager = require('../models/recipe');
+const { BadRequestError } = require('../utils/expressError');
+const { textToRecipe } = require("../api/openai");
+const {uploadFile} = require("../api/s3");
+
 
 /** POST /generate {recipeText}=>{recipeData}
  *
@@ -167,6 +177,17 @@ router.put(
     }
     const recipe = await RecipeManager.updateRecipe(req.body);
     return res.json({ recipe });
+  }
+)
+
+router.put(
+  "/:id/image",
+  readMultipart('image'),
+  async function(req: Request, res: Response, next: NextFunction){
+    console.log(req.file);
+    const response = await uploadFile(req.file,'recipeImage')
+    console.log(response)
+    return res.json({response});
   }
 )
 
