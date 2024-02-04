@@ -10,16 +10,16 @@ datasource db {
 model Ingredient {
   ingredientId    Int     @id @default(autoincrement())
   step            Int
-  amount          String  @db.VarChar(50) @default("")
-  description     String  @db.VarChar(75) @default("")
-  instructionRef  String  @db.VarChar(75) @default("")
+  amount          String  @db.VarChar(500) @default("")
+  description     String  @db.VarChar(500) @default("")
+  instructionRef  String  @db.VarChar(500) @default("")
   steps           Step    @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
   @@map("ingredients")
 }
 
 model Recipe {
   recipeId    Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50)
+  name        String  @db.VarChar(200)
   description String  @db.VarChar(1000)
   sourceUrl   String  @map("source_url") @default("")
   imageUrl    String  @map("image_url") @default("")
@@ -32,7 +32,7 @@ model Step {
   stepId        Int           @id @default(autoincrement())
   recipeId      Int           @map("recipe_id")
   stepNumber    Int           @map("step_number")
-  instructions  String        @db.VarChar(1000)
+  instructions  String        @db.VarChar(5000)
   ingredients   Ingredient[]
   recipe        Recipe        @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade, onUpdate: NoAction)
   @@map("steps")

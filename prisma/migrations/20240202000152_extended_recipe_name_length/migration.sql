@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "recipes" ALTER COLUMN "name" SET DATA TYPE VARCHAR(200);
