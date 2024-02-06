@@ -35,6 +35,7 @@ type SimpleRecipeData = {
 }
 
 interface IStepForCreate {
+  recipeId?:number,
   stepNumber:number,
   ingredients:IIngredientBase[],
   instructions: string
@@ -72,6 +73,13 @@ interface IIngredient extends IIngredientBase {
 
 interface IIngredientForUpdate extends IIngredientBase {
   ingredientId?: number;
+}
+
+type IngredientForCreate = {
+  step: number;
+  amount: string;
+  description:string;
+  instructionRef:string;
 }
 
 interface IUserBase {

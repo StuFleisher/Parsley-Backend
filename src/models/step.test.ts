@@ -57,11 +57,7 @@ describe("Tests for createStep", function () {
     prisma.step.create.mockResolvedValueOnce(createdStep);
     prisma.step.findUniqueOrThrow.mockResolvedValueOnce(createdStep);
 
-    const step = await StepManager.createStep(
-      stepToCreate.recipeId,
-      stepToCreate.stepNumber,
-      stepToCreate.instructions,
-    );
+    const step = await StepManager.createStep(stepToCreate);
 
     expect(prisma.step.create).toHaveBeenCalledWith({
       data: {
@@ -69,7 +65,6 @@ describe("Tests for createStep", function () {
         instructions: "testInstructions",
         recipeId: 1,
       },
-      orderBy: { stepNumber: 'asc' },
     });
     expect(step).toEqual({
       stepId: 1,
@@ -85,38 +80,44 @@ describe("Tests for createStep", function () {
   test("Creates Ingredients for the step", async function () {
 
     //test data
-    const createdIngredient = {
+    const createdIngredient:IIngredient = {
       amount: "testAmount",
       description: "testDescription",
-      stepId: 1,
+      instructionRef:"testInstructionRef",
       ingredientId: 1,
+      step:1,
     };
 
     //mock dependencies
     prisma.step.create.mockResolvedValueOnce(createdStep);
+    IngredientManager.createIngredient.mockResolvedValueOnce(createdIngredient);
     prisma.step.findUniqueOrThrow.mockResolvedValueOnce({
       ...createdStep,
       ingredients: [createdIngredient]
     });
-    IngredientManager.createIngredient.mockResolvedValueOnce(createdIngredient);
 
     //run test
-    const step = await StepManager.createStep(
-      stepToCreate.recipeId,
-      stepToCreate.stepNumber,
-      stepToCreate.instructions,
-      [{ amount: "testAmount", description: "testDescription" }],
-    );
+    const step = await StepManager.createStep({
+      ...stepToCreate,
+      ingredients:[{
+        amount:"testAmount",
+        description:"testDescription",
+        instructionRef:"testInstructionRef",
+      }]
+    });
 
-    expect(IngredientManager.createIngredient).toHaveBeenCalledWith(
-      "testAmount",
-      "testDescription",
-      1,
-    );
+    expect(IngredientManager.createIngredient).toHaveBeenCalledTimes(1);
+    expect(IngredientManager.createIngredient).toHaveBeenCalledWith({
+      amount: "testAmount",
+      description: "testDescription",
+      instructionRef: "testInstructionRef",
+      step:1,
+    });
     expect(step.ingredients).toEqual([{
       amount: "testAmount",
       description: "testDescription",
-      stepId: 1,
+      instructionRef: "testInstructionRef",
+      step: 1,
       ingredientId: 1,
     }]);
   });
@@ -289,7 +290,6 @@ describe("Tests for deleteStep", function () {
       await StepManager.deleteStepById(0);
       throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
-      console.log(err.message)
       expect(err instanceof NotFoundError).toBeTruthy();
     }
 

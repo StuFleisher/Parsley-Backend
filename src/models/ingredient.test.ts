@@ -32,29 +32,25 @@ describe("Tests for createIngredient", function (){
 
     prisma.ingredient.create.mockResolvedValueOnce({
       ingredientId:1,
-      step:1,
       amount:"testAmount",
       description:"testDescription",
       instructionRef:"testInstructionRef",
     })
-    const ingredient = await IngredientManager.createIngredient(
-      "testAmount",
-      "testDescription",
-      "testInstructionRef",
-      1
-    )
+    const ingredient = await IngredientManager.createIngredient({
+      amount:"testAmount",
+      description:"testDescription",
+      instructionRef:"testInstructionRef",
+    })
 
     expect(prisma.ingredient.create).toHaveBeenCalledWith({
         data: {
           amount:"testAmount",
           description:"testDescription",
           instructionRef:"testInstructionRef",
-          step: 1,
         }
     })
     expect(ingredient).toEqual({
       ingredientId:1,
-      step:1,
       amount:"testAmount",
       description:"testDescription",
       instructionRef:"testInstructionRef",
@@ -184,7 +180,7 @@ describe("Tests for sortIngredients", function () {
       ingredientId: 1,
       amount: "newAmount",
       description: "newDescription",
-      instructionRef: "testRef"
+      instructionRef: "testRef",
     }];
 
     const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);

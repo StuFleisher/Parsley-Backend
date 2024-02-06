@@ -11,6 +11,14 @@ require('../config'); //this loads the test database
 const getPrismaClient = require('../client');
 const prisma = getPrismaClient();
 
+jest.mock('../api/s3',() =>{
+  return {
+    uploadFile:jest.fn(),
+    deleteFile:jest.fn(),
+  }
+})
+const s3 = require('../api/s3');
+
 jest.mock('./step', () => {
   return {
     createStep: jest.fn(),
@@ -267,6 +275,7 @@ describe("Test deleteRecipeById", function () {
   test("Returns the correct record with submodel data", async function () {
 
     //mock dependencies
+    s3.deleteFile.mockResolvedValueOnce(undefined);
     prisma.recipe.delete.mockResolvedValueOnce(storedRecipe1);
     //do test
     const result = await RecipeManager.deleteRecipeById(1);
@@ -336,8 +345,7 @@ describe("Test _updateRecipeSteps", function () {
     );
 
     expect(StepManager.createStep).toHaveBeenCalledWith(
-      revisedSteps[0],
-      1
+      revisedSteps[0]
     );
     expect(StepManager.createStep).toHaveBeenCalledTimes(1);
 

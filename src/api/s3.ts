@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+const { mockDeep } = require('jest-mock-extended');
 const { BadRequestError } = require("../utils/expressError");
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
@@ -6,18 +7,26 @@ const BUCKET_REGION = process.env.BUCKET_REGION;
 const AWS_KEY = process.env.AWS_KEY;
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 
-let s3:null|S3Client = null
+let s3: null | S3Client = null;
 
-/** Creates a single */
-function getS3():S3Client{
-  if (!s3){
-    s3 = new S3Client({
-      credentials:{
-        accessKeyId:AWS_KEY,
-        secretAccessKey:AWS_SECRET_KEY,
-      },
-      region: BUCKET_REGION
-    })
+/** Returns either an s3 instance or a mock of an s3 instance for testing */
+function getS3(): S3Client {
+  if (!s3) {
+
+    if (process.env.NODE_ENV === 'test') {
+      console.log("Loading mock s3 for testing");
+      let mockS3 = mockDeep() as unknown as S3Client;
+      s3 = mockS3;
+    } else {
+      s3 = new S3Client({
+        credentials: {
+          accessKeyId: AWS_KEY,
+          secretAccessKey: AWS_SECRET_KEY,
+        },
+        region: BUCKET_REGION
+      });
+    }
+
   }
   return s3;
 }
@@ -27,14 +36,14 @@ function getS3():S3Client{
  *
  * Returns the response from the s3 server.
  */
-async function uploadFile(file:any, path:string){
+async function uploadFile(file: any, path: string) {
 
   const params = {
-    Bucket:BUCKET_NAME,
+    Bucket: BUCKET_NAME,
     Key: path,
     Body: file.buffer,
     ContentType: file.mimetype,
-  }
+  };
 
   const command = new PutObjectCommand(params);
   const response = await getS3().send(command);
@@ -45,17 +54,17 @@ async function uploadFile(file:any, path:string){
  *
  * Returns the response from the s3 server.
  */
-async function deleteFile(path:string){
+async function deleteFile(path: string) {
 
   const params = {
-    Bucket:BUCKET_NAME,
+    Bucket: BUCKET_NAME,
     Key: path,
-  }
+  };
 
   const command = new DeleteObjectCommand(params);
-  console.log("command",command)
+  console.log("command", command);
   const response = await getS3().send(command);
-  console.log(response)
+  console.log(response);
   return response;
 }
 
@@ -63,4 +72,4 @@ async function deleteFile(path:string){
 
 
 
-module.exports = {uploadFile, deleteFile}
+module.exports = { uploadFile, deleteFile };

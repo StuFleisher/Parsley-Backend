@@ -28,20 +28,11 @@ class IngredientManager {
    */
 
   static async createIngredient(
-    amount: string,
-    description: string,
-    instructionRef: string,
-    stepId: number
+    ingredientData:IngredientForCreate
   ): Promise<IIngredient|void> {
 
-    console.log("running this.createIngredient")
     const ingredient = await prisma.ingredient.create({
-      data: {
-        amount: amount,
-        description: description,
-        instructionRef: instructionRef,
-        step: stepId,
-      }
+      data: ingredientData
     });
     return ingredient;
   }

@@ -21,10 +21,14 @@ if (process.env.NODE_ENV==='test'){
   const mockPrisma = mockDeep() as unknown as PrismaClient;
   prisma = mockPrisma;
   console.log("Loading mocked prisma for testing")
+
 } else {
   prisma = new PrismaClientClass();
   console.log("loading prisma instance")
 }
+
+
+
 
 function getPrismaClient():PrismaClient{
   // if (!prisma){

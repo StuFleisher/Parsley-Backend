@@ -22,31 +22,23 @@ const IngredientManager = require('./ingredient');
 class StepManager {
 
   /** Creates a step in the database along with its associated ingredients
-     * @param recipeId: Number -> PK for the recipe that the steps belongs to
-     * @param stepNumber: Number -> Index for the step in the recipe steps[]
-     * @param instructions:String -> instructions for the recipe
-     * @param ingredients: IIngredientBase[] -> list of ingredient objects that
-     *  are associated with this step.
+     * @param step
+     *  {
+      *  recipeId: Number -> PK for the recipe that the steps belongs to
+      *  stepNumber: Number -> Index for the step in the recipe steps[]
+      *  instructions:String -> instructions for the recipe
+      *  ingredients: IIngredientBase[] -> list of ingredient objects that
+      *  are associated with this step.
+     * }
      *
      * @returns createdStep:IStep
      * { recipeId, stepId, stepNumber, instructions, ingredients }
      */
 
-  static async createStep(
-    // step: IStepForUpdate,
-    recipeId: number,
-    stepNumber: number,
-    instructions: string,
-    ingredients: IIngredientBase[] = [],
-  ) {
-    console.log("passing data to createStep:",{
-      data: {
-        recipeId,
-        stepNumber,
-        instructions,
-        ingredients,
-      }
-    })
+  static async createStep(step:IStepForCreate) {
+
+    const {recipeId, stepNumber, instructions, ingredients} = step;
+    console.log("ingredients",ingredients)
 
     const createdStep = await prisma.step.create({
       data: {
@@ -55,16 +47,16 @@ class StepManager {
         instructions,
       }
     });
-    console.log("CREATED", createdStep)
 
     // create ingredients for the new steps
     for (const ingredient of ingredients) {
       const { amount, description } = ingredient;
-      await IngredientManager.createIngredient(
-        amount,
-        description,
-        ingredient.instructionRef,
-        createdStep.stepId);
+      await IngredientManager.createIngredient({
+        amount: amount,
+        description: description,
+        instructionRef: ingredient.instructionRef,
+        step: createdStep.stepId
+      });
     }
 
     return prisma.step.findUniqueOrThrow({
@@ -100,9 +92,9 @@ class StepManager {
       currentStep.ingredients,
       newStep.ingredients
     );
-    console.log("toDelete", toDelete)
-    console.log("toUpdate", toUpdate)
-    console.log("toCreate", toCreate)
+    // console.log("toDelete", toDelete)
+    // console.log("toUpdate", toUpdate)
+    // console.log("toCreate", toCreate)
 
     //delete omitted ingredients from this step
     for (const ingredient of toDelete) {
@@ -113,12 +105,12 @@ class StepManager {
 
     //create added ingredients for this step
     for (const ingredient of toCreate) {
-      await IngredientManager.createIngredient(
-        ingredient.amount,
-        ingredient.description,
-        ingredient.instructionRef,
-        stepId,
-      );
+      await IngredientManager.createIngredient({
+        amount: ingredient.amount,
+        description: ingredient.description,
+        instructionRef: ingredient.instructionRef,
+        step: stepId,
+      });
     }
 
     //update existing ingredients for this step

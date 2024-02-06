@@ -186,12 +186,12 @@ class RecipeManager {
 
     //create
     for (const step of sortedSteps.toCreate) {
-      await StepManager.createStep(
-        recipeId,
-        step.stepNumber,
-        step.instructions,
-        step.ingredients,
-      );
+      await StepManager.createStep({
+        recipeId:recipeId,
+        stepNumber: step.stepNumber,
+        instructions: step.instructions,
+        ingredients: step.ingredients,
+    });
     }
 
     //update
@@ -212,8 +212,13 @@ class RecipeManager {
   */
 
   static async deleteRecipeById(id: number): Promise<RecipeData> {
+
+    try {await this.deleteRecipeImage(id);}
+    catch(err){
+      console.warn(`Image for recipeId ${id} could not be deleted`)
+    }
+
     try {
-      await this.deleteRecipeImage(id);
       const recipe = await prisma.recipe.delete({
         where: {
           recipeId: id

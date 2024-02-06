@@ -47,7 +47,7 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
       temperature: 0
     });
 
-    console.log(completion)
+    console.log(completion.choices[0].message.content)
     const recipeData = completion.choices[0].message.content;
     recipe = JSON.parse(recipeData);
   }
