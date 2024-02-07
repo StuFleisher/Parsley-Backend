@@ -162,17 +162,17 @@ class StepManager {
     currentSteps: IStep[],
     newSteps: IStepForUpdate[]
   ) {
-    const stepsToCreate = newSteps.filter((newStep) => {
+    const stepsToCreate:IStepForCreate[] = newSteps.filter((newStep) => {
       return newStep.stepId === undefined;
     });
 
-    const stepsToUpdate = newSteps.filter((newStep) => {
+    const stepsToUpdate:IStepForUpdate[] = newSteps.filter((newStep) => {
       return currentSteps.some(
         (currentStep) => { return newStep.stepId === currentStep.stepId; }
       );
     });
 
-    const stepsToDelete = currentSteps.filter((currentStep) => {
+    const stepsToDelete:IStep[] = currentSteps.filter((currentStep) => {
       return !newSteps.some(
         (newStep) => { return newStep.stepId === currentStep.stepId; }
       );

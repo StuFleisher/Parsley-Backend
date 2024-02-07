@@ -78,7 +78,7 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
     { required: true }
   );
   if (!validator.valid) {
-    const errs: string[] = validator.errors.map((e: Error) => e.stack);
+    const errs: (string|undefined)[] = validator.errors.map((e: Error) => e.stack);
     throw new BadRequestError(errs.join(", "));
   }
 
@@ -161,7 +161,7 @@ router.put(
       { required: true }
     );
     if (!validator.valid) {
-      const errs: string[] = validator.errors.map((e: Error) => e.stack);
+      const errs: (string|undefined)[] = validator.errors.map((e: Error) => e.stack);
       throw new BadRequestError(errs.join(", "));
     }
     const recipe = await RecipeManager.updateRecipe(req.body);
@@ -179,6 +179,7 @@ router.put(
   readMultipart('image'),
   async function(req: Request, res: Response, next: NextFunction){
 
+    if (!req.file){throw new BadRequestError('Please attach an image')}
     const recipe = await RecipeManager.updateRecipeImage(
       req.file,
       +req.params.id

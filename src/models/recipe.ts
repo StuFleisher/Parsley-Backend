@@ -127,16 +127,16 @@ class RecipeManager {
 
         await prisma.$queryRaw`COMMIT`;
 
-        updatedRecipe = await RecipeManager.getRecipeById(newRecipe.recipeId)
-
       });//end transaction
+
+      updatedRecipe = await RecipeManager.getRecipeById(newRecipe.recipeId)
+      return updatedRecipe;
+      
     } catch (error) {
       console.log("Error in transaction", error.message);
       await prisma.$queryRaw`ROLLBACK`;
       throw new Error("Database Transaction Error");
     }
-
-    return updatedRecipe;
   }
 
   /** Takes two lists of steps (current and revised).  Compares the lists

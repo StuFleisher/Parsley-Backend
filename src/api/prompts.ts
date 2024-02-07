@@ -263,4 +263,4 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-export = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}
+export {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}

@@ -42,6 +42,7 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
 
     console.log(completion.choices[0].message.content)
     const recipeData = completion.choices[0].message.content;
+    if (recipeData===null) throw new Error("Open AI conversation error")
     recipe = JSON.parse(recipeData);
   }
 
@@ -52,7 +53,7 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
   );
 
   if(!validator.valid) {
-    const errs: string[] = validator.errors.map((e: Error) => e.stack);
+    const errs: (string | undefined)[] = validator.errors.map((e: Error) => e.stack);
     throw new BadRequestError(errs.join(", "));
   }
 

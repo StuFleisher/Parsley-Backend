@@ -21,7 +21,7 @@ import {
   generatedRecipe1,
 } from '../test/test_common';
 
-import TEST_RECIPE_TEXT from '../api/prompts';
+import {TEST_RECIPE_TEXT} from '../api/prompts';
 
 import { BadRequestError, NotFoundError } from '../utils/expressError';
 

@@ -17,6 +17,7 @@ describe("POST /auth/token", function () {
   test("works", async function () {
 
     mockAuthenticate.mockResolvedValueOnce({
+      userId:1,
       username: "u1",
       firstName: "First-new",
       lastName: "Last-newL",

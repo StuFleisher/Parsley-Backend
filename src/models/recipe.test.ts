@@ -16,13 +16,15 @@ const mockedS3 = (
 
 jest.mock('./step', () => {
   return {
-    createStep: jest.fn(),
-    updateStep: jest.fn(),
-    deleteStepById: jest.fn(),
-    sortSteps: jest.fn(),
+    default:{
+      createStep: jest.fn(),
+      updateStep: jest.fn(),
+      deleteStepById: jest.fn(),
+      sortSteps: jest.fn(),
+    }
   };
 });
-import * as StepManager from './step';
+import StepManager from './step';
 const mockedStepManager = (
   StepManager as jest.Mocked<typeof StepManager>
 )
@@ -334,10 +336,10 @@ describe("Test _updateRecipeSteps", function () {
       toCreate: revisedSteps,
       toDelete: [],
     });
-    mockedStepManager.createStep.mockReturnValueOnce({
+    mockedStepManager.createStep.mockResolvedValueOnce({
       ...revisedSteps[0],
       stepId: 1,
-    });
+    } as any);
 
     //do test
     const recipe = RecipeManager._updateRecipeSteps(
@@ -356,12 +358,12 @@ describe("Test _updateRecipeSteps", function () {
 
   test("Deletes steps correctly", function () {
 
-    const currentSteps: IStepForUpdate[] = [{
+    const currentSteps: IStep[] = [{
       recipeId: 1,
       stepNumber: 1,
       instructions: "Instructions",
       ingredients: [],
-      stepId: 100
+      stepId: 100,
     }];
     const revisedSteps: IStep[] = [];
 
@@ -371,7 +373,7 @@ describe("Test _updateRecipeSteps", function () {
       toCreate: [],
       toDelete: currentSteps,
     });
-    mockedStepManager.deleteStepById.mockReturnValueOnce(currentSteps[0]);
+    mockedStepManager.deleteStepById.mockResolvedValueOnce(currentSteps[0]);
 
     //do test
     const recipe = RecipeManager._updateRecipeSteps(
@@ -387,7 +389,7 @@ describe("Test _updateRecipeSteps", function () {
 
   test("Deletes steps correctly", function () {
 
-    const currentSteps: IStepForUpdate[] = [{
+    const currentSteps: IStep[] = [{
       recipeId: 1,
       stepNumber: 1,
       instructions: "instructions",
@@ -408,7 +410,7 @@ describe("Test _updateRecipeSteps", function () {
       toCreate: [],
       toDelete: [],
     });
-    mockedStepManager.updateStep.mockReturnValueOnce(revisedSteps[0]);
+    mockedStepManager.updateStep.mockResolvedValueOnce(revisedSteps[0]);
 
     //do test
     const recipe = RecipeManager._updateRecipeSteps(

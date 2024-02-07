@@ -7,12 +7,12 @@ const BUCKET_REGION = process.env.BUCKET_REGION;
 const AWS_KEY = process.env.AWS_KEY;
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 
-let s3 = null;
+let s3:null|S3Client = null;
 
 
 /** Returns either an s3 instance or a mock of an s3 instance for testing */
 function getS3(): S3Client {
-  if (!s3) {
+  if (s3===null) {
 
     if (process.env.NODE_ENV === 'test') {
       console.log("Loading mock s3 for testing");
@@ -21,8 +21,8 @@ function getS3(): S3Client {
     } else {
       s3 = new S3Client({
         credentials: {
-          accessKeyId: AWS_KEY,
-          secretAccessKey: AWS_SECRET_KEY,
+          accessKeyId: AWS_KEY as string,
+          secretAccessKey: AWS_SECRET_KEY as string,
         },
         region: BUCKET_REGION
       });

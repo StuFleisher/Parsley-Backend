@@ -1,6 +1,6 @@
-"use strict";
 
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 import { UnauthorizedError } from "../utils/expressError";
 import {
   authenticateJWT,
@@ -14,15 +14,15 @@ const { SECRET_KEY } = require("../config");
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
 
-function next(err) {
+function next(err:Error) {
   if (err) throw new Error("Got error from middleware");
 }
 
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
-    const req = { headers: { authorization: `Bearer ${testJwt}` } };
-    const res = { locals: {} };
+    const req = { headers: { authorization: `Bearer ${testJwt}` } } as Request;
+    const res = { locals: {} } as Response;
     authenticateJWT(req, res, next);
     expect(res.locals).toEqual({
       user: {

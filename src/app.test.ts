@@ -1,4 +1,3 @@
-"use strict";
 
 import request from "supertest"
 import app from "./app"
@@ -15,3 +14,5 @@ test("not found for site 404 (test stack print)", async function () {
   delete process.env.NODE_ENV;
   process.env.NODE_ENV = "test";
 });
+
+export {}

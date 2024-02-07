@@ -1,16 +1,14 @@
 import '../config'; //this loads the env variables
 import { BadRequestError } from '../utils/expressError';
 import {
-  commonBeforeAll,
-  commonBeforeEach,
-  commonAfterEach,
-  userSubmittedRecipe1,
   generatedRecipe1,
 } from '../test/test_common';
 
 import { jest } from '@jest/globals';
 
-const mockCreate = jest.fn().mockImplementation(async () => { return "recipe text"; });
+const mockCreate:any = jest.fn().mockImplementation(
+  async ():Promise<string> => { return "recipe text"; }
+);
 
 jest.mock('openai', () => { // moduleFactory function
   return jest.fn().mockImplementation(() => {      // returns a constructor
@@ -24,9 +22,9 @@ jest.mock('openai', () => { // moduleFactory function
   });
 });
 
-import OpenAI from 'openai';
 import { textToRecipe } from './openai';
 import { TEST_RECIPE_TEXT } from './prompts';
+import OpenAI from 'openai';
 
 
 describe("Tests for openai", function () {
