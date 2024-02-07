@@ -1,16 +1,7 @@
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-// import { Prisma, PrismaClient } from '@prisma/client';TODO:  Is this doing anything?
+import prisma from '../prismaClient';
+import { DATABASE_URL } from '../config';
+import { NotFoundError } from '../utils/expressError';
 
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-const getPrismaClient = require('../client');
-const { DATABASE_URL } = require('../config');
-const { NotFoundError } = require('../utils/expressError');
-
-const prisma = getPrismaClient();
 
 /** Data and functionality for ingredients */
 
@@ -29,7 +20,7 @@ class IngredientManager {
 
   static async createIngredient(
     ingredientData:IngredientForCreate
-  ): Promise<IIngredient|void> {
+  ): Promise<IIngredient> {
 
     const ingredient = await prisma.ingredient.create({
       data: ingredientData
@@ -47,7 +38,7 @@ class IngredientManager {
    */
 
   static async updateIngredient(
-    ingredient: IIngredient,
+    ingredient: IIngredientForUpdate,
     stepId: number
   ): Promise<IIngredient> {
     const updatedIngredient = await prisma.ingredient.update({
@@ -121,4 +112,4 @@ class IngredientManager {
 
 }
 
-module.exports = IngredientManager;
+export default IngredientManager;

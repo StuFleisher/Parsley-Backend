@@ -1,13 +1,3 @@
-"use strict";
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export {};
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
 
 /** ExpressError extends normal JS error so we can
  *  add a status when we make an instance of it.
@@ -58,7 +48,7 @@ class ForbiddenError extends ExpressError {
   }
 }
 
-module.exports = {
+export {
   ExpressError,
   NotFoundError,
   UnauthorizedError,

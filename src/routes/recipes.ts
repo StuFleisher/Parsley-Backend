@@ -1,34 +1,21 @@
-"use strict";
-
-/** Routes for recipes */
-
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-import { Request, Response, NextFunction } from "express";
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
-//modules
-const express = require('express');
-const jsonschema = require('jsonschema');
+import express from 'express';
+import { Request, Response, NextFunction } from 'express';
+import jsonschema from 'jsonschema';
 const router = express.Router();
 
 //middleware
-const readMultipart = require('../middleware/multer')
+import readMultipart from '../middleware/multer';
 
 //schemas
-const recipeNewSchema = require("../schemas/recipeNew.json");
-const recipeUpdateSchema = require("../schemas/recipeUpdate.json");
+import recipeNewSchema from "../schemas/recipeNew.json";
+import recipeUpdateSchema from "../schemas/recipeUpdate.json";
 
 //modules
-const RecipeManager = require('../models/recipe');
-const { BadRequestError } = require('../utils/expressError');
-const { textToRecipe } = require("../api/openai");
-const {uploadFile, deleteFile} = require("../api/s3");
+import RecipeManager from '../models/recipe';
+import { BadRequestError } from '../utils/expressError';
+import { textToRecipe } from "../api/openai";
+
+
 
 
 /** POST /generate {recipeText}=>{recipeData}
@@ -216,5 +203,4 @@ router.delete(
 
 
 
-module.exports = router;
-// export default router
+export default router

@@ -1,20 +1,9 @@
-"use strict";
-
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
-*/
-require('../config'); //this loads the test database
-const request = require('supertest');
-const app = require('../app');
-const UserManager = require('../models/user');
-const {adminToken, u1Token, u2Token, commonBeforeEach} = require('../test/test_common')
-const {NotFoundError} = require('../utils/expressError')
+import '../config'; //this loads the test database
+import request from 'supertest';
+import app from '../app';
+import UserManager from '../models/user';
+import { adminToken, u1Token, u2Token, commonBeforeEach } from '../test/test_common';
+import { NotFoundError } from '../utils/expressError';
 
 beforeEach(commonBeforeEach);
 
@@ -26,8 +15,10 @@ describe("POST /users", function () {
 
   test("works for admins: create non-admin", async function () {
 
-    mockedRegister.mockReturnValueOnce({
+    mockedRegister.mockResolvedValueOnce({
+      userId:1,
       username: "u-new",
+      password:"hashedPass",
       firstName: "First-new",
       lastName: "Last-newL",
       email: "new@email.com",
@@ -59,12 +50,14 @@ describe("POST /users", function () {
 
   test("works for admins: create admin", async function () {
 
-    mockedRegister.mockReturnValueOnce({
+    mockedRegister.mockResolvedValueOnce({
+      userId:1,
       username: "u-new",
+      password:"hashedPass",
       firstName: "First-new",
       lastName: "Last-newL",
       email: "new@email.com",
-      isAdmin: true,
+      isAdmin: false,
     })
 
     const resp = await request(app)
@@ -185,8 +178,9 @@ describe("GET /users", function () {
 
   test("works for admins", async function () {
 
-    mockedFindAll.mockReturnValueOnce([
+    mockedFindAll.mockResolvedValueOnce([
     {
+      userId:1,
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
@@ -194,6 +188,7 @@ describe("GET /users", function () {
       isAdmin: false,
     },
     {
+      userId:2,
       username: "u2",
       firstName: "U2F",
       lastName: "U2L",
@@ -201,6 +196,7 @@ describe("GET /users", function () {
       isAdmin: false,
     },
     {
+      userId:3,
       username: "u3",
       firstName: "U3F",
       lastName: "U3L",
@@ -214,6 +210,7 @@ describe("GET /users", function () {
     expect(resp.body).toEqual({
       users: [
         {
+          userId:1,
           username: "u1",
           firstName: "U1F",
           lastName: "U1L",
@@ -221,6 +218,7 @@ describe("GET /users", function () {
           isAdmin: false,
         },
         {
+          userId:2,
           username: "u2",
           firstName: "U2F",
           lastName: "U2L",
@@ -228,6 +226,7 @@ describe("GET /users", function () {
           isAdmin: false,
         },
         {
+          userId:3,
           username: "u3",
           firstName: "U3F",
           lastName: "U3L",
@@ -261,7 +260,8 @@ describe("GET /users/:username", function () {
 
   test("works for admin", async function () {
 
-    mockedGet.mockReturnValueOnce({
+    mockedGet.mockResolvedValueOnce({
+      userId:1,
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
@@ -274,6 +274,7 @@ describe("GET /users/:username", function () {
         .set("authorization", `Bearer ${adminToken}`);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u1",
         firstName: "U1F",
         lastName: "U1L",
@@ -285,7 +286,8 @@ describe("GET /users/:username", function () {
 
   test("works for same user", async function () {
 
-    mockedGet.mockReturnValueOnce({
+    mockedGet.mockResolvedValueOnce({
+      userId:1,
       username: "u1",
       firstName: "U1F",
       lastName: "U1L",
@@ -298,6 +300,7 @@ describe("GET /users/:username", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u1",
         firstName: "U1F",
         lastName: "U1L",
@@ -349,7 +352,8 @@ describe("PATCH /users/:username", () => {
 
   test("works for admins", async function () {
 
-    mockUpdateUser.mockReturnValueOnce({
+    mockUpdateUser.mockResolvedValueOnce({
+        userId:1,
         username: "u1",
         firstName: "New",
         lastName: "U1L",
@@ -365,6 +369,7 @@ describe("PATCH /users/:username", () => {
         .set("authorization", `Bearer ${adminToken}`);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u1",
         firstName: "New",
         lastName: "U1L",
@@ -376,7 +381,8 @@ describe("PATCH /users/:username", () => {
 
   test("works for same user", async function () {
 
-    mockUpdateUser.mockReturnValueOnce({
+    mockUpdateUser.mockResolvedValueOnce({
+      userId:1,
       username: "u1",
       firstName: "New",
       lastName: "U1L",
@@ -392,6 +398,7 @@ describe("PATCH /users/:username", () => {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u1",
         firstName: "New",
         lastName: "U1L",

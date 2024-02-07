@@ -1,22 +1,13 @@
-"use strict";
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-require('../config'); //this loads the test database
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-const IngredientManager = require('./ingredient')
-const {
+import '../config'; //this loads the test database
+import {prismaMock as prisma} from '../prismaSingleton';
+import IngredientManager from './ingredient';
+import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-} = require('../test/test_common');
-const { NotFoundError } = require('../utils/expressError');
+} from '../test/test_common';
+import { NotFoundError } from '../utils/expressError';
+
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -31,12 +22,14 @@ describe("Tests for createIngredient", function (){
     console.log("running test for createIngredient")
 
     prisma.ingredient.create.mockResolvedValueOnce({
+      step:1,
       ingredientId:1,
       amount:"testAmount",
       description:"testDescription",
       instructionRef:"testInstructionRef",
     })
     const ingredient = await IngredientManager.createIngredient({
+      step:1,
       amount:"testAmount",
       description:"testDescription",
       instructionRef:"testInstructionRef",
@@ -152,6 +145,7 @@ describe("Tests for sortIngredients", function () {
   //sorts toDelete correctly
   test("Sorts toDelete correctly", async function () {
     const currentIngredients = [{
+      step:1,
       ingredientId: 1,
       amount: "testAmount",
       instructionRef: "testRef",
@@ -159,7 +153,9 @@ describe("Tests for sortIngredients", function () {
     }];
     const newIngredients: IIngredientForUpdate[] = [];
 
-    const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);
+    const result = IngredientManager.sortIngredients(
+      currentIngredients, newIngredients
+    );
 
     expect(result).toEqual({
       toDelete: currentIngredients,
@@ -171,6 +167,7 @@ describe("Tests for sortIngredients", function () {
   //sorts toUpdate correctly
   test("Sorts toUpdate correctly", async function () {
     const currentIngredients = [{
+      step:1,
       ingredientId: 1,
       amount: "testAmount",
       description: "testDescription",
@@ -183,7 +180,9 @@ describe("Tests for sortIngredients", function () {
       instructionRef: "testRef",
     }];
 
-    const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);
+    const result = IngredientManager.sortIngredients(
+      currentIngredients, newIngredients
+    );
 
     expect(result).toEqual({
       toDelete: [],
@@ -201,7 +200,9 @@ describe("Tests for sortIngredients", function () {
       instructionRef: "testRef",
     }];
 
-    const result = IngredientManager.sortIngredients(currentIngredients, newIngredients);
+    const result = IngredientManager.sortIngredients(
+      currentIngredients, newIngredients
+    );
 
     expect(result).toEqual({
       toDelete: [],

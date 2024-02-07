@@ -1,20 +1,7 @@
-"use strict";
+import prisma from '../prismaClient';
+import { NotFoundError } from '../utils/expressError';
+import IngredientManager from './ingredient';
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-import { Prisma, PrismaClient } from '@prisma/client';
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
-const { DATABASE_URL } = require('../config');
-
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-const { NotFoundError } = require('../utils/expressError');
-const IngredientManager = require('./ingredient');
 
 /* Data and functionality for steps */
 
@@ -79,6 +66,7 @@ class StepManager {
       where: { stepId: newStep.stepId },
       include: { ingredients: { orderBy: { ingredientId: 'asc' } } }
     });
+    if (currentStep===null){throw new NotFoundError}
 
     const { stepNumber, stepId, instructions } = newStep;
 
@@ -198,4 +186,4 @@ class StepManager {
   }
 }
 
-module.exports = StepManager;
+export default StepManager;

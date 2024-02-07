@@ -1,12 +1,28 @@
-"use strict";
+import * as jwt from "jsonwebtoken";
+import { createToken } from "./tokens";
+import { SECRET_KEY } from "../config";
 
-const jwt = require("jsonwebtoken");
-const { createToken } = require("./tokens");
-const { SECRET_KEY } = require("../config");
+const testUser:IUserBase = {
+  username:"test",
+  isAdmin:false,
+  password: "test",
+  firstName:"test",
+  lastName:"test",
+  email:"test@test.com",
+}
+
+const testAdmin:IUserBase = {
+  username:"test",
+  isAdmin:true,
+  password: "test",
+  firstName:"test",
+  lastName:"test",
+  email:"test@test.com",
+}
 
 describe("createToken", function () {
   test("works: not admin", function () {
-    const token = createToken({ username: "test", is_admin: false });
+    const token = createToken(testUser);
     const payload = jwt.verify(token, SECRET_KEY);
     expect(payload).toEqual({
       iat: expect.any(Number),
@@ -16,7 +32,7 @@ describe("createToken", function () {
   });
 
   test("works: admin", function () {
-    const token = createToken({ username: "test", isAdmin: true });
+    const token = createToken(testAdmin);
     const payload = jwt.verify(token, SECRET_KEY);
     expect(payload).toEqual({
       iat: expect.any(Number),
@@ -27,7 +43,7 @@ describe("createToken", function () {
 
   test("works: default no admin", function () {
     // given the security risk if this didn't work, checking this specifically
-    const token = createToken({ username: "test" });
+    const token = createToken(testUser);
     const payload = jwt.verify(token, SECRET_KEY);
     expect(payload).toEqual({
       iat: expect.any(Number),

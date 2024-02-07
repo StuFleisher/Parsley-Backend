@@ -1,16 +1,8 @@
-"use strict";
+import '../config'; //this loads the test database
+import {prismaMock as prisma} from '../prismaSingleton';
+import { jest } from '@jest/globals';
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-require('../config'); //this loads the test database
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-
+import IngredientManager from './ingredient';
 jest.mock('./ingredient', () => {
   return {
     createIngredient: jest.fn(),
@@ -19,16 +11,19 @@ jest.mock('./ingredient', () => {
     sortIngredients: jest.fn(),
   };
 });
-const IngredientManager = require('./ingredient');
+const mockedIngredientManager = (
+  IngredientManager as jest.Mocked<typeof IngredientManager>
+);
 
-const StepManager = require('./step');
-const {
+import StepManager from './step';
+import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   storedRecipe1,
-} = require('../test/test_common');
-const { NotFoundError } = require('../utils/expressError');
+} from '../test/test_common';
+import { NotFoundError } from '../utils/expressError';
+
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -90,10 +85,12 @@ describe("Tests for createStep", function () {
 
     //mock dependencies
     prisma.step.create.mockResolvedValueOnce(createdStep);
-    IngredientManager.createIngredient.mockResolvedValueOnce(createdIngredient);
+    mockedIngredientManager
+      .createIngredient
+      .mockResolvedValueOnce(createdIngredient);
     prisma.step.findUniqueOrThrow.mockResolvedValueOnce({
       ...createdStep,
-      ingredients: [createdIngredient]
+      ingredients: [createdIngredient] as any
     });
 
     //run test
@@ -142,7 +139,7 @@ describe("Test updateStep", function () {
     //mock dependencies
     prisma.step.findUnique.mockResolvedValueOnce(initialStep);
     prisma.step.update.mockResolvedValueOnce(updatedStep);
-    IngredientManager.sortIngredients.mockReturnValueOnce({
+    mockedIngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [],
       toUpdate: [],
@@ -171,7 +168,7 @@ describe("Test updateStep", function () {
     //mock dependencies
     prisma.step.findUnique.mockResolvedValueOnce(initialStep);
     prisma.step.update.mockResolvedValueOnce(updatedStep);
-    IngredientManager.sortIngredients.mockReturnValueOnce({
+    mockedIngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [ingredientToDelete],
       toUpdate: [],
@@ -189,7 +186,8 @@ describe("Test updateStep", function () {
     //set up test data
     const ingredientToCreate = {
       amount: "testAmount",
-      instructions: "testInstructions",
+      description: "testInstructions",
+      instructionRef: "testInstructionRef",
       step: 1,
     };
     const initialStep = {
@@ -204,7 +202,7 @@ describe("Test updateStep", function () {
     //mock dependencies
     prisma.step.findUnique.mockResolvedValueOnce(initialStep);
     prisma.step.update.mockResolvedValueOnce(updatedStep);
-    IngredientManager.sortIngredients.mockReturnValueOnce({
+    mockedIngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [ingredientToCreate],
       toDelete: [],
       toUpdate: [],
@@ -222,7 +220,8 @@ describe("Test updateStep", function () {
     const ingredientBeforeUpdate = storedRecipe1.steps[0].ingredients[0];
     const ingredientAfterUpdate = {
       amount: "testAmount",
-      instructions: "testInstructions",
+      description: "testInstructions",
+      instructionRef: "testInstructionRef",
       step: 1,
     };
     const initialStep = {
@@ -236,7 +235,7 @@ describe("Test updateStep", function () {
     //mock dependencies
     prisma.step.findUnique.mockResolvedValueOnce(initialStep);
     prisma.step.update.mockResolvedValueOnce(updatedStep);
-    IngredientManager.sortIngredients.mockReturnValueOnce({
+    mockedIngredientManager.sortIngredients.mockReturnValueOnce({
       toCreate: [],
       toDelete: [],
       toUpdate: [ingredientAfterUpdate],
@@ -358,6 +357,7 @@ describe("Tests for sortSteps", function () {
   test("Sorts toCreate correctly", async function () {
     const currentSteps: IStep[] = [];
     const newSteps: IStepForUpdate[] = [{
+      stepId:1,
       recipeId: 1,
       stepNumber: 1,
       ingredients: [],

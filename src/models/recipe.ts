@@ -1,23 +1,10 @@
-"use strict";
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-import { Prisma, PrismaClient } from '@prisma/client';
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
-const { DATABASE_URL } = require('../config');
-
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-const { NotFoundError } = require('../utils/expressError');
-
-const StepManager = require('./step')
-const {uploadFile, deleteFile} = require("../api/s3");
-
+import '../config';
+import { Prisma } from '@prisma/client';
+import prisma from '../prismaClient';
+import { NotFoundError } from '../utils/expressError';
+import StepManager from './step';
+import { uploadFile, deleteFile } from "../api/s3";
 
 /** Data and functionality for recipes */
 
@@ -311,4 +298,4 @@ class RecipeManager {
 
 }
 
-module.exports = RecipeManager;
+ export default RecipeManager;

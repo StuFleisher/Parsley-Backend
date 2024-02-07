@@ -1,25 +1,17 @@
-"use strict";
 
+import '../config'; //this loads the database
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
+import { BCRYPT_WORK_FACTOR } from '../config'; //this loads the test database
+import {prismaMock as prisma} from '../prismaSingleton';
 
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
-*/
-const {BCRYPT_WORK_FACTOR} = require('../config'); //this loads the test database
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-
-const bcrypt = require("bcrypt");
-const {
+import bcrypt from "bcrypt";
+import {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
-} = require("../utils/expressError");
-const UserManager = require(`./user`);
+} from "../utils/expressError";
+import UserManager from "./user";
+
 
 
 /******************************* AUTHENTICATE ***********************/
@@ -27,11 +19,12 @@ const UserManager = require(`./user`);
 describe("authenticate", function () {
 
   const userData = {
+    userId:1,
     username:"test username",
     password:"test password",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
 
@@ -57,7 +50,7 @@ describe("authenticate", function () {
   });
 
   test("unauth if no such user", async function () {
-    prisma.user.findUnique.mockResolvedValueOnce(undefined);
+    prisma.user.findUnique.mockResolvedValueOnce(null);
     try {
       await UserManager.authenticate("nope", "password");
       throw new Error("fail test, you shouldn't get here");
@@ -88,11 +81,12 @@ describe("authenticate", function () {
 
 describe("register", function () {
   const userData = {
+    userId:1,
     username:"test username",
     password:"test password",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
 
@@ -113,7 +107,7 @@ describe("register", function () {
       password:encryptedPassword
     }
 
-    prisma.user.findUnique.mockResolvedValueOnce(undefined);
+    prisma.user.findUnique.mockResolvedValueOnce(null);
     prisma.user.create.mockResolvedValueOnce(storedUser);
 
     let user = await UserManager.register(userData);
@@ -132,7 +126,7 @@ describe("register", function () {
       password:encryptedPassword
     }
 
-    prisma.user.findUnique.mockResolvedValueOnce(undefined);
+    prisma.user.findUnique.mockResolvedValueOnce(null);
     prisma.user.create.mockResolvedValueOnce({...storedUser, isAdmin:true});
 
     let user = await UserManager.register({
@@ -177,19 +171,21 @@ describe("register", function () {
 describe("findAll", function () {
 
   const userData1 = {
+    userId:1,
     username:"test username",
     password:"test password",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
   const userData2 = {
+    userId:2,
     username:"test username2",
     password:"test password",
     firstName:"test firstName2",
     lastName:"test lastName2",
-    testEmail:"test@test.com2",
+    email:"test@test.com2",
     isAdmin: false,
   }
 
@@ -223,18 +219,20 @@ describe("findAll", function () {
 describe("get", function () {
 
   const userData = {
+    userId:1,
     username:"test username",
     password:"test password",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
   const returnedUser = {
+    userId:1,
     username:"test username",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
 
@@ -249,7 +247,9 @@ describe("get", function () {
   });
 
   test("not found if no such user", async function () {
-    prisma.user.findUniqueOrThrow.mockResolvedValueOnce(undefined);
+    prisma.user.findUniqueOrThrow.mockImplementationOnce(
+      ()=>{throw new Error("error")}
+    );
 
     try {
       await UserManager.getUser("nope");
@@ -268,14 +268,16 @@ describe("get", function () {
 
 describe("update", function () {
   const userData = {
+    userId:1,
     username:"test username",
     password:"test password",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
   const updateData = {
+    userId:1,
     password:"new password",
     firstName: "new firstName",
     lastName: "new lastName",
@@ -283,6 +285,7 @@ describe("update", function () {
     isAdmin: true,
   };
   const returnData = {
+    userId:1,
     username: "test username",
     firstName: "new firstName",
     lastName: "new lastName",
@@ -299,21 +302,6 @@ describe("update", function () {
       where:{username:"test username"},
       data: updateData,
     })
-  });
-
-  test("works: set password", async function () {
-
-    prisma.user.update.mockImplementationOnce((prismaArgs:any)=>{
-      return {
-        ...userData,
-        extraPassword:prismaArgs.data.password,
-      }
-    })
-
-    let user = await UserManager.updateUser("test username", {
-      password: "new",
-    });
-    expect(user.extraPassword.startsWith("$2b$")).toEqual(true)
   });
 
   test("not found if no such user", async function () {

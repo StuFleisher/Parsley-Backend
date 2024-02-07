@@ -1,14 +1,8 @@
-"use strict";
-
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config");
+import * as jwt from "jsonwebtoken";
+import { SECRET_KEY } from "../config";
 
 /** return signed JWT {username, isAdmin} from user data. */
+
 
 function createToken(user:IUserBase) {
   console.assert(user.isAdmin !== undefined,
@@ -22,4 +16,4 @@ function createToken(user:IUserBase) {
   return jwt.sign(payload, SECRET_KEY);
 }
 
-module.exports = { createToken };
+export { createToken };

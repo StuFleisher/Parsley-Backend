@@ -1,38 +1,29 @@
-"use strict";
+import '../config'; //this loads the test database
 
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
-*/
-require('../config'); //this loads the test database
-
-jest.mock("../api/openai",()=>{
+import { jest } from '@jest/globals';
+jest.mock("../api/openai", () => {
   return {
     textToRecipe: jest.fn(),
-  }
-})
-const {textToRecipe} = require("../api/openai");
+  };
+});
+import { textToRecipe as realTextToRecipe } from "../api/openai";
+const textToRecipe = realTextToRecipe as jest.MockedFunction<typeof realTextToRecipe>;
 
-const request = require('supertest');
-const app = require('../app');
-const RecipeManager = require('../models/recipe');
-const {
+import request from 'supertest';
+import app from '../app';
+import RecipeManager from '../models/recipe';
+import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   userSubmittedRecipe1,
   storedRecipe1,
   generatedRecipe1,
-} = require('../test/test_common');
+} from '../test/test_common';
 
-const TEST_RECIPE_TEXT = require('../api/prompts');
+import TEST_RECIPE_TEXT from '../api/prompts';
 
-const { BadRequestError, NotFoundError } = require('../utils/expressError');
+import { BadRequestError, NotFoundError } from '../utils/expressError';
 
 beforeAll(commonBeforeAll);
 beforeEach(async function () {
@@ -79,12 +70,13 @@ describe("GET /", function () {
   test("OK", async function () {
 
     const mockedGetAllRecipes = jest.spyOn(RecipeManager,"getAllRecipes");
-    mockedGetAllRecipes.mockReturnValueOnce([{
+    mockedGetAllRecipes.mockResolvedValueOnce([{
       recipeId:1,
       name: "R1Name",
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
-      sourceName: "R1SourceName"
+      sourceName: "R1SourceName",
+      imageUrl: "http://R1ImageUrl.com"
     }])
 
     const resp = await request(app).get("/recipes");
@@ -107,7 +99,7 @@ describe("GET /", function () {
 describe("GET /{id}", function () {
 
   const mockedGetRecipeById = jest.spyOn(RecipeManager,"getRecipeById");
-  mockedGetRecipeById.mockReturnValueOnce(storedRecipe1)
+  mockedGetRecipeById.mockResolvedValueOnce(storedRecipe1)
 
   test("OK", async function () {
     // const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
@@ -138,7 +130,7 @@ describe("POST /recipes", function () {
 
   test("OK", async function () {
     const mockedSaveRecipe = jest.spyOn(RecipeManager,"saveRecipe");
-    mockedSaveRecipe.mockReturnValueOnce(storedRecipe1)
+    mockedSaveRecipe.mockResolvedValueOnce(storedRecipe1)
 
     const resp = await request(app)
       .post("/recipes")
@@ -193,7 +185,7 @@ describe("POST /recipes", function () {
     test("OK", async function () {
 
       const deleteRecipeByIdMock = jest.spyOn(RecipeManager,"deleteRecipeById");
-      deleteRecipeByIdMock.mockReturnValueOnce(storedRecipe1)
+      deleteRecipeByIdMock.mockResolvedValueOnce(storedRecipe1)
 
       const resp = await request(app).delete(`/recipes/1`);
 
@@ -223,7 +215,7 @@ describe("POST /recipes", function () {
     test("OK", async function () {
 
       const updateRecipeMock = jest.spyOn(RecipeManager,"updateRecipe");
-      updateRecipeMock.mockReturnValueOnce(storedRecipe1)
+      updateRecipeMock.mockResolvedValueOnce(storedRecipe1)
 
       const resp = await request(app)
         .put(`/recipes/1`)

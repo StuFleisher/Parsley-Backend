@@ -1,19 +1,8 @@
-"use strict"
-export {};
+import '../config';
+import prisma from '../prismaClient';
+import { execSync } from 'child_process';
+import { createToken } from '../utils/tokens';
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export {};
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-const {DATABASE_URL} = require('../config');
-const {execSync} = require('child_process');
-const {createToken} = require('../utils/tokens')
 
 //runs any migrations using the test database
 async function commonBeforeAll(){
@@ -38,6 +27,7 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
   imageUrl: "http://R1ImageUrl.com",
   steps: [
     {
+      recipeId:1,
       stepNumber: 1,
       instructions: "R1S1Instructions",
       ingredients: [{
@@ -77,6 +67,7 @@ const generatedRecipe1: IRecipeBase = {
   name: "R1Name",
   steps: [
     {
+      recipeId:1,
       stepNumber: 1,
       instructions: "R1S1Instructions",
       ingredients: [{
@@ -96,6 +87,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   imageUrl: "R2ImageUrl",
   steps: [
     {
+      recipeId:2,
       stepNumber: 1,
       instructions: "R2S1Instructions",
       ingredients: [{
@@ -107,11 +99,38 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   ]
 };
 
-const u1Token = createToken({ username: "u1", isAdmin: false });
-const u2Token = createToken({ username: "u2", isAdmin: false });
-const adminToken = createToken({ username: "admin", isAdmin: true });
+const user1 = {
+  username:"user1",
+  isAdmin:false,
+  password: "user1password",
+  firstName:"user1FirstName",
+  lastName:"user1FirstName",
+  email:"user1@test.com",
+}
 
-module.exports = {
+const user2 = {
+  username:"user2",
+  isAdmin:false,
+  password: "user2password",
+  firstName:"user2FirstName",
+  lastName:"user2FirstName",
+  email:"user2@test.com",
+}
+
+const admin1 = {
+  username:"admin1",
+  isAdmin:true,
+  password: "admin1password",
+  firstName:"admin1FirstName",
+  lastName:"admin1FirstName",
+  email:"admin1@test.com",
+}
+
+const u1Token = createToken(user1);
+const u2Token = createToken(user2);
+const adminToken = createToken(admin1);
+
+export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,

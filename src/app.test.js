@@ -1,7 +1,7 @@
 "use strict";
 
-const request = require("supertest");
-const app = require("./app");
+import request from "supertest"
+import app from "./app"
 
 test("not found for site 404", async function () {
   const resp = await request(app).get("/no-such-path");

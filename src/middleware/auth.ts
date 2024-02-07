@@ -1,18 +1,11 @@
 "use strict"
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
 export {};
 import { Request, Response, NextFunction } from "express";
+import { SECRET_KEY } from "../config";
+import jwt from "jsonwebtoken";
+import { UnauthorizedError } from "../utils/expressError";
 
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-
-const { SECRET_KEY } = require("../config");
-
-const jwt = require("jsonwebtoken");
-const { UnauthorizedError } = require("../utils/expressError");
 
 
 
@@ -80,7 +73,7 @@ function ensureCorrectUserOrAdmin(req: Request, res: Response, next: NextFunctio
 }
 
 
-module.exports = {
+export {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,

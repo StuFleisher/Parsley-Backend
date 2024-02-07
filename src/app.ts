@@ -1,22 +1,13 @@
-"use strict"
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export {};
-import { ErrorRequestHandler,Request, Response, NextFunction } from "express";
-import { MulterError } from "multer";
+import express, { ErrorRequestHandler, Request, Response, NextFunction } from "express";
+import cors from 'cors';
+import { NotFoundError } from './utils/expressError';
+import { authenticateJWT } from "./middleware/auth";
+import {MulterError} from "multer";
 
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-const express = require("express");
-const cors = require('cors');
-const { NotFoundError } = require('./utils/expressError');
-const { authenticateJWT } = require("./middleware/auth");
-
-const authRoutes = require('./routes/auth')
-const recipesRoutes = require('./routes/recipes')
-const usersRoutes = require('./routes/users')
+import authRoutes from './routes/auth';
+import recipesRoutes from './routes/recipes';
+import usersRoutes from './routes/users';
 
 const app=express();
 
@@ -53,4 +44,4 @@ const genericErrorHandler:ErrorRequestHandler = (err,req,res,next) =>{
 }
 app.use(genericErrorHandler);
 
-module.exports = app;
+export default app;

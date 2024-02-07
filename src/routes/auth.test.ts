@@ -1,19 +1,9 @@
-"use strict";
+import '../config'; //this loads the test database
+import request from 'supertest';
+import app from '../app';
+import UserManager from '../models/user';
+import { commonBeforeEach } from '../test/test_common';
 
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
-*/
-require('../config'); //this loads the test database
-const request = require('supertest');
-const app = require('../app');
-const UserManager = require('../models/user');
-const {commonBeforeEach} = require('../test/test_common')
 
 beforeEach(commonBeforeEach);
 
@@ -26,7 +16,7 @@ describe("POST /auth/token", function () {
 
   test("works", async function () {
 
-    mockAuthenticate.mockReturnValueOnce({
+    mockAuthenticate.mockResolvedValueOnce({
       username: "u1",
       firstName: "First-new",
       lastName: "Last-newL",
@@ -94,7 +84,8 @@ describe("POST /auth/register", function () {
 
   test("works for anon", async function () {
 
-    mockRegister.mockReturnValueOnce({
+    mockRegister.mockResolvedValueOnce({
+      userId: 1,
       username: "u1",
       firstName: "first",
       lastName: "last",
@@ -105,6 +96,7 @@ describe("POST /auth/register", function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
+          userId:1,
           username: "new",
           firstName: "first",
           lastName: "last",

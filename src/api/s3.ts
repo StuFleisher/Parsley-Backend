@@ -1,13 +1,14 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-const { mockDeep } = require('jest-mock-extended');
-const { BadRequestError } = require("../utils/expressError");
+import { mockDeep } from 'jest-mock-extended';
+import { BadRequestError } from "../utils/expressError";
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;
 const AWS_KEY = process.env.AWS_KEY;
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 
-let s3: null | S3Client = null;
+let s3 = null;
+
 
 /** Returns either an s3 instance or a mock of an s3 instance for testing */
 function getS3(): S3Client {
@@ -72,4 +73,4 @@ async function deleteFile(path: string) {
 
 
 
-module.exports = { uploadFile, deleteFile };
+export { uploadFile, deleteFile };

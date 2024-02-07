@@ -1,31 +1,29 @@
-"use strict"
+import '../config';
 
-import { Prisma } from "@prisma/client";
-import { error } from "console";
+import { BCRYPT_WORK_FACTOR } from '../config';
+import prisma from '../prismaClient';
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
+import bcrypt from "bcrypt";
 
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
-*/
-const { DATABASE_URL, BCRYPT_WORK_FACTOR } = require('../config');
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-
-
-const bcrypt = require("bcrypt");
 const {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
 } = require("../utils/expressError");
 
-type userData = {
+type UserDataForCreate = {
   username:string,
   password:string,
+  firstName:string,
+  lastName:string,
+  email:string,
+  isAdmin:boolean,
+}
+
+type UserData = {
+  userId:number,
+  username:string,
+  password?:string,
   firstName:string,
   lastName:string,
   email:string,
@@ -43,17 +41,18 @@ type updateData = {
 class UserManager {
 
   /**Authenticate a user with username/password
-   * Returns {username, firstName, lastName, email, isAdmin}
+   * Returns {userId, username, firstName, lastName, email, isAdmin}
    * Throws UnauthorizedError is user not found or wrong password.
   */
-  static async authenticate(username:string, password:string){
-    const user = await prisma.user.findUnique({
+  static async authenticate(username:string, password:string):Promise<UserData>{
+    const fullUserData = await prisma.user.findUnique({
       where:{username:username}
     })
 
-    if (user){
-      const isValid = await bcrypt.compare(password, user.password)
+    if (fullUserData){
+      const isValid = await bcrypt.compare(password, fullUserData.password)
       if (isValid === true){
+        let user:UserData = fullUserData;
         delete user.password;
         return user;
       }
@@ -67,21 +66,22 @@ class UserManager {
    * Returns {username, firstName, lastName, email, isAdmin}
    * Throws BadRequestError on duplicates
    */
-  static async register(userData:userData){
+  static async register(userData:UserDataForCreate):Promise<UserData>{
     //duplicate check
     const user = await prisma.user.findUnique({
       where:{username:userData.username}
     })
-    if (user) throw new BadRequestError(`Username ${user} already exists`)
+    if (user) throw new BadRequestError(`Username ${user.username} already exists`)
 
     const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR)
     userData.password = hashedPassword;
 
     console.log(userData)
 
-    const newUser = await prisma.user.create({
+    const savedUser = await prisma.user.create({
       data: userData
     })
+    let newUser:UserData = savedUser;
     delete newUser.password;
 
     return newUser;
@@ -90,7 +90,7 @@ class UserManager {
   /** Returns a list of userData without passwords */
   static async findAll() {
     let users = await prisma.user.findMany();
-    const response = users.map((user:userData)=>{
+    const response = users.map((user:UserData)=>{
       delete user.password;
       return user;
     })
@@ -102,11 +102,12 @@ class UserManager {
    * Returns {username, firstName, lastName, email, isAdmin}
    * Throws NotFoundError on missing record
    */
-  static async getUser(username:string){
+  static async getUser(username:string):Promise<UserData>{
     try{
-      let user = await prisma.user.findUniqueOrThrow({
+      let fullUserData = await prisma.user.findUniqueOrThrow({
         where:{username}
       })
+      let user:UserData = fullUserData;
       delete user.password;
       return user;
     } catch(err){
@@ -131,7 +132,9 @@ class UserManager {
    * Callers of this function must be certain they have validated inputs to this
    * or a serious security risks are opened.
    */
-  static async updateUser(username:string, userData:updateData){
+  static async updateUser(
+    username:string, userData:updateData
+  ):Promise<UserData>{
     if (userData.password) {
       userData.password = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     }
@@ -141,12 +144,13 @@ class UserManager {
     }
 
     try{
-      const user = await prisma.user.update({
+      const updatedUser = await prisma.user.update({
         where:{
           username:username,
         },
         data:userData
       })
+      let user:UserData = updatedUser;//type change
       delete user.password;
       return user;
     } catch(err){
@@ -168,4 +172,4 @@ class UserManager {
 
 }
 
-module.exports = UserManager;
+export default UserManager;

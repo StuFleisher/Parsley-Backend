@@ -1,11 +1,5 @@
 "use strict"
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export {};
 
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
 const SHORT_BASE_PROMPT =  (
     `Your job is to structure recipe data.
     I will give you the text of a recipe.  I would like you to convert it into
@@ -269,4 +263,4 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-module.exports = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}
+export = {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}

@@ -7,7 +7,7 @@ interface IRecipeBase {
 //Additional metadata from the user.  Extends IRecipeBase.
 interface IRecipeWithMetadata extends IRecipeBase {
   description: string;
-  sourceUrl: string|undefined;
+  sourceUrl: string;
   sourceName: string;
   imageUrl: string;
 }
@@ -29,13 +29,13 @@ type SimpleRecipeData = {
   recipeId:number;
   name:string;
   description: string;
-  sourceUrl: string|undefined;
+  sourceUrl: string;
   sourceName: string;
   imageUrl: string;
 }
 
 interface IStepForCreate {
-  recipeId?:number,
+  recipeId:number,
   stepNumber:number,
   ingredients:IIngredientBase[],
   instructions: string
@@ -55,7 +55,7 @@ interface IStep extends IStepBase{
 }
 
 interface IStepForUpdate extends IStepBase{
-  stepId?:number;
+  stepId:number;
   ingredients:IIngredientForUpdate[]
 }
 
@@ -85,9 +85,14 @@ type IngredientForCreate = {
 interface IUserBase {
   userId?:number,
   username: string,
-  password:string,
+  password?:string,
   firstName:string,
   lastName:string,
   email:string,
+  isAdmin:boolean;
+}
+
+type Token = {
+  username:string;
   isAdmin:boolean;
 }

@@ -1,7 +1,7 @@
 export {};
 
-const multer = require('multer');
-const {BadRequestError} = require('../utils/expressError')
+import multer from 'multer';
+import { BadRequestError } from '../utils/expressError';
 
 const storage = multer.memoryStorage()
 const upload = multer({
@@ -25,4 +25,4 @@ function readMultipart(fieldName:string){
   return upload.single(`${fieldName}`);
 }
 
-module.exports = readMultipart;
+export default readMultipart;

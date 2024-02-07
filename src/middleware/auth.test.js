@@ -1,13 +1,13 @@
 "use strict";
 
-const jwt = require("jsonwebtoken");
-const { UnauthorizedError } = require("../utils/expressError");
-const {
+import jwt from "jsonwebtoken";
+import { UnauthorizedError } from "../utils/expressError";
+import {
   authenticateJWT,
   ensureLoggedIn,
   ensureAdmin,
   ensureCorrectUserOrAdmin,
-} = require("./auth");
+} from "./auth";
 
 
 const { SECRET_KEY } = require("../config");

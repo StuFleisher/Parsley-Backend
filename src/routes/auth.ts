@@ -1,27 +1,16 @@
-"use strict";
-
-/** Routes for recipes */
-
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
 import { Request, Response, NextFunction } from "express";
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const jsonschema = require('jsonschema');
-const userAuthSchema = require("../schemas/userAuth.json");
-const userRegisterSchema = require("../schemas/userRegister.json");
+import jsonschema from 'jsonschema';
+import userAuthSchema from "../schemas/userAuth.json";
+import userRegisterSchema from "../schemas/userRegister.json";
 
-const { BadRequestError } = require('../utils/expressError');
-const { createToken } = require("../utils/tokens");
+import { BadRequestError } from '../utils/expressError';
+import { createToken } from "../utils/tokens";
 
-const UserManager = require('../models/user');
+import UserManager from '../models/user';
+
 
 
 /** POST /auth/token:  { username, password } => { token }
@@ -44,7 +33,7 @@ router.post("/token", async function (
   if (!validator.valid) {
     const errs = validator.errors.map((e:Error)=> e.stack);
     console.log("test")
-    throw new BadRequestError(errs);
+    throw new BadRequestError(errs.join(", "));
   }
 
   const { username, password } = req.body;
@@ -75,7 +64,7 @@ router.post("/register", async function (
   );
   if (!validator.valid) {
     const errs = validator.errors.map((e:Error) => e.stack);
-    throw new BadRequestError(errs);
+    throw new BadRequestError(errs.join(", "));
   }
 
   const newUser = await UserManager.register({ ...req.body, isAdmin: false });
@@ -83,4 +72,4 @@ router.post("/register", async function (
   return res.status(201).json({ token });
 });
 
-module.exports = router;
+export default router;

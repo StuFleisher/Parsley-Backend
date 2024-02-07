@@ -1,23 +1,18 @@
-"use strict";
+import '../config'; //this loads the test database
+import {prismaMock as prisma} from '../prismaSingleton';
 
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
+import { jest } from '@jest/globals';
 
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-require('../config'); //this loads the test database
-const getPrismaClient = require('../client');
-const prisma = getPrismaClient();
-
-jest.mock('../api/s3',() =>{
+jest.mock('../api/s3', () => {
   return {
-    uploadFile:jest.fn(),
-    deleteFile:jest.fn(),
-  }
-})
-const s3 = require('../api/s3');
+    uploadFile: jest.fn(),
+    deleteFile: jest.fn(),
+  };
+});
+import * as s3 from '../api/s3';
+const mockedS3 = (
+  s3 as jest.Mocked<typeof s3>
+)
 
 jest.mock('./step', () => {
   return {
@@ -27,22 +22,26 @@ jest.mock('./step', () => {
     sortSteps: jest.fn(),
   };
 });
-const StepManager = require('./step');
+import * as StepManager from './step';
+const mockedStepManager = (
+  StepManager as jest.Mocked<typeof StepManager>
+)
 
-const RecipeManager = require('./recipe');
-const {
+import RecipeManager from './recipe';
+import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   userSubmittedRecipe1,
   userSubmittedRecipe2,
   storedRecipe1,
-} = require('../test/test_common');
-const { NotFoundError } = require('../utils/expressError');
+} from '../test/test_common';
+import { NotFoundError } from '../utils/expressError';
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
+
 
 /********************** CREATE *******************************/
 describe("Test Create Recipe", function () {
@@ -96,6 +95,7 @@ describe("Test getAllRecipes", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
+      imageUrl: "http://R1ImageUrl.com",
     },
     {
       recipeId: 2,
@@ -103,6 +103,7 @@ describe("Test getAllRecipes", function () {
       description: "R2Description",
       sourceUrl: "http://R2SourceUrl.com",
       sourceName: "R2SourceName",
+      imageUrl: "http://R2ImageUrl.com",
     },
   ];
 
@@ -207,7 +208,7 @@ describe("Test updateRecipe", function () {
     const _updateRecipeSteps = (
       jest.spyOn(RecipeManager, '_updateRecipeSteps')
     );
-    _updateRecipeSteps.mockImplementationOnce(() => { });
+    // _updateRecipeSteps.mockImplementationOnce(() => { });
 
     //do test
     const result = await RecipeManager.updateRecipe(recipeAfterUpdate);
@@ -275,7 +276,7 @@ describe("Test deleteRecipeById", function () {
   test("Returns the correct record with submodel data", async function () {
 
     //mock dependencies
-    s3.deleteFile.mockResolvedValueOnce(undefined);
+    mockedS3.deleteFile.mockResolvedValueOnce(undefined as any);
     prisma.recipe.delete.mockResolvedValueOnce(storedRecipe1);
     //do test
     const result = await RecipeManager.deleteRecipeById(1);
@@ -321,18 +322,19 @@ describe("Test _updateRecipeSteps", function () {
     const currentSteps: IStep[] = [];
     const revisedSteps: IStepForUpdate[] = [{
       recipeId: 1,
+      stepId:1,
       stepNumber: 1,
       instructions: "newInstructions",
       ingredients: []
     }];
 
     //mock dependencies
-    StepManager.sortSteps.mockReturnValueOnce({
+    mockedStepManager.sortSteps.mockReturnValueOnce({
       toUpdate: [],
       toCreate: revisedSteps,
       toDelete: [],
     });
-    StepManager.createStep.mockReturnValueOnce({
+    mockedStepManager.createStep.mockReturnValueOnce({
       ...revisedSteps[0],
       stepId: 1,
     });
@@ -344,10 +346,10 @@ describe("Test _updateRecipeSteps", function () {
       1,
     );
 
-    expect(StepManager.createStep).toHaveBeenCalledWith(
+    expect(mockedStepManager.createStep).toHaveBeenCalledWith(
       revisedSteps[0]
     );
-    expect(StepManager.createStep).toHaveBeenCalledTimes(1);
+    expect(mockedStepManager.createStep).toHaveBeenCalledTimes(1);
 
   });
 
@@ -364,12 +366,12 @@ describe("Test _updateRecipeSteps", function () {
     const revisedSteps: IStep[] = [];
 
     //mock dependencies
-    StepManager.sortSteps.mockReturnValueOnce({
+    mockedStepManager.sortSteps.mockReturnValueOnce({
       toUpdate: [],
       toCreate: [],
       toDelete: currentSteps,
     });
-    StepManager.deleteStepById.mockReturnValueOnce(currentSteps[0]);
+    mockedStepManager.deleteStepById.mockReturnValueOnce(currentSteps[0]);
 
     //do test
     const recipe = RecipeManager._updateRecipeSteps(
@@ -378,8 +380,8 @@ describe("Test _updateRecipeSteps", function () {
       1,
     );
 
-    expect(StepManager.deleteStepById).toHaveBeenCalledWith(100);
-    expect(StepManager.deleteStepById).toHaveBeenCalledTimes(1);
+    expect(mockedStepManager.deleteStepById).toHaveBeenCalledWith(100);
+    expect(mockedStepManager.deleteStepById).toHaveBeenCalledTimes(1);
 
   });
 
@@ -401,12 +403,12 @@ describe("Test _updateRecipeSteps", function () {
     }];
 
     //mock dependencies
-    StepManager.sortSteps.mockReturnValueOnce({
+    mockedStepManager.sortSteps.mockReturnValueOnce({
       toUpdate: revisedSteps,
       toCreate: [],
       toDelete: [],
     });
-    StepManager.updateStep.mockReturnValueOnce(revisedSteps[0]);
+    mockedStepManager.updateStep.mockReturnValueOnce(revisedSteps[0]);
 
     //do test
     const recipe = RecipeManager._updateRecipeSteps(
@@ -415,8 +417,8 @@ describe("Test _updateRecipeSteps", function () {
       1,
     );
 
-    expect(StepManager.updateStep).toHaveBeenCalledWith(revisedSteps[0]);
-    expect(StepManager.updateStep).toHaveBeenCalledTimes(1);
+    expect(mockedStepManager.updateStep).toHaveBeenCalledWith(revisedSteps[0]);
+    expect(mockedStepManager.updateStep).toHaveBeenCalledTimes(1);
 
   });
 

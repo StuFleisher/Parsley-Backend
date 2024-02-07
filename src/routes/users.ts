@@ -1,27 +1,15 @@
-"use strict";
-
-/** Routes for recipes */
-
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export { };
-import { Request, Response, NextFunction } from "express";
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-const express = require('express');
+import express, { Request, Response, NextFunction } from 'express';
 const router = express.Router();
 
-const jsonschema = require('jsonschema');
-const userNewSchema = require("../schemas/userNew.json");
-const userUpdateSchema = require("../schemas/userUpdate.json");
+import jsonschema from 'jsonschema';
+import userNewSchema from "../schemas/userNew.json";
+import userUpdateSchema from "../schemas/userUpdate.json";
 
-const { BadRequestError } = require('../utils/expressError');
-const { createToken } = require("../utils/tokens");
-const { ensureCorrectUserOrAdmin, ensureAdmin } = require("../middleware/auth");
-const UserManager = require('../models/user');
+import { BadRequestError } from '../utils/expressError';
+import { createToken } from "../utils/tokens";
+import { ensureCorrectUserOrAdmin, ensureAdmin } from "../middleware/auth";
+import UserManager from '../models/user';
+
 
 
 /** POST / { user }  => { user, token }
@@ -48,7 +36,7 @@ router.post("/", ensureAdmin, async function (
   );
   if (!validator.valid) {
     const errs = validator.errors.map((e: Error) => e.stack);
-    throw new BadRequestError(errs);
+    throw new BadRequestError(errs.join(", "));
   }
 
   const user = await UserManager.register(req.body);
@@ -115,7 +103,7 @@ router.patch("/:username", ensureCorrectUserOrAdmin, async function (
   );
   if (!validator.valid) {
     const errs = validator.errors.map((e:Error) => e.stack);
-    throw new BadRequestError(errs);
+    throw new BadRequestError(errs.join(", "));
   }
 
   const user = await UserManager.updateUser(req.params.username, req.body);
@@ -137,4 +125,4 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (
   return res.json({ deleted: req.params.username });
 });
 
-module.exports = router;
+export default router;

@@ -1,21 +1,14 @@
 "use strict"
 /** This file contains methods for handling interactions with the openai api*/
 
-
-/**We have to use ESM syntax to handle typing and to get ts to recognize this as
- * a module instead of a script */
-export {};
-
-/**We use common js for other imports to avoid a transpiling issue related to
- * extensions and paths differing in testing and dev environments
- */
-const { RECIPE_CONVERSION_BASE_PROMPT, SHORT_BASE_PROMPT } =require("./prompts");
-const OpenAI =require("openai");
-const jsonschema = require('jsonschema');
-const recipeGeneratedSchema = require("../schemas/recipeGenerated.json");
-const { BadRequestError } = require('../utils/expressError');
+import { RECIPE_CONVERSION_BASE_PROMPT, SHORT_BASE_PROMPT } from "./prompts";
+import OpenAI from "openai";
+import jsonschema from 'jsonschema';
+import recipeGeneratedSchema from "../schemas/recipeGenerated.json";
+import { BadRequestError } from '../utils/expressError';
 
 const openai = new OpenAI();
+
 
 /** Accepts a string containing raw text for a recipe and returns an IRecipeBase
  *
@@ -66,4 +59,4 @@ async function textToRecipe(recipeText:string):Promise<IRecipeBase>{
   return recipe;
 }
 
-module.exports = {textToRecipe}
+export {textToRecipe}
