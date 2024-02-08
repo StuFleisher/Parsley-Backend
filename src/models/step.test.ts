@@ -2,7 +2,6 @@ import '../config'; //this loads the test database
 import {prismaMock as prisma} from '../prismaSingleton';
 import { jest } from '@jest/globals';
 
-import IngredientManager from './ingredient';
 jest.mock('./ingredient', () => {
   return {
     createIngredient: jest.fn(),
@@ -11,6 +10,7 @@ jest.mock('./ingredient', () => {
     sortIngredients: jest.fn(),
   };
 });
+import IngredientManager from './ingredient';
 const mockedIngredientManager = (
   IngredientManager as jest.Mocked<typeof IngredientManager>
 );
