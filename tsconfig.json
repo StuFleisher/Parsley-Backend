@@ -3,14 +3,31 @@
     "outDir": "./dist/",
     "rootDir": "./src",
     "noImplicitAny": true,
-    "module": "ES6",
+    "module": "commonjs",
     "target": "ESNext",
     "allowJs": true,
-    "moduleResolution": "node",
+    // "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "paths": {
+      "baseUrl":["./src/"],
+      "app.js":["./app.ts"],
+      "prismaClient.js":["./prismaClient.ts"],
+      "prismaSingleton.js":["./prismaSingleton.ts"],
+      "/api/*": ["./api/*"],
+      "/middleware/*": ["./middleware/*"],
+      "/models/*": ["./models/*"],
+      "/routes/*": ["./routes/*"],
+      "/schemas/*": ["./schemas/*"],
+      "/test/*": ["./test/*"],
+      "/utils/*": ["./utils/*"],
+    }
+  },
+  "ts-node": {
+    "esm": true
   },
   "include": [
     "src/**/*"
@@ -18,5 +35,5 @@
   "exclude": [
     "node_modules",
     "dist"
-  ]
+  ],
 }

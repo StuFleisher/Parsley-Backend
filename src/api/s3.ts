@@ -1,6 +1,5 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { mockDeep } from 'jest-mock-extended';
-import { BadRequestError } from "../utils/expressError";
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;

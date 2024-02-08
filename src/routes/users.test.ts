@@ -18,7 +18,6 @@ describe("POST /users", function () {
     mockedRegister.mockResolvedValueOnce({
       userId:1,
       username: "u-new",
-      password:"hashedPass",
       firstName: "First-new",
       lastName: "Last-newL",
       email: "new@email.com",
@@ -39,6 +38,7 @@ describe("POST /users", function () {
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u-new",
         firstName: "First-new",
         lastName: "Last-newL",
@@ -53,11 +53,10 @@ describe("POST /users", function () {
     mockedRegister.mockResolvedValueOnce({
       userId:1,
       username: "u-new",
-      password:"hashedPass",
       firstName: "First-new",
       lastName: "Last-newL",
       email: "new@email.com",
-      isAdmin: false,
+      isAdmin: true,
     })
 
     const resp = await request(app)
@@ -74,6 +73,7 @@ describe("POST /users", function () {
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       user: {
+        userId:1,
         username: "u-new",
         firstName: "First-new",
         lastName: "Last-newL",
@@ -285,7 +285,7 @@ describe("GET /users/:username", function () {
   });
 
   test("works for same user", async function () {
-
+    console.log("works for same user")
     mockedGet.mockResolvedValueOnce({
       userId:1,
       username: "u1",

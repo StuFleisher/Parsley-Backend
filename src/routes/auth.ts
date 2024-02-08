@@ -3,8 +3,8 @@ import express from 'express';
 const router = express.Router();
 
 import jsonschema from 'jsonschema';
-import userAuthSchema from "../schemas/userAuth.json";
-import userRegisterSchema from "../schemas/userRegister.json";
+import userAuthSchema from "../schemas/userAuth.json"
+import userRegisterSchema from "../schemas/userRegister.json"
 
 import { BadRequestError } from '../utils/expressError';
 import { createToken } from "../utils/tokens";
@@ -32,7 +32,6 @@ router.post("/token", async function (
   );
   if (!validator.valid) {
     const errs = validator.errors.map((e:Error)=> e.stack);
-    console.log("test")
     throw new BadRequestError(errs.join(", "));
   }
 

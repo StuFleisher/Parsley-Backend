@@ -16,12 +16,10 @@ const mockedS3 = (
 
 jest.mock('./step', () => {
   return {
-    default:{
-      createStep: jest.fn(),
-      updateStep: jest.fn(),
-      deleteStepById: jest.fn(),
-      sortSteps: jest.fn(),
-    }
+    createStep: jest.fn(),
+    updateStep: jest.fn(),
+    deleteStepById: jest.fn(),
+    sortSteps: jest.fn(),
   };
 });
 import StepManager from './step';
@@ -181,6 +179,7 @@ describe("Test updateRecipe", function () {
 
   //Updates base recipe data
   test("Updates base recipe data", async function () {
+
     // set up test data
     const recipeBeforeUpdate = {
       ...storedRecipe1,
@@ -200,8 +199,6 @@ describe("Test updateRecipe", function () {
     const getRecipeByIdSpy = jest.spyOn(RecipeManager, 'getRecipeById')
       .mockResolvedValueOnce(recipeBeforeUpdate)
       .mockResolvedValueOnce(recipeAfterUpdate);
-
-
     prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(recipeBeforeUpdate);
     prisma.$transaction.mockImplementation(async (transaction: Function) => {
       await transaction();
@@ -210,7 +207,7 @@ describe("Test updateRecipe", function () {
     const _updateRecipeSteps = (
       jest.spyOn(RecipeManager, '_updateRecipeSteps')
     );
-    // _updateRecipeSteps.mockImplementationOnce(() => { });
+    _updateRecipeSteps.mockImplementationOnce(async () => { });
 
     //do test
     const result = await RecipeManager.updateRecipe(recipeAfterUpdate);
@@ -233,6 +230,7 @@ describe("Test updateRecipe", function () {
   });
 
   test("Error on failed transaction", async function () {
+
     const recipeBeforeUpdate = {
       ...storedRecipe1,
       steps: [],
@@ -321,10 +319,9 @@ describe("Test deleteRecipeById", function () {
 describe("Test _updateRecipeSteps", function () {
   test("Creates steps correctly", function () {
 
-    const currentSteps: IStep[] = [];
-    const revisedSteps: IStepForUpdate[] = [{
+    const currentSteps: Step[] = [];
+    const revisedSteps: StepForCreate[] = [{
       recipeId: 1,
-      stepId:1,
       stepNumber: 1,
       instructions: "newInstructions",
       ingredients: []
@@ -358,14 +355,14 @@ describe("Test _updateRecipeSteps", function () {
 
   test("Deletes steps correctly", function () {
 
-    const currentSteps: IStep[] = [{
+    const currentSteps: Step[] = [{
       recipeId: 1,
       stepNumber: 1,
       instructions: "Instructions",
       ingredients: [],
       stepId: 100,
     }];
-    const revisedSteps: IStep[] = [];
+    const revisedSteps: Step[] = [];
 
     //mock dependencies
     mockedStepManager.sortSteps.mockReturnValueOnce({
@@ -389,14 +386,14 @@ describe("Test _updateRecipeSteps", function () {
 
   test("Deletes steps correctly", function () {
 
-    const currentSteps: IStep[] = [{
+    const currentSteps: Step[] = [{
       recipeId: 1,
       stepNumber: 1,
       instructions: "instructions",
       ingredients: [],
       stepId: 100
     }];
-    const revisedSteps: IStep[] = [{
+    const revisedSteps: Step[] = [{
       recipeId: 1,
       stepNumber: 2,
       instructions: "newInstructions",

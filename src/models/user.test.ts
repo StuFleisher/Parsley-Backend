@@ -29,10 +29,11 @@ describe("authenticate", function () {
   }
 
   const returnedUser = {
+    userId: 1,
     username:"test username",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
 
@@ -91,10 +92,11 @@ describe("register", function () {
   }
 
   const returnedUser = {
+    userId:1,
     username:"test username",
     firstName:"test firstName",
     lastName:"test lastName",
-    testEmail:"test@test.com",
+    email:"test@test.com",
     isAdmin: false,
   }
 
@@ -197,17 +199,19 @@ describe("findAll", function () {
 
     expect(users).toEqual([
       {
+        userId:1,
         username:"test username",
         firstName:"test firstName",
         lastName:"test lastName",
-        testEmail:"test@test.com",
+        email:"test@test.com",
         isAdmin: false,
       },
       {
+        userId:2,
         username:"test username2",
         firstName:"test firstName2",
         lastName:"test lastName2",
-        testEmail:"test@test.com2",
+        email:"test@test.com2",
         isAdmin: false,
       }
     ]);

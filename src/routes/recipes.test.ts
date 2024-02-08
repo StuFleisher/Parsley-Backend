@@ -39,9 +39,10 @@ describe("POST /generate", function () {
   test("OK", async function () {
     textToRecipe.mockResolvedValue(generatedRecipe1);
 
+    // console.log("test post /generate",TEST_RECIPE_TEXT)
     const resp = await request(app)
       .post("/recipes/generate")
-      .send(TEST_RECIPE_TEXT);
+      .send({recipeText:TEST_RECIPE_TEXT});
 
     expect(resp.statusCode).toEqual(200);
     expect(resp.body.recipe).toEqual(generatedRecipe1);
@@ -54,7 +55,7 @@ describe("POST /generate", function () {
 
     const resp = await request(app)
       .post("/recipes/generate")
-      .send(TEST_RECIPE_TEXT);
+      .send({recipeText:TEST_RECIPE_TEXT});
 
     expect(resp.statusCode).toEqual(400);
     expect(resp.body).toEqual({
@@ -89,7 +90,8 @@ describe("GET /", function () {
         name: "R1Name",
         description: "R1Description",
         sourceUrl: "http://R1SourceUrl.com",
-        sourceName: "R1SourceName"
+        sourceName: "R1SourceName",
+        imageUrl: "http://R1ImageUrl.com"
       }]
     });
   });

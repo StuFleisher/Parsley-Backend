@@ -2,8 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 const router = express.Router();
 
 import jsonschema from 'jsonschema';
-import userNewSchema from "../schemas/userNew.json";
-import userUpdateSchema from "../schemas/userUpdate.json";
+import userNewSchema from "../schemas/userNew.json"
+import userUpdateSchema from "../schemas/userUpdate.json"
 
 import { BadRequestError } from '../utils/expressError';
 import { createToken } from "../utils/tokens";
@@ -19,7 +19,7 @@ import UserManager from '../models/user';
  * admin.
  *
  * This returns the newly created user and an authentication token for them:
- *  {user: { username, firstName, lastName, email, isAdmin }, token }
+ *  {user: { userId, username, firstName, lastName, email, isAdmin }, token }
  *
  * Authorization required: admin
  **/

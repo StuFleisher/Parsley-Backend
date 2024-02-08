@@ -64,11 +64,15 @@ function ensureAdmin(req: Request, res: Response, next: NextFunction) {
 
 function ensureCorrectUserOrAdmin(req: Request, res: Response, next: NextFunction) {
   const user = res.locals.user;
+  console.log(user)
+  console.log(req.params.username)
   const username = res.locals.user?.username;
   if (username && (username === req.params.username || user.isAdmin === true)) {
+    console.log("next")
     return next();
   }
 
+  console.log("unauth")
   throw new UnauthorizedError();
 }
 

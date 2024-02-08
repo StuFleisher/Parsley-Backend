@@ -39,7 +39,7 @@ describe("Tests for createStep", function () {
     ingredients: [],
   };
 
-  const createdStep: IStep = {
+  const createdStep: Step = {
     stepId: 1,
     recipeId: 1,
     stepNumber: 1,
@@ -254,7 +254,7 @@ describe("Test updateStep", function () {
 
 describe("Tests for deleteStep", function () {
 
-  const deletedStep: IStep = {
+  const deletedStep: Step = {
     stepId: 1,
     recipeId: 1,
     stepNumber: 1,
@@ -309,14 +309,14 @@ describe("Tests for deleteStep", function () {
 describe("Tests for sortSteps", function () {
   //sorts toDelete correctly
   test("Sorts toDelete correctly", async function () {
-    const currentSteps: IStep[] = [{
+    const currentSteps: Step[] = [{
       recipeId: 1,
       stepNumber: 1,
       stepId: 1,
       ingredients: [],
       instructions: "testInstructions"
     }];
-    const newSteps: IStepForUpdate[] = [];
+    const newSteps: StepForUpdate[] = [];
 
     const result = StepManager.sortSteps(currentSteps, newSteps);
 
@@ -329,14 +329,14 @@ describe("Tests for sortSteps", function () {
 
   //sorts toUpdate correctly
   test("Sorts toUpdate correctly", async function () {
-    const currentSteps: IStep[] = [{
+    const currentSteps: Step[] = [{
       recipeId: 1,
       stepNumber: 1,
       stepId: 1,
       ingredients: [],
       instructions: "testInstructions"
     }];
-    const newSteps: IStepForUpdate[] = [{
+    const newSteps: StepForUpdate[] = [{
       recipeId: 1,
       stepNumber: 1,
       stepId: 1,
@@ -355,9 +355,9 @@ describe("Tests for sortSteps", function () {
 
   //sorts toCreate correctly
   test("Sorts toCreate correctly", async function () {
-    const currentSteps: IStep[] = [];
-    const newSteps: IStepForUpdate[] = [{
-      stepId:1,
+    console.log("sorts toCreate")
+    const currentSteps: Step[] = [];
+    const newSteps: StepForCreate[] = [{
       recipeId: 1,
       stepNumber: 1,
       ingredients: [],

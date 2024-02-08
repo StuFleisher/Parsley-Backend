@@ -5,11 +5,11 @@ import prisma from '../prismaClient';
 
 import bcrypt from "bcrypt";
 
-const {
+import {
   NotFoundError,
   BadRequestError,
   UnauthorizedError,
-} = require("../utils/expressError");
+} from '../utils/expressError';
 
 type UserDataForCreate = {
   username:string,
@@ -63,7 +63,7 @@ class UserManager {
 
 
   /** Register a user with userdata
-   * Returns {username, firstName, lastName, email, isAdmin}
+   * Returns {userId, username, firstName, lastName, email, isAdmin}
    * Throws BadRequestError on duplicates
    */
   static async register(userData:UserDataForCreate):Promise<UserData>{
@@ -75,8 +75,6 @@ class UserManager {
 
     const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR)
     userData.password = hashedPassword;
-
-    console.log(userData)
 
     const savedUser = await prisma.user.create({
       data: userData

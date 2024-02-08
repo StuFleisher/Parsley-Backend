@@ -116,9 +116,6 @@ class RecipeManager {
           },
         });
 
-        // console.log("***NEW***",newRecipe.steps)
-        // console.log("***CURRENT***",currentRecipe.steps)
-
         const temp = await RecipeManager._updateRecipeSteps(
           currentRecipe.steps,
           newRecipe.steps,
@@ -131,7 +128,7 @@ class RecipeManager {
 
       updatedRecipe = await RecipeManager.getRecipeById(newRecipe.recipeId)
       return updatedRecipe;
-      
+
     } catch (error) {
       console.log("Error in transaction", error.message);
       await prisma.$queryRaw`ROLLBACK`;
@@ -139,7 +136,9 @@ class RecipeManager {
     }
   }
 
-  /** Takes two lists of steps (current and revised).  Compares the lists
+  /** Updates the list of steps for the recipe by adding, updating or deleting.
+   *
+   * Takes two lists of steps (current and revised).  Compares the lists
    * and processes each step by doing one of the following:
    *    Create: Creates a step that exists on the revised list but not the
    *            current list
@@ -154,8 +153,8 @@ class RecipeManager {
    */
 
   static async _updateRecipeSteps(
-    currentSteps:IStep[],
-    revisedSteps:IStepForUpdate[],
+    currentSteps:Step[],
+    revisedSteps:(StepForUpdate|StepForCreate)[],
     recipeId:number,
   ){
 
@@ -163,8 +162,6 @@ class RecipeManager {
       currentSteps,
       revisedSteps,
     );
-
-    console.log(sortedSteps)
 
     //delete
     for (const step of sortedSteps.toDelete) {

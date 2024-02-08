@@ -97,7 +97,6 @@ describe("POST /auth/register", function () {
     const resp = await request(app)
         .post("/auth/register")
         .send({
-          userId:1,
           username: "new",
           firstName: "first",
           lastName: "last",

@@ -100,20 +100,20 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
 };
 
 const user1 = {
-  username:"user1",
+  username:"u1",
   isAdmin:false,
   password: "user1password",
-  firstName:"user1FirstName",
-  lastName:"user1FirstName",
+  firstName:"U1F",
+  lastName:"U1L",
   email:"user1@test.com",
 }
 
 const user2 = {
-  username:"user2",
+  username:"u2",
   isAdmin:false,
   password: "user2password",
-  firstName:"user2FirstName",
-  lastName:"user2FirstName",
+  firstName:"U2F",
+  lastName:"U2L",
   email:"user2@test.com",
 }
 

@@ -22,10 +22,9 @@ class StepManager {
      * { recipeId, stepId, stepNumber, instructions, ingredients }
      */
 
-  static async createStep(step:IStepForCreate) {
+  static async createStep(step:StepForCreate) {
 
     const {recipeId, stepNumber, instructions, ingredients} = step;
-    console.log("ingredients",ingredients)
 
     const createdStep = await prisma.step.create({
       data: {
@@ -60,7 +59,7 @@ class StepManager {
    */
 
   static async updateStep(
-    newStep: IStepForUpdate,
+    newStep: StepForUpdate,
   ) {
     const currentStep = await prisma.step.findUnique({
       where: { stepId: newStep.stepId },
@@ -128,7 +127,7 @@ class StepManager {
    * Throws an error if record is not found.
   */
 
-  static async deleteStepById(id: number): Promise<IStep> {
+  static async deleteStepById(id: number): Promise<Step> {
     try {
       const step = await prisma.step.delete({
         where: {
@@ -159,24 +158,35 @@ class StepManager {
    */
 
   static sortSteps(
-    currentSteps: IStep[],
-    newSteps: IStepForUpdate[]
+    currentSteps: Step[],
+    newSteps: (StepForUpdate | StepForCreate)[]
   ) {
-    const stepsToCreate:IStepForCreate[] = newSteps.filter((newStep) => {
-      return newStep.stepId === undefined;
-    });
 
-    const stepsToUpdate:IStepForUpdate[] = newSteps.filter((newStep) => {
-      return currentSteps.some(
-        (currentStep) => { return newStep.stepId === currentStep.stepId; }
-      );
-    });
+    const stepsToCreate:StepForCreate[] = ( //exists in new but not current
+      newSteps.filter((newStep): newStep is StepForCreate => {
+        return (newStep as StepForUpdate).stepId === undefined;
+      })
+    );
 
-    const stepsToDelete:IStep[] = currentSteps.filter((currentStep) => {
-      return !newSteps.some(
-        (newStep) => { return newStep.stepId === currentStep.stepId; }
-      );
-    });
+    const stepsToUpdate:StepForUpdate[] = ( //exists in both lists
+      newSteps.filter((newStep):newStep is StepForUpdate => {
+        return currentSteps.some(
+          (currentStep) => {
+            return (newStep as StepForUpdate).stepId === currentStep.stepId;
+          }
+        );
+      })
+    );
+
+    const stepsToDelete:Step[] = ( //exists in current but not new
+      currentSteps.filter((currentStep):currentStep is Step => {
+        return !newSteps.some(
+          (newStep) => {
+              return (newStep as Step).stepId === currentStep.stepId;
+          }
+        );
+      })
+    );
 
     return {
       toCreate: stepsToCreate,

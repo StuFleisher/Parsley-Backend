@@ -37,12 +37,14 @@ describe("Tests for createIngredient", function (){
 
     expect(prisma.ingredient.create).toHaveBeenCalledWith({
         data: {
+          step:1,
           amount:"testAmount",
           description:"testDescription",
           instructionRef:"testInstructionRef",
         }
     })
     expect(ingredient).toEqual({
+      step:1,
       ingredientId:1,
       amount:"testAmount",
       description:"testDescription",

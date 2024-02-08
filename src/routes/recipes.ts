@@ -7,7 +7,7 @@ const router = express.Router();
 import readMultipart from '../middleware/multer';
 
 //schemas
-import recipeNewSchema from "../schemas/recipeNew.json";
+import recipeNewSchema from "../schemas/recipeNew.json"
 import recipeUpdateSchema from "../schemas/recipeUpdate.json";
 
 //modules
@@ -44,6 +44,7 @@ import { textToRecipe } from "../api/openai";
  *  }
  */
 router.post("/generate", async function (req: Request, res: Response, next: NextFunction) {
+
   const rawRecipe = req.body.recipeText;
   let recipe;
   try {
@@ -137,9 +138,7 @@ router.get(
 router.delete(
   "/:id",
   async function (req: Request, res: Response, next: NextFunction){
-    console.log("route started")
     const deleted = await RecipeManager.deleteRecipeById(+req.params.id);
-    console.log("deleted", deleted)
     return res.json({deleted})
   }
 )
