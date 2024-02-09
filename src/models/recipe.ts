@@ -6,6 +6,9 @@ import { NotFoundError } from '../utils/expressError';
 import StepManager from './step';
 import { uploadFile, deleteFile } from "../api/s3";
 
+const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg"
+
+
 /** Data and functionality for recipes */
 
 class RecipeManager {
@@ -103,7 +106,6 @@ class RecipeManager {
 
     try {
       await prisma.$transaction(async () => {
-
         //Update base recipe data
         await prisma.recipe.update({
           where: { recipeId: currentRecipe.recipeId },
@@ -238,6 +240,7 @@ class RecipeManager {
 
     const recipe = await RecipeManager.getRecipeById(+id);
     recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${path}`
+    console.log("recipe in route", recipe.imageUrl)
     return await RecipeManager.updateRecipe(recipe)
   }
 
@@ -256,7 +259,7 @@ class RecipeManager {
     const recipe = await RecipeManager.getRecipeById(id);
     const deleted = {imgUrl:recipe.imageUrl};
     console.log(deleted)
-    recipe.imageUrl = ``
+    recipe.imageUrl = DEFAULT_IMG_URL
     await RecipeManager.updateRecipe(recipe)
     return deleted;
   }

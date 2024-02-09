@@ -17,7 +17,6 @@ import { textToRecipe } from "../api/openai";
 
 
 
-
 /** POST /generate {recipeText}=>{recipeData}
  *
  * @params recipeText:
@@ -173,6 +172,7 @@ router.put(
  * Stores the attached image in s3 and updates the imageUrl accordingly
  */
 
+//TODO: testing
 router.put(
   "/:id/image",
   readMultipart('image'),
@@ -192,6 +192,7 @@ router.put(
  * Deletes the image associated with the recipeId in params from s3
  * and updates the imageUrl accordingly.
  */
+//TODO: testing
 router.delete(
   "/:id/image",
   async function(req: Request, res: Response, next: NextFunction){
