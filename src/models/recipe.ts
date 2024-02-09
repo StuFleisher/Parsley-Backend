@@ -5,6 +5,7 @@ import prisma from '../prismaClient';
 import { NotFoundError } from '../utils/expressError';
 import StepManager from './step';
 import { uploadFile, deleteFile } from "../api/s3";
+import IngredientManager from './ingredient';
 
 const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg"
 
@@ -22,18 +23,62 @@ class RecipeManager {
    * fields
    *  */
 
-  static async saveRecipe(clientRecipe: IRecipeWithMetadata): Promise<RecipeData> {
-    let recipe = RecipeManager._pojoToPrismaRecipeInput(clientRecipe);
-    return await prisma.recipe.create({
-      data: recipe,
-      include: {
-        steps: {
-          include: {
-            ingredients: true,
+  static async saveRecipe(clientRecipe: RecipeForCreate): Promise<RecipeData> {
+    // let recipe = RecipeManager._pojoToPrismaRecipeInput(clientRecipe);
+    // return await prisma.recipe.create({
+    //   data: recipe,
+    //   include: {
+    //     steps: {
+    //       include: {
+    //         ingredients: true,
+    //       }
+    //     }
+    //   }
+    // });
+    const {
+      name,
+      description,
+      sourceUrl,
+      sourceName,
+      imageUrl,
+      owner,
+      steps
+    } = clientRecipe;
+
+    const createdRecipe = await prisma.recipe.create({
+      data: {
+        name,
+        description,
+        sourceUrl,
+        sourceName,
+        imageUrl,
+        owner,
+      }
+    })
+
+    for (const step of steps){
+      await StepManager.createStep({
+        recipeId:createdRecipe.recipeId,
+        stepNumber: step.stepNumber,
+        ingredients: step.ingredients,
+        instructions: step.instructions,
+      });
+    }
+
+    return await prisma.recipe.findUniqueOrThrow({
+      where: {recipeId:createdRecipe.recipeId},
+      include:{
+        steps:{
+          orderBy:{stepNumber:'asc'},
+          include:{
+            ingredients:{
+              orderBy:{ingredientId:'asc'},
+            }
           }
         }
       }
     });
+
   }
 
 
@@ -272,29 +317,29 @@ class RecipeManager {
    */
 
 
-  static _pojoToPrismaRecipeInput(recipe: IRecipeWithMetadata): Prisma.RecipeCreateInput {
-    const { steps, ...metadata } = recipe;
-    return {
-      ...metadata,
-      steps: {
-        create: steps.map(step => {
-          return {
-            stepNumber: step.stepNumber,
-            instructions: step.instructions,
-            ingredients: {
-              create: step.ingredients.map(ingredient => {
-                return {
-                  amount: ingredient.amount,
-                  description: ingredient.description,
-                  instructionRef: ingredient.instructionRef,
-                };
-              })
-            }
-          };
-        })
-      }
-    };
-  }
+  // static _pojoToPrismaRecipeInput(recipe: IRecipeWithMetadata): Prisma.RecipeCreateInput {
+  //   const { steps, owner, ...metadata } = recipe;
+  //   return {
+  //     ...metadata,
+  //     steps: {
+  //       create: steps.map(step => {
+  //         return {
+  //           stepNumber: step.stepNumber,
+  //           instructions: step.instructions,
+  //           ingredients: {
+  //             create: step.ingredients.map(ingredient => {
+  //               return {
+  //                 amount: ingredient.amount,
+  //                 description: ingredient.description,
+  //                 instructionRef: ingredient.instructionRef,
+  //               };
+  //             })
+  //           }
+  //         };
+  //       })
+  //     }
+  //   };
+  // }
 
 }
 

@@ -8,6 +8,7 @@
         "minLength": 1,
         "maxLength": 200
       },
+      "owner":{"type":"string"},
       "description": {
         "type": "string",
         "minLength": 1,

@@ -27,7 +27,7 @@ import { BadRequestError, NotFoundError } from '../utils/expressError';
 
 beforeAll(commonBeforeAll);
 beforeEach(async function () {
-  await RecipeManager.saveRecipe(userSubmittedRecipe1);
+  // await RecipeManager.saveRecipe(userSubmittedRecipe1);
   commonBeforeEach();
 });
 afterEach(commonAfterEach);

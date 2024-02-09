@@ -10,6 +10,17 @@ interface IRecipeWithMetadata extends IRecipeBase {
   sourceUrl: string;
   sourceName: string;
   imageUrl: string;
+  owner: string;
+}
+
+type RecipeForCreate = {
+  name:string;
+  steps:StepForNewRecipe[];
+  description: string;
+  sourceUrl: string;
+  sourceName: string;
+  imageUrl: string;
+  owner: string;
 }
 
 //Recipe with an Id, but new steps/ingredients may have been created without ids
@@ -46,7 +57,18 @@ type Step = IStepBase & {
   ingredients:IIngredient[]
 }
 
-type StepForCreate = IStepBase
+type StepForNewRecipe = { //create steps without a recipeId
+  stepNumber:number,
+  instructions: string,
+  ingredients: IngredientForNewRecipe[],
+}
+
+type StepForCreate = { //create steps once you have a recipeId
+  recipeId: number,
+  stepNumber:number,
+  instructions: string,
+  ingredients: IngredientForCreate[] | IngredientForNewRecipe[],
+}
 
 type StepForUpdate = IStepBase & {
   stepId:number;
@@ -89,6 +111,12 @@ interface IIngredientForUpdate extends IIngredientBase {
 
 type IngredientForCreate = {
   step: number;
+  amount: string;
+  description:string;
+  instructionRef:string;
+}
+
+type IngredientForNewRecipe = {
   amount: string;
   description:string;
   instructionRef:string;

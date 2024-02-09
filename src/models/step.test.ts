@@ -32,7 +32,7 @@ afterEach(commonAfterEach);
 //*************************** CREATE ******************************************/
 describe("Tests for createStep", function () {
 
-  const stepToCreate: IStepBase = {
+  const stepToCreate: StepForCreate = {
     recipeId: 1,
     stepNumber: 1,
     instructions: "testInstructions",

@@ -19,12 +19,56 @@ async function commonAfterEach(){
   const recipeCount = await prisma.recipe.deleteMany({});
 }
 
+const newRecipeSubmission:RecipeForCreate = {
+  name: "R1Name",
+  description: "R1Description",
+  sourceUrl: "http://R1SourceUrl.com",
+  sourceName: "R1SourceName",
+  imageUrl: "http://R1ImageUrl.com",
+  owner: "u1",
+  steps:[{
+    stepNumber: 1,
+    instructions: "R1S1Instructions",
+    ingredients: [{
+      amount: "R1S1I1Amount",
+      description: "R1S1I1Description",
+      instructionRef:"R1S1I1InstructionRef",
+    }]
+  }]
+}
+
+const createdRecipe:RecipeData = {
+  recipeId:1,
+  name: "R1Name",
+  description: "R1Description",
+  sourceUrl: "http://R1SourceUrl.com",
+  sourceName: "R1SourceName",
+  imageUrl: "http://R1ImageUrl.com",
+  owner: "u1",
+  steps:[{
+    recipeId:1,
+    stepId:1,
+    stepNumber: 1,
+    instructions: "R1S1Instructions",
+    ingredients: [{
+      step:1,
+      ingredientId:1,
+      amount: "R1S1I1Amount",
+      description: "R1S1I1Description",
+      instructionRef:"R1S1I1InstructionRef",
+    }]
+  }]
+}
+
+
+
 const userSubmittedRecipe1: IRecipeWithMetadata = {
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
   imageUrl: "http://R1ImageUrl.com",
+  owner: "u1",
   steps: [
     {
       recipeId:1,
@@ -46,6 +90,7 @@ const storedRecipe1: RecipeData = {
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
   imageUrl: "http://R1ImageUrl.com",
+  owner: "u1",
   steps: [
     {
       recipeId:1,
@@ -85,6 +130,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   sourceUrl: "R2SourceUrl",
   sourceName: "R2SourceName",
   imageUrl: "R2ImageUrl",
+  owner: "u2",
   steps: [
     {
       recipeId:2,
@@ -134,6 +180,8 @@ export {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
+  newRecipeSubmission,
+  createdRecipe,
   userSubmittedRecipe1,
   generatedRecipe1,
   userSubmittedRecipe2,

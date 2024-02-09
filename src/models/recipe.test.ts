@@ -32,8 +32,8 @@ import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  userSubmittedRecipe1,
-  userSubmittedRecipe2,
+  newRecipeSubmission,
+  createdRecipe,
   storedRecipe1,
 } from '../test/test_common';
 import { NotFoundError } from '../utils/expressError';
@@ -46,40 +46,103 @@ afterEach(commonAfterEach);
 /********************** CREATE *******************************/
 describe("Test Create Recipe", function () {
 
+  // const recipeForCreate:RecipeForCreate = {
+  //   name: "R1Name",
+  //   description: "R1Description",
+  //   sourceUrl: "http://R1SourceUrl.com",
+  //   sourceName: "R1SourceName",
+  //   imageUrl: "http://R1ImageUrl.com",
+  //   owner: "u1",
+  //   steps:[{
+  //     stepNumber: 1,
+  //     instructions: "R1S1Instructions",
+  //     ingredients: [{
+  //       step:1,
+  //       amount: "R1S1I1Amount",
+  //       description: "R1S1I1Description",
+  //       instructionRef:"R1S1I1InstructionRef",
+  //     }]
+  //   }]
+  // }
+
+  // const createdRecipe:RecipeData = {
+  //   recipeId:1,
+  //   name: "R1Name",
+  //   description: "R1Description",
+  //   sourceUrl: "http://R1SourceUrl.com",
+  //   sourceName: "R1SourceName",
+  //   imageUrl: "http://R1ImageUrl.com",
+  //   owner: "u1",
+  //   steps:[{
+  //     recipeId:1,
+  //     stepId:1,
+  //     stepNumber: 1,
+  //     instructions: "R1S1Instructions",
+  //     ingredients: [{
+  //       step:1,
+  //       ingredientId:1,
+  //       amount: "R1S1I1Amount",
+  //       description: "R1S1I1Description",
+  //       instructionRef:"R1S1I1InstructionRef",
+  //     }]
+  //   }]
+  // }
+
+
   test("Returns created model with submodels", async function () {
 
-    prisma.recipe.create.mockResolvedValueOnce(storedRecipe1);
-
-    const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
-    expect(prisma.recipe.create).toHaveBeenCalledWith({
-      data: {
-        description: "R1Description",
-        name: "R1Name",
-        sourceName: "R1SourceName",
-        sourceUrl: "http://R1SourceUrl.com",
-        imageUrl: "http://R1ImageUrl.com",
-        steps: {
-          create: [{
-            instructions: "R1S1Instructions",
-            stepNumber: 1,
-            ingredients: {
-              create: [{
-                amount: "R1S1I1Amount",
-                description: "R1S1I1Description",
-                instructionRef:"R1S1I1InstructionRef",
-              }]
-            }
-          }]
-        }
-      },
-      include: {
-        steps: {
-          include: {
-            ingredients: true,
-          }
-        }
-      }
+    //set up mocks
+    prisma.recipe.create.mockResolvedValueOnce({
+      recipeId: 1,
+      "name": "R1Name",
+      "description": "R1Description",
+      "sourceUrl": "http://R1SourceUrl.com",
+      "sourceName":"R1SourceName",
+      "imageUrl": "http://R1ImageUrl.com",
+      "owner": "u1",
     });
+
+    mockedStepManager.createStep.mockResolvedValue({
+      stepId:1,
+      "instructions": "R1S1Instructions",
+      "recipeId": 1,
+      "stepNumber": 1,
+      "ingredients":[{
+        ingredientId:1,
+        "amount": "R1S1I1Amount",
+        "description": "R1S1I1Description",
+        "instructionRef": "R1S1I1InstructionRef",
+        "step": 1
+      }],
+    })
+
+    prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(createdRecipe);
+
+    //run test
+    const recipe = await RecipeManager.saveRecipe(newRecipeSubmission);
+
+    expect(prisma.recipe.create).toHaveBeenCalledWith({
+      "data": {
+        "description": "R1Description",
+        "imageUrl": "http://R1ImageUrl.com",
+        "name": "R1Name",
+        "owner": "u1",
+        "sourceName":"R1SourceName",
+        "sourceUrl": "http://R1SourceUrl.com"
+      }});
+    expect(prisma.recipe.create).toHaveBeenCalledTimes(1);
+    expect(mockedStepManager.createStep).toHaveBeenCalledWith({
+      "ingredients": [{
+        "amount": "R1S1I1Amount",
+        "description": "R1S1I1Description",
+        "instructionRef": "R1S1I1InstructionRef",
+      }],
+      "instructions": "R1S1Instructions",
+      "recipeId": 1,
+      "stepNumber": 1
+    });
+    expect(mockedStepManager.createStep).toHaveBeenCalledTimes(1);
+
     expect(recipe).toEqual(storedRecipe1);
   });
 });
@@ -96,6 +159,7 @@ describe("Test getAllRecipes", function () {
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
       imageUrl: "http://R1ImageUrl.com",
+      owner: "u1",
     },
     {
       recipeId: 2,
@@ -104,6 +168,7 @@ describe("Test getAllRecipes", function () {
       sourceUrl: "http://R2SourceUrl.com",
       sourceName: "R2SourceName",
       imageUrl: "http://R2ImageUrl.com",
+      owner: "u2",
     },
   ];
 
@@ -138,8 +203,6 @@ describe("Test getRecipeById", function () {
     prisma.recipe.findUniqueOrThrow.mockImplementationOnce(() => {
       throw new Error();
     });
-
-    const recipe1 = await RecipeManager.saveRecipe(userSubmittedRecipe1);
 
     try {
       await RecipeManager.getRecipeById(0);
@@ -192,6 +255,7 @@ describe("Test updateRecipe", function () {
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
       imageUrl: "newImageUrl",
+      owner: "u1",
       steps: [],
     };
 
@@ -242,6 +306,7 @@ describe("Test updateRecipe", function () {
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
       imageUrl: "newImageUrl",
+      owner: "u1",
       steps: [],
     };
 
@@ -425,29 +490,29 @@ describe("Test _updateRecipeSteps", function () {
 });
 
 
-describe("Test _pojoToPrismaRecipeInput", function () {
-  test("Returns correct object", function () {
-    expect(RecipeManager._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
-      name: "R1Name",
-      description: "R1Description",
-      sourceUrl: "http://R1SourceUrl.com",
-      sourceName: "R1SourceName",
-      imageUrl: "http://R1ImageUrl.com",
-      steps: {
-        create: [
-          {
-            stepNumber: 1,
-            instructions: "R1S1Instructions",
-            ingredients: {
-              create: [{
-                amount: "R1S1I1Amount",
-                description: "R1S1I1Description",
-                instructionRef:"R1S1I1InstructionRef",
-              }]
-            }
-          }
-        ]
-      }
-    });
-  });
-});
+// describe("Test _pojoToPrismaRecipeInput", function () {
+//   test("Returns correct object", function () {
+//     expect(RecipeManager._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
+//       name: "R1Name",
+//       description: "R1Description",
+//       sourceUrl: "http://R1SourceUrl.com",
+//       sourceName: "R1SourceName",
+//       imageUrl: "http://R1ImageUrl.com",
+//       steps: {
+//         create: [
+//           {
+//             stepNumber: 1,
+//             instructions: "R1S1Instructions",
+//             ingredients: {
+//               create: [{
+//                 amount: "R1S1I1Amount",
+//                 description: "R1S1I1Description",
+//                 instructionRef:"R1S1I1InstructionRef",
+//               }]
+//             }
+//           }
+//         ]
+//       }
+//     });
+//   });
+// });
