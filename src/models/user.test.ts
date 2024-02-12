@@ -230,6 +230,7 @@ describe("get", function () {
     lastName:"test lastName",
     email:"test@test.com",
     isAdmin: false,
+    recipes:[],
   }
   const returnedUser = {
     userId:1,
@@ -238,6 +239,7 @@ describe("get", function () {
     lastName:"test lastName",
     email:"test@test.com",
     isAdmin: false,
+    recipes:[],
   }
 
   test("works", async function () {
@@ -247,6 +249,7 @@ describe("get", function () {
     expect(user).toEqual(returnedUser);
     expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
       where: {username:"test username"},
+      include:{recipes:true},
     })
   });
 
@@ -262,6 +265,7 @@ describe("get", function () {
       expect(err instanceof NotFoundError).toBeTruthy();
       expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
         where: {username:"nope"},
+        include:{recipes:true},
       })
     }
   });
