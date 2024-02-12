@@ -35,6 +35,7 @@ interface RecipeData extends IRecipeWithMetadata {
   steps:Step[];
 }
 
+
 //A less detailed recipe for summary views with no submodel data
 type SimpleRecipeData = {
   recipeId:number;

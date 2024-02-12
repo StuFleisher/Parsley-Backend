@@ -24,17 +24,7 @@ class RecipeManager {
    *  */
 
   static async saveRecipe(clientRecipe: RecipeForCreate): Promise<RecipeData> {
-    // let recipe = RecipeManager._pojoToPrismaRecipeInput(clientRecipe);
-    // return await prisma.recipe.create({
-    //   data: recipe,
-    //   include: {
-    //     steps: {
-    //       include: {
-    //         ingredients: true,
-    //       }
-    //     }
-    //   }
-    // });
+
     const {
       name,
       description,
@@ -308,38 +298,6 @@ class RecipeManager {
     await RecipeManager.updateRecipe(recipe)
     return deleted;
   }
-
-  /************************ PRIVATE METHODS ***********************************/
-
-   /** Accepts an IRecipeWithMetadata object and reshapes it to be appropriate
-   * for use in Prisma create commands.  (Submodels will be wrapped in a
-   * 'create' property)
-   */
-
-
-  // static _pojoToPrismaRecipeInput(recipe: IRecipeWithMetadata): Prisma.RecipeCreateInput {
-  //   const { steps, owner, ...metadata } = recipe;
-  //   return {
-  //     ...metadata,
-  //     steps: {
-  //       create: steps.map(step => {
-  //         return {
-  //           stepNumber: step.stepNumber,
-  //           instructions: step.instructions,
-  //           ingredients: {
-  //             create: step.ingredients.map(ingredient => {
-  //               return {
-  //                 amount: ingredient.amount,
-  //                 description: ingredient.description,
-  //                 instructionRef: ingredient.instructionRef,
-  //               };
-  //             })
-  //           }
-  //         };
-  //       })
-  //     }
-  //   };
-  // }
 
 }
 

@@ -103,7 +103,8 @@ class UserManager {
   static async getUser(username:string):Promise<UserData>{
     try{
       let fullUserData = await prisma.user.findUniqueOrThrow({
-        where:{username}
+        where:{username},
+        include:{recipes:true}
       })
       let user:UserData = fullUserData;
       delete user.password;
