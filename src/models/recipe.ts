@@ -5,7 +5,7 @@ import { NotFoundError, BadRequestError } from '../utils/expressError';
 import StepManager from './step';
 import { uploadFile, deleteFile } from "../api/s3";
 
-const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg"
+const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg";
 
 
 /** Data and functionality for recipes */
@@ -42,11 +42,11 @@ class RecipeManager {
         imageUrl,
         owner,
       }
-    })
+    });
 
-    for (const step of steps){
+    for (const step of steps) {
       await StepManager.createStep({
-        recipeId:createdRecipe.recipeId,
+        recipeId: createdRecipe.recipeId,
         stepNumber: step.stepNumber,
         ingredients: step.ingredients,
         instructions: step.instructions,
@@ -54,16 +54,16 @@ class RecipeManager {
     }
 
     //TODO: test this line
-    this.addRecipeToCookbook(createdRecipe.recipeId, createdRecipe.owner)
+    this.addToCookbook(createdRecipe.recipeId, createdRecipe.owner);
 
     return await prisma.recipe.findUniqueOrThrow({
-      where: {recipeId:createdRecipe.recipeId},
-      include:{
-        steps:{
-          orderBy:{stepNumber:'asc'},
-          include:{
-            ingredients:{
-              orderBy:{ingredientId:'asc'},
+      where: { recipeId: createdRecipe.recipeId },
+      include: {
+        steps: {
+          orderBy: { stepNumber: 'asc' },
+          include: {
+            ingredients: {
+              orderBy: { ingredientId: 'asc' },
             }
           }
         }
@@ -112,7 +112,7 @@ class RecipeManager {
       });
       return recipe;
     } catch (err) {
-      console.log("catching error")
+      console.log("catching error");
       //use our custom error instead
       throw new NotFoundError("Recipe not found");
     }
@@ -137,7 +137,7 @@ class RecipeManager {
     let updatedRecipe: RecipeData;
     const currentRecipe: RecipeData = (
       await RecipeManager.getRecipeById(newRecipe.recipeId)
-    )
+    );
 
     try {
       await prisma.$transaction(async () => {
@@ -157,13 +157,13 @@ class RecipeManager {
           currentRecipe.steps,
           newRecipe.steps,
           newRecipe.recipeId
-        )
+        );
 
         await prisma.$queryRaw`COMMIT`;
 
       });//end transaction
 
-      updatedRecipe = await RecipeManager.getRecipeById(newRecipe.recipeId)
+      updatedRecipe = await RecipeManager.getRecipeById(newRecipe.recipeId);
       return updatedRecipe;
 
     } catch (error) {
@@ -179,42 +179,40 @@ class RecipeManager {
    *
    * Throws a BadRequestError if the connection is impossible.
    */
-  static async addRecipeToCookbook(recipeId:number, username:string){
+  static async addToCookbook(recipeId: number, username: string) {
     //TODO: testing
     try {
       const entry = await prisma.cookbookEntry.create({
-        data:{
+        data: {
           username,
           recipeId
         }
-      })
+      });
       return entry;
-     } catch(err) {
-      throw new BadRequestError("Invalid Cookbook Entry")
+    } catch (err) {
+      throw new BadRequestError("Invalid Cookbook Entry");
     }
   }
 
-  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record from
-   * the join table.
-   * cookbookEntry is {cookbookEntryId, recipeId, username}
+  /** Adds a recipe to a user's cookbook.  Returns Promise<void> if successful.
    *
-   * Throws a BadRequestError if the connection is impossible.
+   * Throws a BadRequestError if .
    */
-  static async removeRecipeFromCookbook(recipeId:number, username:string){
+  static async removeFromCookbook(recipeId: number, username: string):Promise<void> {
     //TODO: testing
-    try {
+
       /**note: even though we use a deleteMany here, the where clause
        * should ensure that we only ever delete a single record    */
-      const entry = await prisma.cookbookEntry.deleteMany({
-        where:{
-            username:username,
-            recipeId:recipeId,
+    const response = await prisma.cookbookEntry.deleteMany({
+        where: {
+          username: username,
+          recipeId: recipeId,
         }
-      })
-      return entry;
-     } catch(err) {
-      throw new BadRequestError("Invalid Cookbook Entry")
+      });
+    if (response.count !==1) {
+      throw new BadRequestError(`Invalid deleteMany count ${response.count}`);
     }
+    
   }
 
   /** Updates the list of steps for the recipe by adding, updating or deleting.
@@ -234,10 +232,10 @@ class RecipeManager {
    */
 
   static async _updateRecipeSteps(
-    currentSteps:Step[],
-    revisedSteps:(StepForUpdate|StepForCreate)[],
-    recipeId:number,
-  ){
+    currentSteps: Step[],
+    revisedSteps: (StepForUpdate | StepForCreate)[],
+    recipeId: number,
+  ) {
 
     const sortedSteps = StepManager.sortSteps(
       currentSteps,
@@ -246,17 +244,17 @@ class RecipeManager {
 
     //delete
     for (const step of sortedSteps.toDelete) {
-      await StepManager.deleteStepById(step.stepId)
+      await StepManager.deleteStepById(step.stepId);
     }
 
     //create
     for (const step of sortedSteps.toCreate) {
       await StepManager.createStep({
-        recipeId:recipeId,
+        recipeId: recipeId,
         stepNumber: step.stepNumber,
         instructions: step.instructions,
         ingredients: step.ingredients,
-    });
+      });
     }
 
     //update
@@ -278,9 +276,9 @@ class RecipeManager {
 
   static async deleteRecipeById(id: number): Promise<RecipeData> {
 
-    try {await this.deleteRecipeImage(id);}
-    catch(err){
-      console.warn(`Image for recipeId ${id} could not be deleted`)
+    try { await this.deleteRecipeImage(id); }
+    catch (err) {
+      console.warn(`Image for recipeId ${id} could not be deleted`);
     }
 
     try {
@@ -313,14 +311,14 @@ class RecipeManager {
    *
    * @returns the updated recipe
    */
-  static async updateRecipeImage(file:Express.Multer.File, id:number){
-    const path= `recipeImage/recipe-${id}`
-    const s3Response = await uploadFile(file,path);
+  static async updateRecipeImage(file: Express.Multer.File, id: number) {
+    const path = `recipeImage/recipe-${id}`;
+    const s3Response = await uploadFile(file, path);
 
     const recipe = await RecipeManager.getRecipeById(+id);
-    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${path}`
-    console.log("recipe in route", recipe.imageUrl)
-    return await RecipeManager.updateRecipe(recipe)
+    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${path}`;
+    console.log("recipe in route", recipe.imageUrl);
+    return await RecipeManager.updateRecipe(recipe);
   }
 
   /**Deletes the image associated with the recipeId from s3 and updates the
@@ -330,19 +328,19 @@ class RecipeManager {
    *
    * @returns {deleted:{imageUrl:string}}
    */
-  static async deleteRecipeImage(id:number){
-    const path= `recipeImage/recipe-${id}`
+  static async deleteRecipeImage(id: number) {
+    const path = `recipeImage/recipe-${id}`;
     const s3Response = await deleteFile(path);
-    console.log("s3Response",s3Response);
+    console.log("s3Response", s3Response);
 
     const recipe = await RecipeManager.getRecipeById(id);
-    const deleted = {imgUrl:recipe.imageUrl};
-    console.log(deleted)
-    recipe.imageUrl = DEFAULT_IMG_URL
-    await RecipeManager.updateRecipe(recipe)
+    const deleted = { imgUrl: recipe.imageUrl };
+    console.log(deleted);
+    recipe.imageUrl = DEFAULT_IMG_URL;
+    await RecipeManager.updateRecipe(recipe);
     return deleted;
   }
 
 }
 
- export default RecipeManager;
+export default RecipeManager;
