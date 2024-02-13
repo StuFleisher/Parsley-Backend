@@ -64,10 +64,27 @@ function ensureAdmin(req: Request, res: Response, next: NextFunction) {
 
 function ensureCorrectUserOrAdmin(req: Request, res: Response, next: NextFunction) {
   const user = res.locals.user;
-  console.log(user)
-  console.log(req.params.username)
   const username = res.locals.user?.username;
   if (username && (username === req.params.username || user.isAdmin === true)) {
+    console.log("next")
+    return next();
+  }
+
+  console.log("unauth")
+  throw new UnauthorizedError();
+}
+
+/** Middleware to use when they must provide a valid token & be user matching
+ *  username provided as part of the request body.
+ *
+ *  If not, raises Unauthorized.
+ */
+function ensureCorrectUserInBodyOrAdmin(
+  req: Request, res: Response, next: NextFunction
+){
+  const user = res.locals.user;
+  const username = res.locals.user?.username;
+  if (username && (username === req.body.username || user.isAdmin === true)) {
     console.log("next")
     return next();
   }
@@ -82,4 +99,5 @@ export {
   ensureLoggedIn,
   ensureAdmin,
   ensureCorrectUserOrAdmin,
+  ensureCorrectUserInBodyOrAdmin,
 };

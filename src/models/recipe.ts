@@ -1,11 +1,9 @@
 
 import '../config';
-import { Prisma } from '@prisma/client';
 import prisma from '../prismaClient';
-import { NotFoundError } from '../utils/expressError';
+import { NotFoundError, BadRequestError } from '../utils/expressError';
 import StepManager from './step';
 import { uploadFile, deleteFile } from "../api/s3";
-import IngredientManager from './ingredient';
 
 const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg"
 
@@ -55,6 +53,9 @@ class RecipeManager {
       });
     }
 
+    //TODO: test this line
+    this.addRecipeToCookbook(createdRecipe.recipeId, createdRecipe.owner)
+
     return await prisma.recipe.findUniqueOrThrow({
       where: {recipeId:createdRecipe.recipeId},
       include:{
@@ -70,7 +71,6 @@ class RecipeManager {
     });
 
   }
-
 
   /** Fetches a list of all recipes from the database. Does not include submodel
    *  data (steps or ingredients)
@@ -170,6 +170,50 @@ class RecipeManager {
       console.log("Error in transaction", error.message);
       await prisma.$queryRaw`ROLLBACK`;
       throw new Error("Database Transaction Error");
+    }
+  }
+
+  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record from
+   * the join table.
+   * cookbookEntry is {cookbookEntryId, recipeId, username}
+   *
+   * Throws a BadRequestError if the connection is impossible.
+   */
+  static async addRecipeToCookbook(recipeId:number, username:string){
+    //TODO: testing
+    try {
+      const entry = await prisma.cookbookEntry.create({
+        data:{
+          username,
+          recipeId
+        }
+      })
+      return entry;
+     } catch(err) {
+      throw new BadRequestError("Invalid Cookbook Entry")
+    }
+  }
+
+  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record from
+   * the join table.
+   * cookbookEntry is {cookbookEntryId, recipeId, username}
+   *
+   * Throws a BadRequestError if the connection is impossible.
+   */
+  static async removeRecipeFromCookbook(recipeId:number, username:string){
+    //TODO: testing
+    try {
+      /**note: even though we use a deleteMany here, the where clause
+       * should ensure that we only ever delete a single record    */
+      const entry = await prisma.cookbookEntry.deleteMany({
+        where:{
+            username:username,
+            recipeId:recipeId,
+        }
+      })
+      return entry;
+     } catch(err) {
+      throw new BadRequestError("Invalid Cookbook Entry")
     }
   }
 

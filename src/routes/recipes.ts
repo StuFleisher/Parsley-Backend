@@ -14,6 +14,7 @@ import recipeUpdateSchema from "../schemas/recipeUpdate.json";
 import RecipeManager from '../models/recipe';
 import { BadRequestError } from '../utils/expressError';
 import { textToRecipe } from "../api/openai";
+import { ensureCorrectUserInBodyOrAdmin } from '../middleware/auth';
 
 
 
@@ -202,6 +203,48 @@ router.delete(
   }
 )
 
+
+/************************** COOKBOOK ACTIONS */
+
+/** POST / {recipe} => {recipe}
+ *
+ * @body {username} => username for the cookbook to edit
+ * @params id:number => recipeId for the recipe to add
+ *
+ * @returns cookbookEntry:
+ * {cookbookId, recipeId, username}
+ */
+
+router.post("/:id/addToCookbook",
+  ensureCorrectUserInBodyOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction)
+{
+  const {username} = req.body
+  const cookbookEntry = await RecipeManager
+    .addRecipeToCookbook(+req.params.id, username);
+
+  return res.status(201).json({ cookbookEntry });
+});
+
+/** POST / {recipe} => {recipe}
+ *
+ * @body {username} => username for the cookbook to edit
+ * @params id:number => recipeId for the recipe to add
+ *
+ * @returns cookbookEntry:
+ * {cookbookId, recipeId, username}
+ */
+
+router.post("/:id/removeFromCookbook",
+  ensureCorrectUserInBodyOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction)
+{
+  const {username} = req.body
+  const cookbookEntry = await RecipeManager
+    .addRecipeToCookbook(+req.params.id, username);
+
+  return res.status(201).json({ cookbookEntry });
+});
 
 
 export default router

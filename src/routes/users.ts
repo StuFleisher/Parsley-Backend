@@ -7,7 +7,7 @@ import userUpdateSchema from "../schemas/userUpdate.json"
 
 import { BadRequestError } from '../utils/expressError';
 import { createToken } from "../utils/tokens";
-import { ensureCorrectUserOrAdmin, ensureAdmin } from "../middleware/auth";
+import { ensureCorrectUserOrAdmin, ensureAdmin, ensureLoggedIn } from "../middleware/auth";
 import UserManager from '../models/user';
 
 
@@ -62,7 +62,6 @@ router.get("/", ensureAdmin, async function (
 });
 
 
-
 /** GET /[username] => { user }
  *
  * Returns { username, firstName, lastName, isAdmin, jobs }
@@ -78,6 +77,25 @@ router.get("/:username", ensureCorrectUserOrAdmin, async function (
 ) {
   const user = await UserManager.getUser(req.params.username);
   return res.json({ user });
+});
+
+
+/** GET /[username]/cookbook => { cookbook:SimpleRecipeData[] }
+ *
+ * Returns a list of SimpleRecipeData records:
+ * {cookbook:[]}
+ *
+ * Authorization required: logged in
+ **/
+
+router.get("/:username/cookbook", ensureLoggedIn, async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  //TODO: write tests
+  const cookbook = await UserManager.getUserCookbook(req.params.username);
+  return res.json({ cookbook });
 });
 
 
