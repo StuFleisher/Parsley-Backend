@@ -119,7 +119,6 @@ class UserManager {
    * Throws a NotFoundError if the user isn't found.
    */
   static async getUserCookbook(username:string):Promise<SimpleRecipeData[]>{
-      //TODO: tests
       let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
         where: {
           cookbooks:{
