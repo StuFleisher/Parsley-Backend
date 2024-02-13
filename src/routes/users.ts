@@ -93,7 +93,6 @@ router.get("/:username/cookbook", ensureLoggedIn, async function (
   res: Response,
   next: NextFunction
 ) {
-  //TODO: write tests
   const cookbook = await UserManager.getUserCookbook(req.params.username);
   return res.json({ cookbook });
 });

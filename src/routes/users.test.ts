@@ -343,6 +343,48 @@ describe("GET /users/:username", function () {
   });
 });
 
+/************************************** GET /users/:username/cookbook */
+describe("GET /users/:username", function () {
+  const mockedGetUserCookbook = jest.spyOn(UserManager, "getUserCookbook")
+
+    test("works", async function (){
+      mockedGetUserCookbook.mockResolvedValueOnce([{
+        recipeId:1,
+        name: "R1Name",
+        description: "R1Description",
+        sourceUrl: "http://R1SourceUrl.com",
+        sourceName: "R1SourceName",
+        imageUrl: "http://R1ImageUrl.com",
+        owner: "u1"
+      }])
+
+      const resp = await request(app)
+          .get(`/users/u1/cookbook/`)
+          .set("authorization", `Bearer ${adminToken}`);
+
+      expect(resp.body).toEqual({
+        cookbook:[{
+        recipeId:1,
+        name: "R1Name",
+        description: "R1Description",
+        sourceUrl: "http://R1SourceUrl.com",
+        sourceName: "R1SourceName",
+        imageUrl: "http://R1ImageUrl.com",
+        owner: "u1"
+        }]
+      });
+    })
+
+    test("unauth for anon", async function (){
+
+      const resp = await request(app)
+          .get(`/users/u1/cookbook/`)
+
+      expect(resp.statusCode).toEqual(401);
+    })
+
+})
+
 
 /************************************** PATCH /users/:username */
 
