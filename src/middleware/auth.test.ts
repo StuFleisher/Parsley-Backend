@@ -7,6 +7,7 @@ import {
   ensureLoggedIn,
   ensureAdmin,
   ensureCorrectUserOrAdmin,
+  ensureCorrectUserInBodyOrAdmin,
 } from "./auth";
 
 
@@ -136,3 +137,38 @@ describe("ensureCorrectUserOrAdmin", function () {
         .toThrow(UnauthorizedError);
   });
 });
+
+describe("ensureCorrectUserInBodyOrAdmin", function () {
+  test("works: admin", function () {
+    const req = { body: { username: "test" } } as unknown as Request;
+    const res = { locals: { user: { username: "admin", isAdmin: true } } } as unknown as Response;
+    ensureCorrectUserInBodyOrAdmin(req, res, next);
+  });
+
+  test("works: same user", function () {
+    const req = { body: { username: "test" } } as unknown as Request;
+    const res = { locals: { user: { username: "test", isAdmin: false } } } as unknown as Response;
+    ensureCorrectUserInBodyOrAdmin(req, res, next);
+  });
+
+  test("unauth: mismatch", function () {
+    const req = { body: { username: "wrong" } } as unknown as Request;
+    const res = { locals: { user: { username: "test", isAdmin: false } } } as unknown as Response;
+    expect(() => ensureCorrectUserInBodyOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+  });
+
+  test("unauth: mismatch (invalid isAdmin)", function () {
+    const req = { body: { username: "wrong" } } as unknown as Request;
+    const res = { locals: { user: { username: "test", isAdmin: "true" } } } as unknown as Response;
+    expect(() => ensureCorrectUserInBodyOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+  });
+
+  test("unauth: if anon", function () {
+    const req = { body: { username: "test" } } as unknown as Request;
+    const res = { locals: {} } as unknown as Response;
+    expect(() => ensureCorrectUserInBodyOrAdmin(req, res, next))
+        .toThrow(UnauthorizedError);
+  });
+})
