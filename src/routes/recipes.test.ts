@@ -77,7 +77,8 @@ describe("GET /", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
-      imageUrl: "http://R1ImageUrl.com"
+      imageUrl: "http://R1ImageUrl.com",
+      owner: "u1"
     }])
 
     const resp = await request(app).get("/recipes");
@@ -91,7 +92,8 @@ describe("GET /", function () {
         description: "R1Description",
         sourceUrl: "http://R1SourceUrl.com",
         sourceName: "R1SourceName",
-        imageUrl: "http://R1ImageUrl.com"
+        imageUrl: "http://R1ImageUrl.com",
+        owner: "u1"
       }]
     });
   });
