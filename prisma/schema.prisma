@@ -18,15 +18,16 @@ model Ingredient {
 }
 
 model Recipe {
-  recipeId          Int     @id @default(autoincrement())
-  name              String  @db.VarChar(200)
-  description       String  @db.VarChar(1000)
-  sourceUrl         String  @map("source_url") @default("")
-  imageUrl          String  @map("image_url") @default("https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg")
-  sourceName        String  @map("source_name") @db.VarChar(50)
+  recipeId          Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(200)
+  description       String              @db.VarChar(1000)
+  sourceUrl         String              @map("source_url") @default("")
+  imageUrl          String              @map("image_url") @default("https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg")
+  sourceName        String              @map("source_name") @db.VarChar(50)
   steps             Step[]
-  owner_username    User    @relation(fields: [owner], references: [username])
+  ownerUser         User                @relation(fields: [owner], references: [username])
   owner             String
+  cookbooks         CookbookEntry[]
   @@map("recipes")
 }
 
@@ -41,13 +42,23 @@ model Step {
 }
 
 model User {
-  userId        Int          @id @default(autoincrement())
-  username      String       @db.VarChar(25) @unique
-  password      String       @db.VarChar(200)
-  firstName     String       @db.VarChar(100)
-  lastName      String       @db.VarChar(100)
-  email         String       @db.VarChar(100) @unique
+  userId        Int                @id @default(autoincrement())
+  username      String             @db.VarChar(25) @unique
+  password      String             @db.VarChar(200)
+  firstName     String             @db.VarChar(100)
+  lastName      String             @db.VarChar(100)
+  email         String             @db.VarChar(100) @unique
   isAdmin       Boolean
   recipes       Recipe[]
+  cookbook      CookbookEntry[]
   @@map("users")
+}
+
+model CookbookEntry {
+  cookbookId        Int          @id @default(autoincrement())
+  user              User         @relation(fields: [username], references: [username], onDelete: Cascade)
+  username          String
+  recipe            Recipe       @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade)
+  recipeId          Int
+  @@map("cookbooks")
 }
