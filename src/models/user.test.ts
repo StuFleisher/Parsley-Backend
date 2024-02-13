@@ -274,6 +274,51 @@ describe("get", function () {
 
 /************************************** update */
 
+describe("getUserCookbook", function() {
+
+  test("works",async function () {
+
+    prisma.recipe.findMany.mockResolvedValueOnce([{
+      recipeId: 1,
+      "name": "R1Name",
+      "description": "R1Description",
+      "sourceUrl": "http://R1SourceUrl.com",
+      "sourceName":"R1SourceName",
+      "imageUrl": "http://R1ImageUrl.com",
+      "owner": "u1",
+    }])
+
+    const cookbook = await UserManager.getUserCookbook("u1");
+
+    expect(prisma.recipe.findMany).toHaveBeenCalledWith({
+      where: {
+        cookbooks:{
+          some: {
+            user:{
+              username:"u1"
+            }
+          }
+        }
+      }
+    })
+
+    expect(cookbook).toEqual([{
+      recipeId: 1,
+      "name": "R1Name",
+      "description": "R1Description",
+      "sourceUrl": "http://R1SourceUrl.com",
+      "sourceName":"R1SourceName",
+      "imageUrl": "http://R1ImageUrl.com",
+      "owner": "u1",
+    }])
+
+
+  })
+})
+
+
+/************************************** update */
+
 describe("update", function () {
   const userData = {
     userId:1,
