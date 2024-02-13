@@ -44,6 +44,7 @@ type SimpleRecipeData = {
   sourceUrl: string;
   sourceName: string;
   imageUrl: string;
+  owner: string;
 }
 
 interface IStepBase {
