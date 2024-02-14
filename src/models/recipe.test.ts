@@ -1,5 +1,5 @@
 import '../config'; //this loads the test database
-import {prismaMock as prisma} from '../prismaSingleton';
+import { prismaMock as prisma } from '../prismaSingleton';
 
 import { jest } from '@jest/globals';
 
@@ -12,7 +12,7 @@ jest.mock('../api/s3', () => {
 import * as s3 from '../api/s3';
 const mockedS3 = (
   s3 as jest.Mocked<typeof s3>
-)
+);
 
 jest.mock('./step', () => {
   return {
@@ -25,7 +25,7 @@ jest.mock('./step', () => {
 import StepManager from './step';
 const mockedStepManager = (
   StepManager as jest.Mocked<typeof StepManager>
-)
+);
 
 import RecipeManager from './recipe';
 import {
@@ -36,7 +36,8 @@ import {
   createdRecipe,
   storedRecipe1,
 } from '../test/test_common';
-import { NotFoundError } from '../utils/expressError';
+import { BadRequestError, NotFoundError } from '../utils/expressError';
+import { error } from 'console';
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
@@ -55,24 +56,24 @@ describe("Test Create Recipe", function () {
       "name": "R1Name",
       "description": "R1Description",
       "sourceUrl": "http://R1SourceUrl.com",
-      "sourceName":"R1SourceName",
+      "sourceName": "R1SourceName",
       "imageUrl": "http://R1ImageUrl.com",
       "owner": "u1",
     });
 
     mockedStepManager.createStep.mockResolvedValue({
-      stepId:1,
+      stepId: 1,
       "instructions": "R1S1Instructions",
       "recipeId": 1,
       "stepNumber": 1,
-      "ingredients":[{
-        ingredientId:1,
+      "ingredients": [{
+        ingredientId: 1,
         "amount": "R1S1I1Amount",
         "description": "R1S1I1Description",
         "instructionRef": "R1S1I1InstructionRef",
         "step": 1
       }],
-    })
+    });
 
     prisma.recipe.findUniqueOrThrow.mockResolvedValueOnce(createdRecipe);
 
@@ -85,9 +86,10 @@ describe("Test Create Recipe", function () {
         "imageUrl": "http://R1ImageUrl.com",
         "name": "R1Name",
         "owner": "u1",
-        "sourceName":"R1SourceName",
+        "sourceName": "R1SourceName",
         "sourceUrl": "http://R1SourceUrl.com"
-      }});
+      }
+    });
     expect(prisma.recipe.create).toHaveBeenCalledTimes(1);
     expect(mockedStepManager.createStep).toHaveBeenCalledWith({
       "ingredients": [{
@@ -336,6 +338,101 @@ describe("Test deleteRecipeById", function () {
 
 });
 
+// /**************** COOKBOOK METHODS **************************/
+
+describe("addToCookbook", function () {
+
+  const validResponse = {
+    cookbookId: 1,
+    recipeId: 1,
+    username: "u1"
+  };
+
+  test("works", async function () {
+    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
+    prisma.cookbookEntry.create.mockResolvedValueOnce(validResponse);
+
+    const entry = await RecipeManager.addToCookbook(1, "u1");
+
+    expect(prisma.cookbookEntry.create).toHaveBeenCalledWith({
+      data:{
+        username:"u1",
+        recipeId:1,
+      }
+    })
+    expect(entry).toEqual(validResponse);
+  });
+
+  test("BadRequest on existing record", async function () {
+    prisma.cookbookEntry.count.mockResolvedValueOnce(1);
+
+    try {
+      await RecipeManager.addToCookbook(1, "u1");
+      throw new Error("Fail test. You shouldn't get here")
+    } catch (err) {
+      expect(err).toBeInstanceOf(BadRequestError)
+      expect(err.message).toEqual("Recipe already in cookbook")
+    }
+
+  });
+
+  test("BadRequest on bad args", async function () {
+    const mockCreate = async function (){
+      throw new Error("fail create")
+    } as any
+
+    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
+    prisma.cookbookEntry.create.mockImplementationOnce(mockCreate);
+
+    try {
+      await RecipeManager.addToCookbook(1, "badUsername");
+      throw new Error("Fail test. You shouldn't get here")
+    } catch (err) {
+      expect(err).toBeInstanceOf(BadRequestError)
+      expect(err.message).toEqual(
+        "Database transaction failed. Are recipeId and username correct?"
+      )
+    }
+  });
+});
+
+describe("removeFromCookbook", function () {
+  const validResult = {
+    removed:{
+      recipeId:1,
+      username:"u1",
+    }
+  }
+
+  test("", async function () {
+    prisma.cookbookEntry.count.mockResolvedValueOnce(1);
+    prisma.cookbookEntry.deleteMany.mockResolvedValueOnce({count:1})
+
+    let result = await RecipeManager.removeFromCookbook(1,"u1")
+
+    expect(prisma.cookbookEntry.deleteMany).toHaveBeenCalledWith({
+      where: {
+        username: "u1",
+        recipeId: 1,
+      }
+    })
+    expect(result).toEqual(validResult)
+  });
+
+  test("BadRequest on missing cookbookEntry", async function () {
+    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
+
+    try {
+      await RecipeManager.removeFromCookbook(1, "u1");
+      throw new Error("Fail test. You shouldn't get here")
+    } catch (err) {
+      expect(err).toBeInstanceOf(BadRequestError)
+      expect(err.message).toEqual("No cookbook entry to remove")
+    }
+  });
+
+});
+
 
 // /**************** _INTERNAL METHODS **************************/
 
@@ -447,30 +544,3 @@ describe("Test _updateRecipeSteps", function () {
 
 });
 
-
-// describe("Test _pojoToPrismaRecipeInput", function () {
-//   test("Returns correct object", function () {
-//     expect(RecipeManager._pojoToPrismaRecipeInput(userSubmittedRecipe1)).toEqual({
-//       name: "R1Name",
-//       description: "R1Description",
-//       sourceUrl: "http://R1SourceUrl.com",
-//       sourceName: "R1SourceName",
-//       imageUrl: "http://R1ImageUrl.com",
-//       steps: {
-//         create: [
-//           {
-//             stepNumber: 1,
-//             instructions: "R1S1Instructions",
-//             ingredients: {
-//               create: [{
-//                 amount: "R1S1I1Amount",
-//                 description: "R1S1I1Description",
-//                 instructionRef:"R1S1I1InstructionRef",
-//               }]
-//             }
-//           }
-//         ]
-//       }
-//     });
-//   });
-// });

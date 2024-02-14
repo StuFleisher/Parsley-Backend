@@ -53,9 +53,6 @@ class RecipeManager {
       });
     }
 
-    //TODO: test this line
-    this.addToCookbook(createdRecipe.recipeId, createdRecipe.owner);
-
     return await prisma.recipe.findUniqueOrThrow({
       where: { recipeId: createdRecipe.recipeId },
       include: {
@@ -173,14 +170,23 @@ class RecipeManager {
     }
   }
 
-  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record from
-   * the join table.
+  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record.
+   *
    * cookbookEntry is {cookbookEntryId, recipeId, username}
    *
    * Throws a BadRequestError if the connection is impossible.
    */
   static async addToCookbook(recipeId: number, username: string) {
-    //TODO: testing
+    let checkForExisting = await prisma.cookbookEntry.count({
+      where:{
+        username,
+        recipeId,
+      }
+    })
+    if (checkForExisting!==0){
+      throw new BadRequestError("Recipe already in cookbook");
+    }
+
     try {
       const entry = await prisma.cookbookEntry.create({
         data: {
@@ -190,29 +196,40 @@ class RecipeManager {
       });
       return entry;
     } catch (err) {
-      throw new BadRequestError("Invalid Cookbook Entry");
+      throw new BadRequestError(
+        "Database transaction failed. Are recipeId and username correct?"
+      );
     }
   }
 
-  /** Adds a recipe to a user's cookbook.  Returns Promise<void> if successful.
+  /** Adds a recipe to a user's cookbook.
+   * Returns {removed:{recipeId, username}} on success
    *
-   * Throws a BadRequestError if .
+   * Throws a BadRequestError if cookbookEngry is missing for recipeId & username.
    */
-  static async removeFromCookbook(recipeId: number, username: string):Promise<void> {
-    //TODO: testing
+  static async removeFromCookbook(recipeId: number, username: string) {
 
+    let checkForExisting = await prisma.cookbookEntry.count({
+      where:{
+        username,
+        recipeId,
+      }
+    })
+    if (checkForExisting!==1){
+      throw new BadRequestError("No cookbook entry to remove");
+    }
       /**note: even though we use a deleteMany here, the where clause
        * should ensure that we only ever delete a single record    */
-    const response = await prisma.cookbookEntry.deleteMany({
-        where: {
-          username: username,
-          recipeId: recipeId,
-        }
-      });
-    if (response.count !==1) {
-      throw new BadRequestError(`Invalid deleteMany count ${response.count}`);
-    }
-    
+
+    await prisma.cookbookEntry.deleteMany({
+      where: {
+        username: username,
+        recipeId: recipeId,
+      }
+    });
+
+    return {removed:{recipeId, username}}
+
   }
 
   /** Updates the list of steps for the recipe by adding, updating or deleting.

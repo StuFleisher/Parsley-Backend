@@ -325,7 +325,12 @@ describe("POST /{id}/removeFromCookbook", function () {
   const removeFromCookbookMock = jest.spyOn(RecipeManager, "removeFromCookbook");
 
   test("works for user", async function () {
-    removeFromCookbookMock.mockResolvedValueOnce(undefined);
+    removeFromCookbookMock.mockResolvedValueOnce({
+      removed:{
+        username:"u1",
+        recipeId:1,
+      }
+    });
 
     const resp = await request(app)
       .post("/recipes/1/removeFromCookbook")
@@ -344,7 +349,12 @@ describe("POST /{id}/removeFromCookbook", function () {
   });
 
   test("works for admin", async function () {
-    removeFromCookbookMock.mockResolvedValueOnce(undefined);
+    removeFromCookbookMock.mockResolvedValueOnce({
+      removed:{
+        username:"u1",
+        recipeId:1,
+      }
+    });
 
     const resp = await request(app)
       .post("/recipes/1/removeFromCookbook")
