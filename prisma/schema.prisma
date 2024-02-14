@@ -60,5 +60,6 @@ model CookbookEntry {
   username          String
   recipe            Recipe       @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade)
   recipeId          Int
+  @@unique([recipeId, username])
   @@map("cookbooks")
 }
