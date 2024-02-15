@@ -29,6 +29,7 @@ type UserData = {
   email:string,
   isAdmin:boolean,
 }
+
 type updateData = {
   password?:string,
   firstName?:string,
@@ -104,7 +105,10 @@ class UserManager {
     try{
       let fullUserData = await prisma.user.findUniqueOrThrow({
         where:{username},
-        include:{recipes:true}
+        include:{
+          recipes:true,
+          cookbook:true,
+        }
       })
       let user:UserData = fullUserData;
       delete user.password;
