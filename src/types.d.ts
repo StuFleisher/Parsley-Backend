@@ -77,24 +77,6 @@ type StepForUpdate = IStepBase & {
   ingredients:IIngredientForUpdate[]
 }
 
-// interface IStep extends IStepBase{
-//   stepId:number,
-//   recipeId:number,
-//   ingredients:IIngredient[]
-// }
-
-// interface IStepForCreate {
-//   recipeId:number,
-//   stepNumber:number,
-//   ingredients:IIngredientBase[],
-//   instructions: string
-// }
-
-// interface IStepForUpdate extends IStepBase{
-//   stepId:number;
-//   ingredients:IIngredientForUpdate[]
-// }
-
 interface IIngredientBase {
   amount: string;
   description: string;
