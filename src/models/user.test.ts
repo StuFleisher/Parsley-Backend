@@ -249,7 +249,10 @@ describe("get", function () {
     expect(user).toEqual(returnedUser);
     expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
       where: {username:"test username"},
-      include:{recipes:true},
+      include:{
+        recipes:true,
+        cookbook:true,
+      },
     })
   });
 
@@ -265,7 +268,10 @@ describe("get", function () {
       expect(err instanceof NotFoundError).toBeTruthy();
       expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
         where: {username:"nope"},
-        include:{recipes:true},
+        include:{
+          recipes:true,
+          cookbook:true,
+        },
       })
     }
   });
