@@ -122,8 +122,14 @@ router.get(
 router.get(
   "/",
   async function (req: Request, res: Response, next: NextFunction) {
-    const recipes = await RecipeManager.getAllRecipes();
-    return res.json({ recipes });
+    const query = req.query.q
+    if (typeof query==="string"){
+      const recipes = await RecipeManager.getAllRecipes(query);
+      return res.json({ recipes });
+    } else {
+      const recipes = await RecipeManager.getAllRecipes();
+      return res.json({ recipes });
+    }
   }
 );
 

@@ -132,13 +132,43 @@ describe("Test getAllRecipes", function () {
     },
   ];
 
-  test("Returns multiple recipes", async function () {
+  test("Works without query", async function () {
     prisma.recipe.findMany.mockResolvedValueOnce(queryResult);
 
     const recipes = await RecipeManager.getAllRecipes();
     expect(recipes.length).toEqual(2);
     expect(recipes).toEqual(queryResult);
   });
+
+  test("Works with query", async function () {
+    console.log(queryResult[0])
+    prisma.recipe.findMany.mockResolvedValueOnce([queryResult[0]]);
+
+    const recipes = await RecipeManager.getAllRecipes('R1Name');
+    expect(prisma.recipe.findMany).toHaveBeenCalledWith({
+      where:{
+        OR:[
+          {name:{search:"R1Name"}},
+          {description:{search:"R1Name"}},
+          {steps:{some:{instructions:{search:"R1Name"}}}},
+          {steps:{some:{ingredients:{some:{description:{search:"R1Name"}}}}}},
+        ]
+      },
+      orderBy:{
+        _relevance:{
+          fields:["name", "description"],
+          search:"R1Name",
+          sort:'desc',
+        }
+      }
+    }
+
+    )
+    expect(recipes.length).toEqual(1);
+    expect(recipes).toEqual([queryResult[0]]);
+  });
+
+
 
   test("Does not return submodel data", async function () {
     prisma.recipe.findMany.mockResolvedValueOnce(queryResult);

@@ -76,9 +76,30 @@ class RecipeManager {
    *  {recipeId, name, description, sourceUrl, sourceName}
    * */
 
-  static async getAllRecipes(): Promise<SimpleRecipeData[]> {
-    let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({});
-    return recipes;
+  static async getAllRecipes(query?:string): Promise<SimpleRecipeData[]> {
+    if (!query){ return await prisma.recipe.findMany() }
+
+    const cleanQuery = query.split(/\s+/g).join("&");
+
+    let recipe: SimpleRecipeData[] = await prisma.recipe.findMany({
+      where:{
+        OR:[
+          {name:{search:cleanQuery}},
+          {description:{search:cleanQuery}},
+          {steps:{some:{instructions:{search:cleanQuery}}}},
+          {steps:{some:{ingredients:{some:{description:{search:cleanQuery}}}}}},
+        ]
+      },
+      orderBy:{
+        _relevance:{
+          fields:["name", "description"],
+          search:cleanQuery,
+          sort:'desc',
+        }
+      }
+    })
+
+    return recipe;
   }
 
 
