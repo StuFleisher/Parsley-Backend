@@ -66,7 +66,6 @@ function ensureCorrectUserOrAdmin(req: Request, res: Response, next: NextFunctio
   const user = res.locals.user;
   const username = res.locals.user?.username;
   if (username && (username === req.params.username || user.isAdmin === true)) {
-    console.log("next")
     return next();
   }
 
@@ -85,7 +84,6 @@ function ensureCorrectUserInBodyOrAdmin(
   const user = res.locals.user;
   const username = res.locals.user?.username;
   if (username && (username === req.body.username || user.isAdmin === true)) {
-    console.log("next")
     return next();
   }
 
