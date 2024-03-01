@@ -1,6 +1,6 @@
 import '../config'; //this loads the test database
-
 import { jest } from '@jest/globals';
+
 jest.mock("../api/openai", () => {
   return {
     textToRecipe: jest.fn(),
@@ -9,9 +9,19 @@ jest.mock("../api/openai", () => {
 import { textToRecipe as realTextToRecipe } from "../api/openai";
 const textToRecipe = realTextToRecipe as jest.MockedFunction<typeof realTextToRecipe>;
 
+// jest.mock('../middleware/auth', ()=>({
+//   ensureOwnerOrAdmin:jest.fn()
+// }))
+// import { ensureOwnerOrAdmin } from '../middleware/auth';
+
+
 import request from 'supertest';
 import app from '../app';
 import RecipeManager from '../models/recipe';
+
+
+
+
 import {
   commonBeforeAll,
   commonBeforeEach,
@@ -45,7 +55,8 @@ describe("POST /generate", function () {
     // console.log("test post /generate",TEST_RECIPE_TEXT)
     const resp = await request(app)
       .post("/recipes/generate")
-      .send({ recipeText: TEST_RECIPE_TEXT });
+      .send({ recipeText: TEST_RECIPE_TEXT })
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(resp.statusCode).toEqual(200);
     expect(resp.body.recipe).toEqual(generatedRecipe1);
@@ -58,7 +69,8 @@ describe("POST /generate", function () {
 
     const resp = await request(app)
       .post("/recipes/generate")
-      .send({ recipeText: TEST_RECIPE_TEXT });
+      .send({ recipeText: TEST_RECIPE_TEXT })
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(resp.statusCode).toEqual(400);
     expect(resp.body).toEqual({
@@ -141,7 +153,8 @@ describe("POST /recipes", function () {
 
     const resp = await request(app)
       .post("/recipes")
-      .send(userSubmittedRecipe1);
+      .send(userSubmittedRecipe1)
+      .set("authorization", `Bearer ${adminToken}`);
 
     //should return correct data
     expect(resp.body).toEqual({ recipe: storedRecipe1 });
@@ -158,7 +171,8 @@ describe("POST /recipes", function () {
     };
     const resp = await request(app)
       .post("/recipes")
-      .send(invalidRecipe);
+      .send(invalidRecipe)
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(resp.statusCode).toEqual(400);
     expect(resp.body).toEqual({
@@ -178,7 +192,8 @@ describe("POST /recipes", function () {
     };
     const resp = await request(app)
       .post("/recipes")
-      .send(invalidRecipe);
+      .send(invalidRecipe)
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(resp.statusCode).toEqual(400);
   });
@@ -191,10 +206,16 @@ describe("DELETE /{id}", function () {
 
   test("OK", async function () {
 
+    //mock for middleware
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
+    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+
     const deleteRecipeByIdMock = jest.spyOn(RecipeManager, "deleteRecipeById");
     deleteRecipeByIdMock.mockResolvedValueOnce(storedRecipe1);
 
-    const resp = await request(app).delete(`/recipes/1`);
+    const resp = await request(app)
+      .delete(`/recipes/1`)
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(deleteRecipeByIdMock).toHaveBeenCalledWith(1);
     expect(resp.statusCode).toEqual(200);
@@ -204,12 +225,20 @@ describe("DELETE /{id}", function () {
   });
 
   test("404 for bad ID", async function () {
+
+    //mock for middleware
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
+    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+
+    //mock for route
     const deleteRecipeByIdMock = jest.spyOn(RecipeManager, "deleteRecipeById");
     deleteRecipeByIdMock.mockImplementation(async function () {
       throw new NotFoundError();
     });
 
-    const resp = await request(app).delete(`/recipes/0`);
+    const resp = await request(app)
+      .delete(`/recipes/0`)
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -221,12 +250,18 @@ describe("PUT /{id}", function () {
 
   test("OK", async function () {
 
+    //mock for middleware
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
+    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+
+    //mock for route
     const updateRecipeMock = jest.spyOn(RecipeManager, "updateRecipe");
     updateRecipeMock.mockResolvedValueOnce(storedRecipe1);
 
     const resp = await request(app)
       .put(`/recipes/1`)
-      .send(storedRecipe1);
+      .send(storedRecipe1)
+      .set("authorization", `Bearer ${adminToken}`);
 
     expect(updateRecipeMock).toHaveBeenCalledWith(storedRecipe1);
     expect(resp.statusCode).toEqual(200);
@@ -236,12 +271,19 @@ describe("PUT /{id}", function () {
   });
 
   test("404 for bad ID", async function () {
+    //mock for middleware
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
+    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+
+    //mock for route
     const updateRecipeMock = jest.spyOn(RecipeManager, "updateRecipe");
     updateRecipeMock.mockImplementation(async function () {
       throw new NotFoundError();
     });
 
-    const resp = await request(app).delete(`/recipes/0`);
+    const resp = await request(app)
+      .delete(`/recipes/0`)
+      .set("authorization", `Bearer ${adminToken}`)
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -326,9 +368,9 @@ describe("POST /{id}/removeFromCookbook", function () {
 
   test("works for user", async function () {
     removeFromCookbookMock.mockResolvedValueOnce({
-      removed:{
-        username:"u1",
-        recipeId:1,
+      removed: {
+        username: "u1",
+        recipeId: 1,
       }
     });
 
@@ -350,9 +392,9 @@ describe("POST /{id}/removeFromCookbook", function () {
 
   test("works for admin", async function () {
     removeFromCookbookMock.mockResolvedValueOnce({
-      removed:{
-        username:"u1",
-        recipeId:1,
+      removed: {
+        username: "u1",
+        recipeId: 1,
       }
     });
 

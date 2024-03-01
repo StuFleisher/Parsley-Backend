@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "http://parsley.stufleisher.com/recipeNew.schema.json",
+    "$id": "http://parsley.stufleisher.com/recipeUpdate.schema.json",
     "type": "object",
     "properties": {
       "recipeId": {
@@ -18,8 +18,14 @@
         "maxLength": 1000
       },
       "sourceUrl": {
-        "type": "string",
-        "format":"uri"
+        "anyOf":[{
+          "type": "string",
+          "format":"uri"
+        },
+        {
+          "type": "string",
+          "length":0
+        }]
       },
       "sourceName": {
         "type": "string",

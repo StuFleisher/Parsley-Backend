@@ -7,14 +7,19 @@ const router = express.Router();
 import readMultipart from '../middleware/multer';
 
 //schemas
-import recipeNewSchema from "../schemas/recipeNew.json"
+import recipeNewSchema from "../schemas/recipeNew.json";
 import recipeUpdateSchema from "../schemas/recipeUpdate.json";
 
 //modules
 import RecipeManager from '../models/recipe';
-import { BadRequestError, NotFoundError } from '../utils/expressError';
+import { BadRequestError } from '../utils/expressError';
 import { textToRecipe } from "../api/openai";
-import { ensureCorrectUserInBodyOrAdmin } from '../middleware/auth';
+import {
+  ensureMatchingUsernameOrAdmin,
+  ensureLoggedIn,
+  ensureOwnerOrAdmin,
+  ensureMatchingOwnerOrAdmin,
+} from '../middleware/auth';
 
 
 
@@ -43,20 +48,24 @@ import { ensureCorrectUserInBodyOrAdmin } from '../middleware/auth';
  *    ]
  *  }
  */
-router.post("/generate", async function (req: Request, res: Response, next: NextFunction) {
+router.post(
+  "/generate",
+  ensureLoggedIn,
+  async function (req: Request, res: Response, next: NextFunction) {
+    //TODO: test middleware
 
-  const rawRecipe = req.body.recipeText;
-  let recipe;
-  try {
-    recipe = await textToRecipe(rawRecipe);
-  } catch (err) {
-    return res.status(400).json({
-      message: "There was an issue processing your recipe",
-      errors: err.message,
-    });
-  }
-  return res.json({ recipe });
-});
+    const rawRecipe = req.body.recipeText;
+    let recipe;
+    try {
+      recipe = await textToRecipe(rawRecipe);
+    } catch (err) {
+      return res.status(400).json({
+        message: "There was an issue processing your recipe",
+        errors: err.message,
+      });
+    }
+    return res.json({ recipe });
+  });
 
 
 /** POST / {recipe} => {recipe}
@@ -72,20 +81,24 @@ router.post("/generate", async function (req: Request, res: Response, next: Next
  * TODO: add Auth Required: loggedIn
  */
 
-router.post("/", async function (req: Request, res: Response, next: NextFunction) {
-  const validator = jsonschema.validate(
-    req.body,
-    recipeNewSchema,
-    { required: true }
-  );
-  if (!validator.valid) {
-    const errs: (string|undefined)[] = validator.errors.map((e: Error) => e.stack);
-    throw new BadRequestError(errs.join(", "));
-  }
+router.post(
+  "/",
+  ensureMatchingOwnerOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    //TODO: test middleware
+    const validator = jsonschema.validate(
+      req.body,
+      recipeNewSchema,
+      { required: true }
+    );
+    if (!validator.valid) {
+      const errs: (string | undefined)[] = validator.errors.map((e: Error) => e.stack);
+      throw new BadRequestError(errs.join(", "));
+    }
 
-  const recipe = await RecipeManager.saveRecipe(req.body);
-  return res.status(201).json({ recipe });
-});
+    const recipe = await RecipeManager.saveRecipe(req.body);
+    return res.status(201).json({ recipe });
+  });
 
 
 /** GET /[id] {id} => {recipe}
@@ -98,7 +111,6 @@ router.post("/", async function (req: Request, res: Response, next: NextFunction
  *          step: {stepId, stepNumber,instructions, ingredients[] }
  *          ingredient: {ingredientId, amount, description}
  *
- * TODO: add Auth Required: loggedIn
  */
 
 router.get(
@@ -114,16 +126,13 @@ router.get(
  *  Returns a list of all recipes without submodel data
  *
  * @returns recipes: [{recipeId, name, description, sourceUrl, sourceName, imageUrl},...]
- *
- *
- * TODO: add Auth Required: loggedIn
  */
 
 router.get(
   "/",
   async function (req: Request, res: Response, next: NextFunction) {
-    const query = req.query.q
-    if (typeof query==="string"){
+    const query = req.query.q;
+    if (typeof query === "string") {
       const recipes = await RecipeManager.getAllRecipes(query);
       return res.json({ recipes });
     } else {
@@ -143,11 +152,12 @@ router.get(
 
 router.delete(
   "/:id",
-  async function (req: Request, res: Response, next: NextFunction){
+  ensureOwnerOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
     const deleted = await RecipeManager.deleteRecipeById(+req.params.id);
-    return res.json({deleted})
+    return res.json({ deleted });
   }
-)
+);
 
 /** PUT /[id]
  * Updates a recipe and its submodel data
@@ -158,21 +168,24 @@ router.delete(
  */
 router.put(
   "/:id",
-  async function (req: Request, res: Response, next: NextFunction){
+  ensureOwnerOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
     //TODO: update validation
+    //TODO: test middleware
+
     const validator = jsonschema.validate(
       req.body,
       recipeUpdateSchema,
       { required: true }
     );
     if (!validator.valid) {
-      const errs: (string|undefined)[] = validator.errors.map((e: Error) => e.stack);
+      const errs: (string | undefined)[] = validator.errors.map((e: Error) => e.stack);
       throw new BadRequestError(errs.join(", "));
     }
     const recipe = await RecipeManager.updateRecipe(req.body);
     return res.json({ recipe });
   }
-)
+);
 
 /** PUT /[id]/image
  * Expects a Content:multipart/form-data
@@ -182,18 +195,20 @@ router.put(
 //TODO: testing
 router.put(
   "/:id/image",
+  ensureOwnerOrAdmin,
   readMultipart('image'),
-  async function(req: Request, res: Response, next: NextFunction){
+  async function (req: Request, res: Response, next: NextFunction) {
+    //TODO: test middleware
 
-    if (!req.file){throw new BadRequestError('Please attach an image')}
+    if (!req.file) { throw new BadRequestError('Please attach an image'); }
     const recipe = await RecipeManager.updateRecipeImage(
       req.file,
       +req.params.id
-    )
+    );
 
-    return res.json({imageUrl:recipe.imageUrl});
+    return res.json({ imageUrl: recipe.imageUrl });
   }
-)
+);
 
 /** DELETE /[id]/image
  * Deletes the image associated with the recipeId in params from s3
@@ -202,12 +217,13 @@ router.put(
 //TODO: testing
 router.delete(
   "/:id/image",
-  async function(req: Request, res: Response, next: NextFunction){
+  ensureOwnerOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
 
-    const deleted = await RecipeManager.deleteRecipeImage(+req.params.id)
-    return res.json({deleted});
+    const deleted = await RecipeManager.deleteRecipeImage(+req.params.id);
+    return res.json({ deleted });
   }
-)
+);
 
 
 /************************** COOKBOOK ACTIONS */
@@ -222,15 +238,16 @@ router.delete(
  */
 
 router.post("/:id/addToCookbook",
-  ensureCorrectUserInBodyOrAdmin,
-  async function (req: Request, res: Response, next: NextFunction)
-{
-  const {username} = req.body
-  const created = await RecipeManager
-    .addToCookbook(+req.params.id, username);
+  ensureMatchingUsernameOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    //TODO: test middleware
 
-  return res.status(201).json({ created });
-});
+    const { username } = req.body;
+    const created = await RecipeManager
+      .addToCookbook(+req.params.id, username);
+
+    return res.status(201).json({ created });
+  });
 
 /** POST / {recipe} => {recipe}
  *
@@ -241,19 +258,20 @@ router.post("/:id/addToCookbook",
  */
 
 router.post("/:id/removeFromCookbook",
-  ensureCorrectUserInBodyOrAdmin,
-  async function (req: Request, res: Response, next: NextFunction)
-{
-  const {username} = req.body;
-  await RecipeManager.removeFromCookbook(+req.params.id, username);
+  ensureMatchingUsernameOrAdmin,
+  async function (req: Request, res: Response, next: NextFunction) {
+    //TODO: test middleware
 
-  return res.json({
-    "removed": {
-      recipeId: +req.params.id,
-      username: username,
-    }
+    const { username } = req.body;
+    await RecipeManager.removeFromCookbook(+req.params.id, username);
+
+    return res.json({
+      "removed": {
+        recipeId: +req.params.id,
+        username: username,
+      }
+    });
   });
-});
 
 
-export default router
+export default router;

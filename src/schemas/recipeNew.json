@@ -15,8 +15,14 @@
         "maxLength": 1000
       },
       "sourceUrl": {
-        "type": "string",
-        "format":"uri"
+        "anyOf":[{
+          "type": "string",
+          "format":"uri"
+        },
+        {
+          "type": "string",
+          "length":0
+        }]
       },
       "sourceName": {
         "type": "string",
