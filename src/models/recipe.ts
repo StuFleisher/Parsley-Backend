@@ -4,8 +4,9 @@ import prisma from '../prismaClient';
 import { NotFoundError, BadRequestError } from '../utils/expressError';
 import StepManager from './step';
 import { uploadFile, deleteFile } from "../api/s3";
+import ImageHandler from '../utils/imageHandler';
 
-const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg";
+const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/default";
 
 
 /** Data and functionality for recipes */
@@ -28,7 +29,9 @@ class RecipeManager {
       description,
       sourceUrl,
       sourceName,
-      imageUrl,
+      imageSm,
+      imageMd,
+      imageLg,
       owner,
       steps
     } = clientRecipe;
@@ -39,7 +42,9 @@ class RecipeManager {
         description,
         sourceUrl,
         sourceName,
-        imageUrl,
+        imageSm,
+        imageMd,
+        imageLg,
         owner,
       }
     });
@@ -167,7 +172,9 @@ class RecipeManager {
             description: newRecipe.description,
             sourceName: newRecipe.sourceName,
             sourceUrl: newRecipe.sourceUrl,
-            imageUrl: newRecipe.imageUrl
+            imageSm: newRecipe.imageSm,
+            imageMd: newRecipe.imageMd,
+            imageLg: newRecipe.imageLg,
           },
         });
 
@@ -350,12 +357,16 @@ class RecipeManager {
    * @returns the updated recipe
    */
   static async updateRecipeImage(file: Express.Multer.File, id: number) {
-    const path = `recipeImage/recipe-${id}`;
-    const s3Response = await uploadFile(file, path);
+
+    const basePath = `recipeImage/recipe-${id}`;
+    await ImageHandler.uploadAllSizes(file.buffer, basePath);
 
     const recipe = await RecipeManager.getRecipeById(+id);
-    recipe.imageUrl = `https://sf-parsley.s3.amazonaws.com/${path}`;
-    console.log("recipe in route", recipe.imageUrl);
+
+
+    recipe.imageSm = `https://sf-parsley.s3.amazonaws.com/${basePath}-sm`;
+    recipe.imageMd = `https://sf-parsley.s3.amazonaws.com/${basePath}-md`;
+    recipe.imageLg = `https://sf-parsley.s3.amazonaws.com/${basePath}-lg`;
     return await RecipeManager.updateRecipe(recipe);
   }
 
@@ -368,15 +379,16 @@ class RecipeManager {
    */
   static async deleteRecipeImage(id: number) {
     const path = `recipeImage/recipe-${id}`;
-    const s3Response = await deleteFile(path);
-    console.log("s3Response", s3Response);
+    await deleteFile(path);
 
     const recipe = await RecipeManager.getRecipeById(id);
-    const deleted = { imgUrl: recipe.imageUrl };
-    console.log(deleted);
-    recipe.imageUrl = DEFAULT_IMG_URL;
-    await RecipeManager.updateRecipe(recipe);
-    return deleted;
+    // const deleted = { imgUrl: recipe.imageUrl };
+
+    recipe.imageSm = `${DEFAULT_IMG_URL}-sm`;
+    recipe.imageMd = `${DEFAULT_IMG_URL}-md`;
+    recipe.imageLg = `${DEFAULT_IMG_URL}-lg`;
+    return await RecipeManager.updateRecipe(recipe);
+    // return deleted;
   }
 
 }

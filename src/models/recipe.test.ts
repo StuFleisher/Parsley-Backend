@@ -57,7 +57,9 @@ describe("Test Create Recipe", function () {
       "description": "R1Description",
       "sourceUrl": "http://R1SourceUrl.com",
       "sourceName": "R1SourceName",
-      "imageUrl": "http://R1ImageUrl.com",
+      "imageSm": "http://R1ImageUrl.com/sm",
+      "imageMd": "http://R1ImageUrl.com/md",
+      "imageLg": "http://R1ImageUrl.com/lg",
       "owner": "u1",
     });
 
@@ -118,7 +120,9 @@ describe("Test getAllRecipes", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
-      imageUrl: "http://R1ImageUrl.com",
+      "imageSm": "http://R1ImageUrl.com/sm",
+      "imageMd": "http://R1ImageUrl.com/md",
+      "imageLg": "http://R1ImageUrl.com/lg",
       owner: "u1",
     },
     {
@@ -127,7 +131,9 @@ describe("Test getAllRecipes", function () {
       description: "R2Description",
       sourceUrl: "http://R2SourceUrl.com",
       sourceName: "R2SourceName",
-      imageUrl: "http://R2ImageUrl.com",
+      "imageSm": "http://R2ImageUrl.com/sm",
+      "imageMd": "http://R2ImageUrl.com/md",
+      "imageLg": "http://R2ImageUrl.com/lg",
       owner: "u2",
     },
   ];
@@ -141,29 +147,29 @@ describe("Test getAllRecipes", function () {
   });
 
   test("Works with query", async function () {
-    console.log(queryResult[0])
+    console.log(queryResult[0]);
     prisma.recipe.findMany.mockResolvedValueOnce([queryResult[0]]);
 
     const recipes = await RecipeManager.getAllRecipes('R1Name');
     expect(prisma.recipe.findMany).toHaveBeenCalledWith({
-      where:{
-        OR:[
-          {name:{search:"R1Name"}},
-          {description:{search:"R1Name"}},
-          {steps:{some:{instructions:{search:"R1Name"}}}},
-          {steps:{some:{ingredients:{some:{description:{search:"R1Name"}}}}}},
+      where: {
+        OR: [
+          { name: { search: "R1Name" } },
+          { description: { search: "R1Name" } },
+          { steps: { some: { instructions: { search: "R1Name" } } } },
+          { steps: { some: { ingredients: { some: { description: { search: "R1Name" } } } } } },
         ]
       },
-      orderBy:{
-        _relevance:{
-          fields:["name", "description"],
-          search:"R1Name",
-          sort:'desc',
+      orderBy: {
+        _relevance: {
+          fields: ["name", "description"],
+          search: "R1Name",
+          sort: 'desc',
         }
       }
     }
 
-    )
+    );
     expect(recipes.length).toEqual(1);
     expect(recipes).toEqual([queryResult[0]]);
   });
@@ -244,7 +250,9 @@ describe("Test updateRecipe", function () {
       description: 'newDescription',
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
-      imageUrl: "newImageUrl",
+      "imageSm": "http://R1ImageUrl.com/sm",
+      "imageMd": "http://R1ImageUrl.com/md",
+      "imageLg": "http://R1ImageUrl.com/lg",
       owner: "u1",
       steps: [],
     };
@@ -275,7 +283,9 @@ describe("Test updateRecipe", function () {
         description: recipeAfterUpdate.description,
         sourceName: recipeAfterUpdate.sourceName,
         sourceUrl: recipeAfterUpdate.sourceUrl,
-        imageUrl: recipeAfterUpdate.imageUrl,
+        imageSm: recipeAfterUpdate.imageSm,
+        imageMd: recipeAfterUpdate.imageMd,
+        imageLg: recipeAfterUpdate.imageLg,
       },
     });
     expect(_updateRecipeSteps).toHaveBeenCalledTimes(1);
@@ -295,7 +305,9 @@ describe("Test updateRecipe", function () {
       description: 'newDescription',
       sourceName: 'newSourceName',
       sourceUrl: 'newSourceUrl',
-      imageUrl: "newImageUrl",
+      imageSm: "newImageUrl/sm",
+      imageMd: "newImageUrl/md",
+      imageLg: "newImageUrl/lg",
       owner: "u1",
       steps: [],
     };
@@ -385,11 +397,11 @@ describe("addToCookbook", function () {
     const entry = await RecipeManager.addToCookbook(1, "u1");
 
     expect(prisma.cookbookEntry.create).toHaveBeenCalledWith({
-      data:{
-        username:"u1",
-        recipeId:1,
+      data: {
+        username: "u1",
+        recipeId: 1,
       }
-    })
+    });
     expect(entry).toEqual(validResponse);
   });
 
@@ -398,55 +410,55 @@ describe("addToCookbook", function () {
 
     try {
       await RecipeManager.addToCookbook(1, "u1");
-      throw new Error("Fail test. You shouldn't get here")
+      throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
-      expect(err).toBeInstanceOf(BadRequestError)
-      expect(err.message).toEqual("Recipe already in cookbook")
+      expect(err).toBeInstanceOf(BadRequestError);
+      expect(err.message).toEqual("Recipe already in cookbook");
     }
 
   });
 
   test("BadRequest on bad args", async function () {
-    const mockCreate = async function (){
-      throw new Error("fail create")
-    } as any
+    const mockCreate = async function () {
+      throw new Error("fail create");
+    } as any;
 
     prisma.cookbookEntry.count.mockResolvedValueOnce(0);
     prisma.cookbookEntry.create.mockImplementationOnce(mockCreate);
 
     try {
       await RecipeManager.addToCookbook(1, "badUsername");
-      throw new Error("Fail test. You shouldn't get here")
+      throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
-      expect(err).toBeInstanceOf(BadRequestError)
+      expect(err).toBeInstanceOf(BadRequestError);
       expect(err.message).toEqual(
         "Database transaction failed. Are recipeId and username correct?"
-      )
+      );
     }
   });
 });
 
 describe("removeFromCookbook", function () {
   const validResult = {
-    removed:{
-      recipeId:1,
-      username:"u1",
+    removed: {
+      recipeId: 1,
+      username: "u1",
     }
-  }
+  };
 
   test("", async function () {
     prisma.cookbookEntry.count.mockResolvedValueOnce(1);
-    prisma.cookbookEntry.deleteMany.mockResolvedValueOnce({count:1})
+    prisma.cookbookEntry.deleteMany.mockResolvedValueOnce({ count: 1 });
 
-    let result = await RecipeManager.removeFromCookbook(1,"u1")
+    let result = await RecipeManager.removeFromCookbook(1, "u1");
 
     expect(prisma.cookbookEntry.deleteMany).toHaveBeenCalledWith({
       where: {
         username: "u1",
         recipeId: 1,
       }
-    })
-    expect(result).toEqual(validResult)
+    });
+    expect(result).toEqual(validResult);
   });
 
   test("BadRequest on missing cookbookEntry", async function () {
@@ -454,10 +466,10 @@ describe("removeFromCookbook", function () {
 
     try {
       await RecipeManager.removeFromCookbook(1, "u1");
-      throw new Error("Fail test. You shouldn't get here")
+      throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
-      expect(err).toBeInstanceOf(BadRequestError)
-      expect(err.message).toEqual("No cookbook entry to remove")
+      expect(err).toBeInstanceOf(BadRequestError);
+      expect(err.message).toEqual("No cookbook entry to remove");
     }
   });
 

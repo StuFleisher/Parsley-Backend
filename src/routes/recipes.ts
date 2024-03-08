@@ -57,7 +57,7 @@ router.post(
     const rawRecipe = req.body.recipeText;
     let recipe;
     try {
-      recipe = await textToRecipe(rawRecipe);
+      recipe = await textToRecipe(rawRecipe, res.locals.user!.username);
     } catch (err) {
       return res.status(400).json({
         message: "There was an issue processing your recipe",
@@ -206,7 +206,11 @@ router.put(
       +req.params.id
     );
 
-    return res.json({ imageUrl: recipe.imageUrl });
+    return res.json({
+       imageSm: recipe.imageSm,
+       imageMd: recipe.imageMd,
+       imageLg: recipe.imageLg
+      });
   }
 );
 
@@ -220,8 +224,8 @@ router.delete(
   ensureOwnerOrAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
 
-    const deleted = await RecipeManager.deleteRecipeImage(+req.params.id);
-    return res.json({ deleted });
+    const updatedRecipe = await RecipeManager.deleteRecipeImage(+req.params.id);
+    return res.json({ updatedRecipe });
   }
 );
 

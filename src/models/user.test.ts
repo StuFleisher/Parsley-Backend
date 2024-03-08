@@ -2,7 +2,7 @@
 import '../config'; //this loads the database
 
 import { BCRYPT_WORK_FACTOR } from '../config'; //this loads the test database
-import {prismaMock as prisma} from '../prismaSingleton';
+import { prismaMock as prisma } from '../prismaSingleton';
 
 import bcrypt from "bcrypt";
 import {
@@ -19,31 +19,31 @@ import UserManager from "./user";
 describe("authenticate", function () {
 
   const userData = {
-    userId:1,
-    username:"test username",
-    password:"test password",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
 
   const returnedUser = {
     userId: 1,
-    username:"test username",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    username: "test username",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
 
   test("works", async function () {
 
     const encryptedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     const storedUser = {
       ...userData,
-      password:encryptedPassword
-    }
+      password: encryptedPassword
+    };
     prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
     const user = await UserManager.authenticate("test username", "test password");
@@ -64,8 +64,8 @@ describe("authenticate", function () {
     const encryptedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     const storedUser = {
       ...userData,
-      password:encryptedPassword
-    }
+      password: encryptedPassword
+    };
     prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
     try {
@@ -82,32 +82,32 @@ describe("authenticate", function () {
 
 describe("register", function () {
   const userData = {
-    userId:1,
-    username:"test username",
-    password:"test password",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
 
   const returnedUser = {
-    userId:1,
-    username:"test username",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
 
-  beforeEach(()=>{ jest.clearAllMocks()})
+  beforeEach(() => { jest.clearAllMocks(); });
 
   test("works", async function () {
     const encryptedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     const storedUser = {
       ...userData,
-      password:encryptedPassword
-    }
+      password: encryptedPassword
+    };
 
     prisma.user.findUnique.mockResolvedValueOnce(null);
     prisma.user.create.mockResolvedValueOnce(storedUser);
@@ -115,9 +115,9 @@ describe("register", function () {
     let user = await UserManager.register(userData);
     expect(user).toEqual(returnedUser);
     expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where:{username:"test username"}
+      where: { username: "test username" }
     });
-    expect(prisma.user.create).toHaveBeenCalledTimes(1)
+    expect(prisma.user.create).toHaveBeenCalledTimes(1);
 
   });
 
@@ -125,11 +125,11 @@ describe("register", function () {
     const encryptedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     const storedUser = {
       ...userData,
-      password:encryptedPassword
-    }
+      password: encryptedPassword
+    };
 
     prisma.user.findUnique.mockResolvedValueOnce(null);
-    prisma.user.create.mockResolvedValueOnce({...storedUser, isAdmin:true});
+    prisma.user.create.mockResolvedValueOnce({ ...storedUser, isAdmin: true });
 
     let user = await UserManager.register({
       ...userData,
@@ -137,17 +137,17 @@ describe("register", function () {
     });
     expect(user).toEqual({ ...returnedUser, isAdmin: true });
     expect(prisma.user.findUnique).toHaveBeenCalledWith({
-      where:{username:"test username"}
+      where: { username: "test username" }
     });
-    expect(prisma.user.create).toHaveBeenCalledTimes(1)
+    expect(prisma.user.create).toHaveBeenCalledTimes(1);
   });
 
   test("bad request with dup data", async function () {
     const encryptedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     const storedUser = {
       ...userData,
-      password:encryptedPassword
-    }
+      password: encryptedPassword
+    };
 
     prisma.user.findUnique.mockResolvedValueOnce(storedUser);
 
@@ -161,9 +161,9 @@ describe("register", function () {
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where:{username:"test username"}
+        where: { username: "test username" }
       });
-      expect(prisma.user.create).toHaveBeenCalledTimes(0)
+      expect(prisma.user.create).toHaveBeenCalledTimes(0);
     }
   });
 });
@@ -173,45 +173,45 @@ describe("register", function () {
 describe("findAll", function () {
 
   const userData1 = {
-    userId:1,
-    username:"test username",
-    password:"test password",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
   const userData2 = {
-    userId:2,
-    username:"test username2",
-    password:"test password",
-    firstName:"test firstName2",
-    lastName:"test lastName2",
-    email:"test@test.com2",
+    userId: 2,
+    username: "test username2",
+    password: "test password",
+    firstName: "test firstName2",
+    lastName: "test lastName2",
+    email: "test@test.com2",
     isAdmin: false,
-  }
+  };
 
   test("works", async function () {
 
-    prisma.user.findMany.mockResolvedValueOnce([userData1,userData2])
+    prisma.user.findMany.mockResolvedValueOnce([userData1, userData2]);
 
     const users = await UserManager.findAll();
 
     expect(users).toEqual([
       {
-        userId:1,
-        username:"test username",
-        firstName:"test firstName",
-        lastName:"test lastName",
-        email:"test@test.com",
+        userId: 1,
+        username: "test username",
+        firstName: "test firstName",
+        lastName: "test lastName",
+        email: "test@test.com",
         isAdmin: false,
       },
       {
-        userId:2,
-        username:"test username2",
-        firstName:"test firstName2",
-        lastName:"test lastName2",
-        email:"test@test.com2",
+        userId: 2,
+        username: "test username2",
+        firstName: "test firstName2",
+        lastName: "test lastName2",
+        email: "test@test.com2",
         isAdmin: false,
       }
     ]);
@@ -223,42 +223,42 @@ describe("findAll", function () {
 describe("get", function () {
 
   const userData = {
-    userId:1,
-    username:"test username",
-    password:"test password",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-    recipes:[],
-  }
+    recipes: [],
+  };
   const returnedUser = {
-    userId:1,
-    username:"test username",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-    recipes:[],
-  }
+    recipes: [],
+  };
 
   test("works", async function () {
-    prisma.user.findUniqueOrThrow.mockResolvedValueOnce(userData)
+    prisma.user.findUniqueOrThrow.mockResolvedValueOnce(userData);
 
     let user = await UserManager.getUser("test username");
     expect(user).toEqual(returnedUser);
     expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
-      where: {username:"test username"},
-      include:{
-        recipes:true,
-        cookbook:true,
+      where: { username: "test username" },
+      include: {
+        recipes: true,
+        cookbook: true,
       },
-    })
+    });
   });
 
   test("not found if no such user", async function () {
     prisma.user.findUniqueOrThrow.mockImplementationOnce(
-      ()=>{throw new Error("error")}
+      () => { throw new Error("error"); }
     );
 
     try {
@@ -267,12 +267,12 @@ describe("get", function () {
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
       expect(prisma.user.findUniqueOrThrow).toHaveBeenCalledWith({
-        where: {username:"nope"},
-        include:{
-          recipes:true,
-          cookbook:true,
+        where: { username: "nope" },
+        include: {
+          recipes: true,
+          cookbook: true,
         },
-      })
+      });
     }
   });
 });
@@ -280,71 +280,73 @@ describe("get", function () {
 
 /************************************** update */
 
-describe("getUserCookbook", function() {
+describe("getUserCookbook", function () {
 
-  test("works",async function () {
+  test("works", async function () {
 
     prisma.recipe.findMany.mockResolvedValueOnce([{
       recipeId: 1,
       "name": "R1Name",
       "description": "R1Description",
       "sourceUrl": "http://R1SourceUrl.com",
-      "sourceName":"R1SourceName",
-      "imageUrl": "http://R1ImageUrl.com",
+      "sourceName": "R1SourceName",
+      imageSm: "http://R1ImageUrl.com/sm",
+      imageMd: "http://R1ImageUrl.com/md",
+      imageLg: "http://R1ImageUrl.com/lg",
       "owner": "u1",
-    }])
+    }]);
 
     const cookbook = await UserManager.getUserCookbook("u1");
 
     expect(prisma.recipe.findMany).toHaveBeenCalledWith({
       where: {
-        cookbooks:{
+        cookbooks: {
           some: {
-            user:{
-              username:"u1"
+            user: {
+              username: "u1"
             }
           }
         }
       }
-    })
+    });
 
     expect(cookbook).toEqual([{
       recipeId: 1,
       "name": "R1Name",
       "description": "R1Description",
       "sourceUrl": "http://R1SourceUrl.com",
-      "sourceName":"R1SourceName",
+      "sourceName": "R1SourceName",
       "imageUrl": "http://R1ImageUrl.com",
       "owner": "u1",
-    }])
+    }]);
 
 
-  })
-})
+  });
+});
 
 
 /************************************** update */
 
 describe("update", function () {
   const userData = {
-    userId:1,
-    username:"test username",
-    password:"test password",
-    firstName:"test firstName",
-    lastName:"test lastName",
-    email:"test@test.com",
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
     isAdmin: false,
-  }
+  };
   const updateData = {
-    userId:1,
-    password:"new password",
+    userId: 1,
+    password: "new password",
     firstName: "new firstName",
     lastName: "new lastName",
     email: "new@email.com",
     isAdmin: true,
   };
   const returnData = {
-    userId:1,
+    userId: 1,
     username: "test username",
     firstName: "new firstName",
     lastName: "new lastName",
@@ -353,18 +355,18 @@ describe("update", function () {
   };
 
   test("works", async function () {
-    prisma.user.update.mockResolvedValueOnce({...updateData,username: "test username"})
+    prisma.user.update.mockResolvedValueOnce({ ...updateData, username: "test username" });
 
     let user = await UserManager.updateUser("test username", updateData);
     expect(user).toEqual(returnData);
     expect(prisma.user.update).toHaveBeenCalledWith({
-      where:{username:"test username"},
+      where: { username: "test username" },
       data: updateData,
-    })
+    });
   });
 
   test("not found if no such user", async function () {
-    prisma.user.update.mockImplementationOnce(()=>{throw new Error()})
+    prisma.user.update.mockImplementationOnce(() => { throw new Error(); });
 
     try {
       await UserManager.updateUser("nope", {
@@ -392,11 +394,11 @@ describe("update", function () {
 describe("remove", function () {
   test("works", async function () {
     await UserManager.deleteUser("test username");
-    expect(prisma.user.delete).toHaveBeenCalledWith({where:{username:"test username"}})
+    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { username: "test username" } });
   });
 
   test("not found if no such user", async function () {
-    prisma.user.delete.mockImplementationOnce(()=>{throw new Error()})
+    prisma.user.delete.mockImplementationOnce(() => { throw new Error(); });
 
     try {
       await UserManager.deleteUser("nope");

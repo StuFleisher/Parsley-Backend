@@ -92,7 +92,9 @@ describe("GET /", function () {
       description: "R1Description",
       sourceUrl: "http://R1SourceUrl.com",
       sourceName: "R1SourceName",
-      imageUrl: "http://R1ImageUrl.com",
+      imageSm: "http://R1ImageUrl.com/sm",
+      imageMd: "http://R1ImageUrl.com/md",
+      imageLg: "http://R1ImageUrl.com/lg",
       owner: "u1"
     }]);
 
@@ -207,8 +209,8 @@ describe("DELETE /{id}", function () {
   test("OK", async function () {
 
     //mock for middleware
-    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
-    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById");
+    mockedGetRecipeById.mockResolvedValueOnce({ owner: "u1" } as RecipeData);
 
     const deleteRecipeByIdMock = jest.spyOn(RecipeManager, "deleteRecipeById");
     deleteRecipeByIdMock.mockResolvedValueOnce(storedRecipe1);
@@ -227,8 +229,8 @@ describe("DELETE /{id}", function () {
   test("404 for bad ID", async function () {
 
     //mock for middleware
-    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
-    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById");
+    mockedGetRecipeById.mockResolvedValueOnce({ owner: "u1" } as RecipeData);
 
     //mock for route
     const deleteRecipeByIdMock = jest.spyOn(RecipeManager, "deleteRecipeById");
@@ -251,13 +253,13 @@ describe("PUT /{id}", function () {
   test("OK", async function () {
 
     //mock for middleware
-    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
-    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById");
+    mockedGetRecipeById.mockResolvedValueOnce({ owner: "u1" } as RecipeData);
 
     //mock for route
     const updateRecipeMock = jest.spyOn(RecipeManager, "updateRecipe");
     updateRecipeMock.mockResolvedValueOnce(storedRecipe1);
-  
+
 
     const resp = await request(app)
       .put(`/recipes/1`)
@@ -273,8 +275,8 @@ describe("PUT /{id}", function () {
 
   test("404 for bad ID", async function () {
     //mock for middleware
-    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById")
-    mockedGetRecipeById.mockResolvedValueOnce({owner:"u1"} as RecipeData)
+    const mockedGetRecipeById = jest.spyOn(RecipeManager, "getRecipeById");
+    mockedGetRecipeById.mockResolvedValueOnce({ owner: "u1" } as RecipeData);
 
     //mock for route
     const updateRecipeMock = jest.spyOn(RecipeManager, "updateRecipe");
@@ -284,7 +286,7 @@ describe("PUT /{id}", function () {
 
     const resp = await request(app)
       .delete(`/recipes/0`)
-      .set("authorization", `Bearer ${adminToken}`)
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 

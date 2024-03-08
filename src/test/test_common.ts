@@ -5,60 +5,64 @@ import { createToken } from '../utils/tokens';
 
 
 //runs any migrations using the test database
-async function commonBeforeAll(){
+async function commonBeforeAll() {
   execSync('npx prisma migrate deploy', { env: process.env });
 }
 
 //prints to console to clarify logging within individual tests
-async function commonBeforeEach(){
+async function commonBeforeEach() {
   jest.clearAllMocks();
 }
 
 //resets the test database
-async function commonAfterEach(){
+async function commonAfterEach() {
   const recipeCount = await prisma.recipe.deleteMany({});
 }
 
-const newRecipeSubmission:RecipeForCreate = {
+const newRecipeSubmission: RecipeForCreate = {
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
-  imageUrl: "http://R1ImageUrl.com",
+  imageSm: "http://R1ImageUrl.com/sm",
+  imageMd: "http://R1ImageUrl.com/md",
+  imageLg: "http://R1ImageUrl.com/lg",
   owner: "u1",
-  steps:[{
+  steps: [{
     stepNumber: 1,
     instructions: "R1S1Instructions",
     ingredients: [{
       amount: "R1S1I1Amount",
       description: "R1S1I1Description",
-      instructionRef:"R1S1I1InstructionRef",
+      instructionRef: "R1S1I1InstructionRef",
     }]
   }]
-}
+};
 
-const createdRecipe:RecipeData = {
-  recipeId:1,
+const createdRecipe: RecipeData = {
+  recipeId: 1,
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
-  imageUrl: "http://R1ImageUrl.com",
+  imageSm: "http://R1ImageUrl.com/sm",
+  imageMd: "http://R1ImageUrl.com/md",
+  imageLg: "http://R1ImageUrl.com/lg",
   owner: "u1",
-  steps:[{
-    recipeId:1,
-    stepId:1,
+  steps: [{
+    recipeId: 1,
+    stepId: 1,
     stepNumber: 1,
     instructions: "R1S1Instructions",
     ingredients: [{
-      step:1,
-      ingredientId:1,
+      step: 1,
+      ingredientId: 1,
       amount: "R1S1I1Amount",
       description: "R1S1I1Description",
-      instructionRef:"R1S1I1InstructionRef",
+      instructionRef: "R1S1I1InstructionRef",
     }]
   }]
-}
+};
 
 
 
@@ -67,58 +71,62 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
-  imageUrl: "http://R1ImageUrl.com",
+  imageSm: "http://R1ImageUrl.com/sm",
+  imageMd: "http://R1ImageUrl.com/md",
+  imageLg: "http://R1ImageUrl.com/lg",
   owner: "u1",
   steps: [
     {
-      recipeId:1,
+      recipeId: 1,
       stepNumber: 1,
       instructions: "R1S1Instructions",
       ingredients: [{
         amount: "R1S1I1Amount",
         description: "R1S1I1Description",
-        instructionRef:"R1S1I1InstructionRef",
+        instructionRef: "R1S1I1InstructionRef",
       }]
     }
   ]
 };
 
 const storedRecipe1: RecipeData = {
-  recipeId:1,
+  recipeId: 1,
   name: "R1Name",
   description: "R1Description",
   sourceUrl: "http://R1SourceUrl.com",
   sourceName: "R1SourceName",
-  imageUrl: "http://R1ImageUrl.com",
-  owner: "u1",
+  imageSm: "http://R1ImageUrl.com/sm",
+  imageMd: "http://R1ImageUrl.com/md",
+  imageLg: "http://R1ImageUrl.com/lg",
+    owner: "u1",
   steps: [
     {
-      recipeId:1,
-      stepId:1,
+      recipeId: 1,
+      stepId: 1,
       stepNumber: 1,
       instructions: "R1S1Instructions",
       ingredients: [{
-        ingredientId:1,
-        step:1,
+        ingredientId: 1,
+        step: 1,
         amount: "R1S1I1Amount",
         description: "R1S1I1Description",
-        instructionRef:"R1S1I1InstructionRef",
+        instructionRef: "R1S1I1InstructionRef",
       }]
     }
   ]
-}
+};
 
 const generatedRecipe1: IRecipeBase = {
   name: "R1Name",
   steps: [
     {
-      recipeId:1,
+      recipeId: 1,
       stepNumber: 1,
       instructions: "R1S1Instructions",
       ingredients: [{
         amount: "R1S1I1Amount",
         description: "R1S1I1Description",
-        instructionRef:"R1S1I1InstructionRef",
+        instructionRef: "R1S1I1InstructionRef",
       }]
     }
   ]
@@ -129,48 +137,49 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   description: "R2Description",
   sourceUrl: "R2SourceUrl",
   sourceName: "R2SourceName",
-  imageUrl: "R2ImageUrl",
-  owner: "u2",
+  imageSm: "http://R2ImageUrl.com/sm",
+  imageMd: "http://R2ImageUrl.com/md",
+  imageLg: "http://R2ImageUrl.com/lg",  owner: "u2",
   steps: [
     {
-      recipeId:2,
+      recipeId: 2,
       stepNumber: 1,
       instructions: "R2S1Instructions",
       ingredients: [{
         amount: "R2S1I1Amount",
         description: "R2S1I1Description",
-        instructionRef:"R2S1I1InstructionRef",
+        instructionRef: "R2S1I1InstructionRef",
       }]
     }
   ]
 };
 
 const user1 = {
-  username:"u1",
-  isAdmin:false,
+  username: "u1",
+  isAdmin: false,
   password: "user1password",
-  firstName:"U1F",
-  lastName:"U1L",
-  email:"user1@test.com",
-}
+  firstName: "U1F",
+  lastName: "U1L",
+  email: "user1@test.com",
+};
 
 const user2 = {
-  username:"u2",
-  isAdmin:false,
+  username: "u2",
+  isAdmin: false,
   password: "user2password",
-  firstName:"U2F",
-  lastName:"U2L",
-  email:"user2@test.com",
-}
+  firstName: "U2F",
+  lastName: "U2L",
+  email: "user2@test.com",
+};
 
 const admin1 = {
-  username:"admin1",
-  isAdmin:true,
+  username: "admin1",
+  isAdmin: true,
   password: "admin1password",
-  firstName:"admin1FirstName",
-  lastName:"admin1FirstName",
-  email:"admin1@test.com",
-}
+  firstName: "admin1FirstName",
+  lastName: "admin1FirstName",
+  email: "admin1@test.com",
+};
 
 const u1Token = createToken(user1);
 const u2Token = createToken(user2);
@@ -189,4 +198,4 @@ export {
   adminToken,
   u2Token,
   u1Token,
-}
+};

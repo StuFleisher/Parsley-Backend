@@ -9,7 +9,9 @@ interface IRecipeWithMetadata extends IRecipeBase {
   description: string;
   sourceUrl: string;
   sourceName: string;
-  imageUrl: string;
+  imageSm: string;
+  imageMd: string;
+  imageLg: string;
   owner: string;
 }
 
@@ -19,7 +21,9 @@ type RecipeForCreate = {
   description: string;
   sourceUrl: string;
   sourceName: string;
-  imageUrl: string;
+  imageSm: string;
+  imageMd: string;
+  imageLg: string;
   owner: string;
 }
 
@@ -43,7 +47,9 @@ type SimpleRecipeData = {
   description: string;
   sourceUrl: string;
   sourceName: string;
-  imageUrl: string;
+  imageSm: string;
+  imageMd: string;
+  imageLg: string;
   owner: string;
 }
 

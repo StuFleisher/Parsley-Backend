@@ -9,6 +9,8 @@
         "maxLength": 200
       },
       "owner":{"type":"string"},
+      "description":{"type":"string"},
+      "sourceName":{"type":"string"},
       "steps": {
         "type": "array",
         "items": {

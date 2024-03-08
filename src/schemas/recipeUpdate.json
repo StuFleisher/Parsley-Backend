@@ -32,7 +32,15 @@
         "minLength": 1,
         "maxLength": 30
       },
-      "imageUrl": {
+      "imageSm": {
+        "type": "string",
+        "format":"uri"
+      },
+      "imageMd": {
+        "type": "string",
+        "format":"uri"
+      },
+      "imageLg": {
         "type": "string",
         "format":"uri"
       },
