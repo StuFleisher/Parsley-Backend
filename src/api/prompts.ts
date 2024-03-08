@@ -1,5 +1,7 @@
 "use strict"
 
+import generateSchema from "../schemas/recipeGenerated.json";
+
 const SHORT_BASE_PROMPT =  (
     `Your job is to structure recipe data into this EXACT json format so that ingredients are associated with the relevant instructions.
     I will give you the text of a recipe.  I would like you to convert it into
@@ -14,6 +16,8 @@ const SHORT_BASE_PROMPT =  (
 
     Output: {
         "name": "Lemon Oregano Chicken",
+        "description":"Sticky Lemon Oregano Chicken is a delicious sweet-sour, tangy, herby chicken dinner. It will be on repeat at your house."
+        "sourceName":"unknown"
         "steps": [
           {
             "stepNumber": 1,
@@ -78,145 +82,12 @@ const SHORT_BASE_PROMPT =  (
     `
   )
 
-
-const RECIPE_CONVERSION_BASE_PROMPT = (
-  `I will give you the text of a recipe.  I would like you to convert it into structured JSON following these rules.  1- Maintain the original text and intent of the recipe whenever possible. 2- Keep each step simple. 3-Ignore stray content that may have been copy pasted into the recipe by accident. 4. Follow the data structure below exactly
-
-  Below is an example of how a recipe should be converted.
-  2 teaspoons canola oil
-  1 cup sliced mushrooms
-  ½ cup chopped red bell pepper
-  4 teaspoons minced peeled fresh ginger
-  4 garlic cloves, minced
-  1 (3-inch) stalk lemongrass, halved lengthwise
-  2 teaspoons sambal oelek (ground fresh chile paste)
-  3 cups Chicken stock or reduced-sodium chicken broth
-  1 ¼ cups light coconut milk
-  4 teaspoons fish sauce
-  1 tablespoon sugar
-  2 cups shredded cooked chicken breast (about 8 ounces)
-  ½ cup green onion strips
-  3 tablespoons chopped fresh cilantro
-  2 tablespoons fresh lime juice
-  Local Offers
-  Atlanta, GA 30310 Change
-  Kroger Logo
-   FEATURED PRODUCTS
-  Offer for Smidge & Spoon™ Granulated Sugar
-  Smidge & Spoon™ Granulated Sugar
-  All-purpose sugar ideal for table use & baking
-  ORDER NOW
-  Buy all 15 ingredients from this recipe for $36.92
-  Add toKroger Logocart
-  Advertisement
-  Directions
-  Spicy Thai Coconut Chicken Soup image
-  ANTONIS ACHILLEOS; FOOD STYLING: RISHON HANNERS; PROP STYLING: MISSIE CRAWFORD
-  Heat a Dutch oven over medium heat. Add oil to pan; swirl to coat. Add mushrooms, bell pepper, ginger, garlic and lemongrass; cook 3 minutes, stirring occasionally. Add chile paste; cook 1 minute. Add chicken stock, coconut milk, fish sauce and sugar; bring to a simmer. Reduce heat to low; simmer for 10 minutes. Add chicken to pan; cook 1 minute or until thoroughly heated. Discard lemongrass. Top with onions, cilantro and juice.
-  Originally appeared: Cooking Light
-
-  Should convert to:
-  {
-      "name":"Spicy Thai Coconut Chicken Soup",
-      "steps":[
-        {
-          "stepNumber":1,
-          "instructions":"Heat a Dutch oven over medium heat. Add oil to coat the pan. Then add mushrooms, bell pepper, ginger, garlic, and lemongrass; cook for 3 minutes, stirring occasionally.",
-          "ingredients": [
-            {
-              "amount":"2 teaspoons",
-              "description":"canola oil"
-            },
-            {
-              "amount":"1 cup",
-              "description":"sliced mushrooms"
-            },
-            {
-              "amount":"1/2 cup",
-              "description":"chopped red bell pepper"
-            },
-            {
-              "amount":"4 teaspoons",
-              "description":"minced peeled fresh ginger"
-            },
-            {
-              "amount":"4 cloves",
-              "description":"garlic, minced"
-            },
-            {
-              "amount":"1 (3-inch) stalk",
-              "description":"lemongrass, halved lengthwise"
-            }
-          ]
-        },
-        {
-          "stepNumber":2,
-          "instructions":"Add chile paste to the pan; cook for 1 minute, stirring continuously.",
-          "ingredients": [
-            {
-              "amount":"2 teaspoons",
-              "description":"sambal oelek (ground fresh chile paste)"
-            }
-          ]
-        },
-        {
-          "stepNumber":3,
-          "instructions":"Add chicken stock, coconut milk, fish sauce, and sugar to the pan; bring to a simmer. Then reduce heat to low and simmer for 10 minutes.",
-          "ingredients": [
-            {
-              "amount":"3 cups",
-              "description":"chicken stock or reduced-sodium chicken broth"
-            },
-            {
-              "amount":"1 ¼ cups",
-              "description":"light coconut milk"
-            },
-            {
-              "amount":"4 teaspoons",
-              "description":"fish sauce"
-            },
-            {
-              "amount":"1 tablespoon",
-              "description":"sugar"
-            }
-          ]
-        },
-        {
-          "stepNumber":4,
-          "instructions":"Add chicken to the pan and cook for 1 minute or until thoroughly heated.",
-          "ingredients": [
-            {
-              "amount":"2 cups",
-              "description":"shredded cooked chicken breast"
-            }
-          ]
-        },
-        {
-          "stepNumber":5,
-          "instructions":"Discard lemongrass. Top the soup with green onions, cilantro, and lime juice before serving.",
-          "ingredients": [
-            {
-              "amount":"1/2 cup",
-              "description":" ½ cup green onion strips"
-            },
-            {
-              "amount":"3 tablespoons",
-              "description":"chopped fresh cilantro"
-            },
-            {
-              "amount":"2 tablespoons",
-              "description":"fresh lime juice"
-            }
-          ]
-        }
-      ]
-    }
-
-  DO NOT OMIT ANY PROPERTIES IN YOUR RESPONSE!
-
-  If the text below can't be made into a recipe, please return {error:"Invalid recipe input"}. Here is the recipe to convert:
-  `
-)
+const RETRY_PROMPT = (`
+      That response did not match the provided format.  Please make sure to
+      fit the following schema:
+      ${generateSchema}
+`
+  )
 
 const TEST_RECIPE_TEXT = (
   `
@@ -263,4 +134,4 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-export {RECIPE_CONVERSION_BASE_PROMPT, TEST_RECIPE_TEXT, SHORT_BASE_PROMPT}
+export {TEST_RECIPE_TEXT, SHORT_BASE_PROMPT, RETRY_PROMPT}

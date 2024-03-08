@@ -38,14 +38,14 @@ describe("Tests for openai", function () {
     mockCreate.mockResolvedValue({
       choices: [{ message: { content: JSON.stringify(generatedRecipe1) } }]
     });
-    const recipe = await textToRecipe(TEST_RECIPE_TEXT);
+    const recipe = await textToRecipe(TEST_RECIPE_TEXT, "u1");
     expect(mockCreate).toHaveBeenCalledTimes(1);
     expect(recipe).toEqual(generatedRecipe1);
   });
 
   test("Errors for invalid inputs", async function () {
     try {
-      await textToRecipe("");
+      await textToRecipe("", "u1");
       throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
       expect(err instanceof BadRequestError).toBeTruthy();
