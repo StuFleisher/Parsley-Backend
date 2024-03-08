@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -9,58 +9,80 @@ datasource db {
 }
 
 model Ingredient {
-  ingredientId    Int     @id @default(autoincrement())
-  step            Int
-  amount          String  @db.VarChar(500) @default("")
-  description     String  @db.VarChar(500) @default("")
-  instructionRef  String  @db.VarChar(500) @default("")
-  steps           Step    @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
+  ingredientId   Int    @id @default(autoincrement())
+  step           Int
+  amount         String @default("") @db.VarChar(500)
+  description    String @default("") @db.VarChar(500)
+  instructionRef String @default("") @db.VarChar(500)
+  steps          Step   @relation(fields: [step], references: [stepId], onDelete: Cascade, onUpdate: NoAction)
+
   @@map("ingredients")
 }
 
 model Recipe {
-  recipeId          Int                 @id @default(autoincrement())
-  name              String              @db.VarChar(200)
-  description       String              @db.VarChar(1000)
-  sourceUrl         String              @map("source_url") @default("")
-  imageUrl          String              @map("image_url") @default("https://sf-parsley.s3.amazonaws.com/recipeImage/parsley.jpg")
-  sourceName        String              @map("source_name") @db.VarChar(50)
-  steps             Step[]
-  ownerUser         User                @relation(fields: [owner], references: [username])
-  owner             String
-  cookbooks         CookbookEntry[]
+  recipeId    Int             @id @default(autoincrement())
+  name        String          @db.VarChar(200)
+  description String          @db.VarChar(1000)
+  sourceUrl   String          @default("") @map("source_url")
+  imageSm     String          @default("https://sf-parsley.s3.amazonaws.com/recipeImage/default-sm") @map("image_sm")
+  imageMd     String          @default("https://sf-parsley.s3.amazonaws.com/recipeImage/default-md") @map("image_md")
+  imageLg     String          @default("https://sf-parsley.s3.amazonaws.com/recipeImage/default-lg") @map("image_lg")
+  sourceName  String          @map("source_name") @db.VarChar(50)
+  steps       Step[]
+  ownerUser   User            @relation(fields: [owner], references: [username])
+  owner       String
+  cookbooks   CookbookEntry[]
+
   @@map("recipes")
 }
 
 model Step {
-  stepId        Int           @id @default(autoincrement())
-  recipeId      Int           @map("recipe_id")
-  stepNumber    Int           @map("step_number")
-  instructions  String        @db.VarChar(5000)
-  ingredients   Ingredient[]
-  recipe        Recipe        @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade, onUpdate: NoAction)
+  stepId       Int          @id @default(autoincrement())
+  recipeId     Int          @map("recipe_id")
+  stepNumber   Int          @map("step_number")
+  instructions String       @db.VarChar(5000)
+  ingredients  Ingredient[]
+  recipe       Recipe       @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade, onUpdate: NoAction)
+
   @@map("steps")
 }
 
 model User {
-  userId        Int                @id @default(autoincrement())
-  username      String             @db.VarChar(25) @unique
-  password      String             @db.VarChar(200)
-  firstName     String             @db.VarChar(100)
-  lastName      String             @db.VarChar(100)
-  email         String             @db.VarChar(100) @unique
-  isAdmin       Boolean
-  recipes       Recipe[]
-  cookbook      CookbookEntry[]
+  userId             Int                 @id @default(autoincrement())
+  username           String              @unique @db.VarChar(25)
+  password           String              @db.VarChar(200)
+  firstName          String              @db.VarChar(100)
+  lastName           String              @db.VarChar(100)
+  email              String              @unique @db.VarChar(100)
+  isAdmin            Boolean
+  recipes            Recipe[]
+  cookbook           CookbookEntry[]
+  generationRequests GenerationRequest[]
+
   @@map("users")
 }
 
 model CookbookEntry {
-  cookbookId        Int          @id @default(autoincrement())
-  user              User         @relation(fields: [username], references: [username], onDelete: Cascade)
-  username          String
-  recipe            Recipe       @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade)
-  recipeId          Int
+  cookbookId Int    @id @default(autoincrement())
+  user       User   @relation(fields: [username], references: [username], onDelete: Cascade)
+  username   String
+  recipe     Recipe @relation(fields: [recipeId], references: [recipeId], onDelete: Cascade)
+  recipeId   Int
+
   @@unique([recipeId, username])
   @@map("cookbooks")
+}
+
+model GenerationRequest {
+  requestId     Int      @id @default(autoincrement())
+  requestText   String
+  response      String
+  didRetry      Boolean
+  retryResponse String?
+  success       Boolean
+  timestamp     DateTime @default(now())
+  username      User     @relation(fields: [requestedBy], references: [username])
+  requestedBy   String
+
+  @@map("generation_request")
 }
