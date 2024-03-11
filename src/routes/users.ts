@@ -67,10 +67,10 @@ router.get("/", ensureAdmin, async function (
  * Returns { username, firstName, lastName, isAdmin, jobs }
  *   where jobs is { id, title, companyHandle, companyName, state }
  *
- * Authorization required: admin or same user-as-:username
+ * Authorization required: none
  **/
 
-router.get("/:username", ensureCorrectUserOrAdmin, async function (
+router.get("/:username", async function (
   req: Request,
   res: Response,
   next: NextFunction
@@ -85,10 +85,10 @@ router.get("/:username", ensureCorrectUserOrAdmin, async function (
  * Returns a list of SimpleRecipeData records:
  * {cookbook:[]}
  *
- * Authorization required: logged in
+ *  Authorization required: none
  **/
 
-router.get("/:username/cookbook", ensureLoggedIn, async function (
+router.get("/:username/cookbook", async function (
   req: Request,
   res: Response,
   next: NextFunction
