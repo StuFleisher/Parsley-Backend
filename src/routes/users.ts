@@ -67,10 +67,10 @@ router.get("/", ensureAdmin, async function (
  * Returns { username, firstName, lastName, isAdmin, jobs }
  *   where jobs is { id, title, companyHandle, companyName, state }
  *
- * Authorization required: none
+ * Authorization required: admin or same user-as-:username
  **/
 
-router.get("/:username", async function (
+router.get("/:username", ensureCorrectUserOrAdmin, async function (
   req: Request,
   res: Response,
   next: NextFunction
@@ -79,13 +79,30 @@ router.get("/:username", async function (
   return res.json({ user });
 });
 
+/** GET /[username]/verify => { user }
+ *
+ * Returns true if the user exists or false if not.
+ *
+ * Authorization required: none
+ **/
+  //TODO: TESTING
+
+router.get("/:username/verify", async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const isUser = await UserManager.verifyUser(req.params.username);
+  return res.json({ isUser });
+});
+
 
 /** GET /[username]/cookbook => { cookbook:SimpleRecipeData[] }
  *
  * Returns a list of SimpleRecipeData records:
  * {cookbook:[]}
  *
- *  Authorization required: none
+ * Authorization required: none
  **/
 
 router.get("/:username/cookbook", async function (
@@ -95,6 +112,24 @@ router.get("/:username/cookbook", async function (
 ) {
   const cookbook = await UserManager.getUserCookbook(req.params.username);
   return res.json({ cookbook });
+});
+
+/** GET /[username]/recipes => { recipes:SimpleRecipeData[] }
+ *
+ * Returns a list of SimpleRecipeData records:
+ * {recipes:[]}
+ *
+ * Authorization required: none
+ **/
+  //TODO: TESTING
+
+router.get("/:username/recipes", async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const recipes = await UserManager.getUserRecipes(req.params.username);
+  return res.json({ recipes });
 });
 
 

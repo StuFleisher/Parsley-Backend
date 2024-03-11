@@ -12,31 +12,31 @@ import {
 } from '../utils/expressError';
 
 type UserDataForCreate = {
-  username:string,
-  password:string,
-  firstName:string,
-  lastName:string,
-  email:string,
-  isAdmin:boolean,
-}
+  username: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  isAdmin: boolean,
+};
 
 type UserData = {
-  userId:number,
-  username:string,
-  password?:string,
-  firstName:string,
-  lastName:string,
-  email:string,
-  isAdmin:boolean,
-}
+  userId: number,
+  username: string,
+  password?: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  isAdmin: boolean,
+};
 
 type updateData = {
-  password?:string,
-  firstName?:string,
-  lastName?:string,
-  email?:string,
-  isAdmin?:boolean,
-}
+  password?: string,
+  firstName?: string,
+  lastName?: string,
+  email?: string,
+  isAdmin?: boolean,
+};
 
 
 class UserManager {
@@ -45,21 +45,21 @@ class UserManager {
    * Returns {userId, username, firstName, lastName, email, isAdmin}
    * Throws UnauthorizedError is user not found or wrong password.
   */
-  static async authenticate(username:string, password:string):Promise<UserData>{
+  static async authenticate(username: string, password: string): Promise<UserData> {
     const fullUserData = await prisma.user.findUnique({
-      where:{username:username}
-    })
+      where: { username: username }
+    });
 
-    if (fullUserData){
-      const isValid = await bcrypt.compare(password, fullUserData.password)
-      if (isValid === true){
-        let user:UserData = fullUserData;
+    if (fullUserData) {
+      const isValid = await bcrypt.compare(password, fullUserData.password);
+      if (isValid === true) {
+        let user: UserData = fullUserData;
         delete user.password;
         return user;
       }
     }
 
-    throw new UnauthorizedError("Invalid username/password")
+    throw new UnauthorizedError("Invalid username/password");
   }
 
 
@@ -67,20 +67,20 @@ class UserManager {
    * Returns {userId, username, firstName, lastName, email, isAdmin}
    * Throws BadRequestError on duplicates
    */
-  static async register(userData:UserDataForCreate):Promise<UserData>{
+  static async register(userData: UserDataForCreate): Promise<UserData> {
     //duplicate check
     const user = await prisma.user.findUnique({
-      where:{username:userData.username}
-    })
-    if (user) throw new BadRequestError(`Username ${user.username} already exists`)
+      where: { username: userData.username }
+    });
+    if (user) throw new BadRequestError(`Username ${user.username} already exists`);
 
-    const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR)
+    const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     userData.password = hashedPassword;
 
     const savedUser = await prisma.user.create({
       data: userData
-    })
-    let newUser:UserData = savedUser;
+    });
+    let newUser: UserData = savedUser;
     delete newUser.password;
 
     return newUser;
@@ -89,10 +89,10 @@ class UserManager {
   /** Returns a list of userData without passwords */
   static async findAll() {
     let users = await prisma.user.findMany();
-    const response = users.map((user:UserData)=>{
+    const response = users.map((user: UserData) => {
       delete user.password;
       return user;
-    })
+    });
 
     return response;
   }
@@ -101,41 +101,70 @@ class UserManager {
    * Returns {username, firstName, lastName, email, isAdmin}
    * Throws NotFoundError on missing record
    */
-  static async getUser(username:string):Promise<UserData>{
-    try{
+  static async getUser(username: string): Promise<UserData> {
+    try {
       let fullUserData = await prisma.user.findUniqueOrThrow({
-        where:{username},
-        include:{
-          recipes:true,
-          cookbook:true,
+        where: { username },
+        include: {
+          recipes: true,
+          cookbook: true,
         }
-      })
-      let user:UserData = fullUserData;
+      });
+      let user: UserData = fullUserData;
       delete user.password;
       return user;
-    } catch(err){
-      throw new NotFoundError("User not found")
+    } catch (err) {
+      throw new NotFoundError("User not found");
     }
   }
+
+  /** Given a username, returns true if that user exists in the database
+  or false if not */
+  //TODO: TESTING
+  static async verifyUser(username: string): Promise<boolean>{
+    try {
+      await prisma.user.findUniqueOrThrow({
+        where: { username },
+      });
+      return true
+    } catch (err) {
+      return false
+    }
+  };
 
   /** Given a username, returns all of the recipes from that users cookbook as
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
    */
-  static async getUserCookbook(username:string):Promise<SimpleRecipeData[]>{
-      let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
-        where: {
-          cookbooks:{
-            some: {
-              user:{
-                username:username
-              }
-            }
+  static async getUserCookbook(username: string): Promise < SimpleRecipeData[] > {
+  let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
+    where: {
+      cookbooks: {
+        some: {
+          user: {
+            username: username
           }
         }
-      })
-      return cookbook
-  }
+      }
+    }
+  });
+  return cookbook;
+};
+
+  /** Given a username, returns all of the recipes from that users cookbook as
+   * SimpleRecipeData.
+   * Throws a NotFoundError if the user isn't found.
+   */
+    //TODO: TESTING
+
+  static async getUserRecipes(username: string): Promise < SimpleRecipeData[] > {
+  let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({
+    where: {
+      owner: username
+    }
+  });
+  return recipes;
+};
 
 
   /** Update user data with `data`.
@@ -155,42 +184,42 @@ class UserManager {
    * or a serious security risks are opened.
    */
   static async updateUser(
-    username:string, userData:updateData
-  ):Promise<UserData>{
-    if (userData.password) {
-      userData.password = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
-    }
+  username: string, userData: updateData
+): Promise < UserData > {
+  if(userData.password) {
+  userData.password = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
+}
 
-    if (!userData || !Object.keys(userData).length) {
-      throw new BadRequestError("No data provided")
-    }
+if (!userData || !Object.keys(userData).length) {
+  throw new BadRequestError("No data provided");
+}
 
-    try{
-      const updatedUser = await prisma.user.update({
-        where:{
-          username:username,
-        },
-        data:userData
-      })
-      let user:UserData = updatedUser;//type change
-      delete user.password;
-      return user;
-    } catch(err){
-      console.log(err)
-      throw new NotFoundError('User not found');
-    }
+try {
+  const updatedUser = await prisma.user.update({
+    where: {
+      username: username,
+    },
+    data: userData
+  });
+  let user: UserData = updatedUser;//type change
+  delete user.password;
+  return user;
+} catch (err) {
+  console.log(err);
+  throw new NotFoundError('User not found');
+}
   }
 
   /** Delete given user from database; returns undefined. */
-  static async deleteUser(username:string){
-    try{
-      prisma.user.delete({
-        where:{username}
-      })
-    } catch(err){
-      throw new NotFoundError("User not found")
-    }
+  static async deleteUser(username: string) {
+  try {
+    prisma.user.delete({
+      where: { username }
+    });
+  } catch (err) {
+    throw new NotFoundError("User not found");
   }
+}
 
 }
 
