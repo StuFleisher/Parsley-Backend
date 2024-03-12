@@ -58,6 +58,7 @@ model User {
   recipes            Recipe[]
   cookbook           CookbookEntry[]
   generationRequests GenerationRequest[]
+  bugReports         BugReport[]
 
   @@map("users")
 }
@@ -85,4 +86,14 @@ model GenerationRequest {
   requestedBy   String
 
   @@map("generation_request")
+}
+
+model BugReport {
+  reportId   Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now())
+  username   User     @relation(fields: [reportedBy], references: [username])
+  reportedBy String
+  reportText String
+
+  @@map("bug_reports")
 }

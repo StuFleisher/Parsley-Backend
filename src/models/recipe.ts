@@ -3,7 +3,7 @@ import '../config';
 import prisma from '../prismaClient';
 import { NotFoundError, BadRequestError } from '../utils/expressError';
 import StepManager from './step';
-import { uploadFile, deleteFile } from "../api/s3";
+import { deleteFile } from "../api/s3";
 import ImageHandler from '../utils/imageHandler';
 
 const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/default";
