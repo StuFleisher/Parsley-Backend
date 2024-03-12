@@ -219,9 +219,10 @@ class UserManager {
   /** Delete given user from database; returns undefined. */
   static async deleteUser(username: string) {
     try {
-      prisma.user.delete({
+      const deleted = await prisma.user.delete({
         where: { username }
       });
+      return deleted.username
     } catch (err) {
       throw new NotFoundError("User not found");
     }

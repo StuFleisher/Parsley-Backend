@@ -1,5 +1,5 @@
 import prisma from '../prismaClient';
-import { DATABASE_URL } from '../config';
+import '../config';
 import { NotFoundError } from '../utils/expressError';
 
 

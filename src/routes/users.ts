@@ -173,8 +173,8 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (
   res: Response,
   next: NextFunction
 ) {
-  await UserManager.deleteUser(req.params.username);
-  return res.json({ deleted: req.params.username });
+  const deletedUser = await UserManager.deleteUser(req.params.username);
+  return res.json({ deleted: deletedUser });
 });
 
 export default router;
