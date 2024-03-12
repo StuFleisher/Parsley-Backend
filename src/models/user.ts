@@ -73,17 +73,23 @@ class UserManager {
       where: { username: userData.username }
     });
     if (user) throw new BadRequestError(`Username ${user.username} already exists`);
+    const email = await prisma.user.findUnique({
+      where: { email: userData.email }
+    });
+    if (email) throw new BadRequestError("An account with that email address already exists");
 
     const hashedPassword = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
     userData.password = hashedPassword;
+
 
     const savedUser = await prisma.user.create({
       data: userData
     });
     let newUser: UserData = savedUser;
     delete newUser.password;
-
     return newUser;
+
+
   }
 
   /** Returns a list of userData without passwords */
@@ -121,14 +127,14 @@ class UserManager {
   /** Given a username, returns true if that user exists in the database
   or false if not */
   //TODO: TESTING
-  static async verifyUser(username: string): Promise<boolean>{
+  static async verifyUser(username: string): Promise<boolean> {
     try {
       await prisma.user.findUniqueOrThrow({
         where: { username },
       });
-      return true
+      return true;
     } catch (err) {
-      return false
+      return false;
     }
   };
 
@@ -136,35 +142,35 @@ class UserManager {
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
    */
-  static async getUserCookbook(username: string): Promise < SimpleRecipeData[] > {
-  let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
-    where: {
-      cookbooks: {
-        some: {
-          user: {
-            username: username
+  static async getUserCookbook(username: string): Promise<SimpleRecipeData[]> {
+    let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
+      where: {
+        cookbooks: {
+          some: {
+            user: {
+              username: username
+            }
           }
         }
       }
-    }
-  });
-  return cookbook;
-};
+    });
+    return cookbook;
+  };
 
   /** Given a username, returns all of the recipes from that users cookbook as
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
    */
-    //TODO: TESTING
+  //TODO: TESTING
 
-  static async getUserRecipes(username: string): Promise < SimpleRecipeData[] > {
-  let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({
-    where: {
-      owner: username
-    }
-  });
-  return recipes;
-};
+  static async getUserRecipes(username: string): Promise<SimpleRecipeData[]> {
+    let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({
+      where: {
+        owner: username
+      }
+    });
+    return recipes;
+  };
 
 
   /** Update user data with `data`.
@@ -184,42 +190,42 @@ class UserManager {
    * or a serious security risks are opened.
    */
   static async updateUser(
-  username: string, userData: updateData
-): Promise < UserData > {
-  if(userData.password) {
-  userData.password = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
-}
+    username: string, userData: updateData
+  ): Promise<UserData> {
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, BCRYPT_WORK_FACTOR);
+    }
 
-if (!userData || !Object.keys(userData).length) {
-  throw new BadRequestError("No data provided");
-}
+    if (!userData || !Object.keys(userData).length) {
+      throw new BadRequestError("No data provided");
+    }
 
-try {
-  const updatedUser = await prisma.user.update({
-    where: {
-      username: username,
-    },
-    data: userData
-  });
-  let user: UserData = updatedUser;//type change
-  delete user.password;
-  return user;
-} catch (err) {
-  console.log(err);
-  throw new NotFoundError('User not found');
-}
+    try {
+      const updatedUser = await prisma.user.update({
+        where: {
+          username: username,
+        },
+        data: userData
+      });
+      let user: UserData = updatedUser;//type change
+      delete user.password;
+      return user;
+    } catch (err) {
+      console.log(err);
+      throw new NotFoundError('User not found');
+    }
   }
 
   /** Delete given user from database; returns undefined. */
   static async deleteUser(username: string) {
-  try {
-    prisma.user.delete({
-      where: { username }
-    });
-  } catch (err) {
-    throw new NotFoundError("User not found");
+    try {
+      prisma.user.delete({
+        where: { username }
+      });
+    } catch (err) {
+      throw new NotFoundError("User not found");
+    }
   }
-}
 
 }
 
