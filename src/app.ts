@@ -13,7 +13,7 @@ import bugReportRoutes from './routes/bugReports'
 const app=express();
 
 const corsOptions={
-  origin:'https://parsley.cooking',
+  origin:process.env.CORS_URL,
   optionSuccessStatus: 200
 }
 
