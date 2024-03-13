@@ -12,7 +12,12 @@ import bugReportRoutes from './routes/bugReports'
 
 const app=express();
 
-app.use(cors());
+const corsOptions={
+  origin:'https://parsley.cooking',
+  optionSuccessStatus: 200
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(authenticateJWT);
 
