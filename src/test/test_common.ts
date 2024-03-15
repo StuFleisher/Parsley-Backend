@@ -19,6 +19,8 @@ async function commonAfterEach() {
   const recipeCount = await prisma.recipe.deleteMany({});
 }
 
+const testDate = new Date(2020, 0, 1, 0, 0, 0);
+
 const newRecipeSubmission: RecipeForCreate = {
   name: "R1Name",
   description: "R1Description",
@@ -49,6 +51,7 @@ const createdRecipe: RecipeData = {
   imageMd: "http://R1ImageUrl.com/md",
   imageLg: "http://R1ImageUrl.com/lg",
   owner: "u1",
+  createdTime: testDate,
   steps: [{
     recipeId: 1,
     stepId: 1,
@@ -98,7 +101,8 @@ const storedRecipe1: RecipeData = {
   imageSm: "http://R1ImageUrl.com/sm",
   imageMd: "http://R1ImageUrl.com/md",
   imageLg: "http://R1ImageUrl.com/lg",
-    owner: "u1",
+  owner: "u1",
+  createdTime: testDate,
   steps: [
     {
       recipeId: 1,
@@ -139,7 +143,7 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
   sourceName: "R2SourceName",
   imageSm: "http://R2ImageUrl.com/sm",
   imageMd: "http://R2ImageUrl.com/md",
-  imageLg: "http://R2ImageUrl.com/lg",  owner: "u2",
+  imageLg: "http://R2ImageUrl.com/lg", owner: "u2",
   steps: [
     {
       recipeId: 2,
@@ -198,4 +202,5 @@ export {
   adminToken,
   u2Token,
   u1Token,
+  testDate,
 };

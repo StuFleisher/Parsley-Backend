@@ -35,6 +35,7 @@ import {
   newRecipeSubmission,
   createdRecipe,
   storedRecipe1,
+  testDate,
 } from '../test/test_common';
 import { BadRequestError, NotFoundError } from '../utils/expressError';
 import { error } from 'console';
@@ -61,6 +62,7 @@ describe("Test Create Recipe", function () {
       "imageMd": "http://R1ImageUrl.com/md",
       "imageLg": "http://R1ImageUrl.com/lg",
       "owner": "u1",
+      createdTime: testDate,
     });
 
     mockedStepManager.createStep.mockResolvedValue({
@@ -124,6 +126,7 @@ describe("Test getAllRecipes", function () {
       "imageMd": "http://R1ImageUrl.com/md",
       "imageLg": "http://R1ImageUrl.com/lg",
       owner: "u1",
+      createdTime: testDate,
     },
     {
       recipeId: 2,
@@ -135,6 +138,7 @@ describe("Test getAllRecipes", function () {
       "imageMd": "http://R2ImageUrl.com/md",
       "imageLg": "http://R2ImageUrl.com/lg",
       owner: "u2",
+      createdTime: testDate,
     },
   ];
 
@@ -254,6 +258,7 @@ describe("Test updateRecipe", function () {
       "imageMd": "http://R1ImageUrl.com/md",
       "imageLg": "http://R1ImageUrl.com/lg",
       owner: "u1",
+      createdTime: testDate,
       steps: [],
     };
 
@@ -309,6 +314,7 @@ describe("Test updateRecipe", function () {
       imageMd: "newImageUrl/md",
       imageLg: "newImageUrl/lg",
       owner: "u1",
+      createdTime: testDate,
       steps: [],
     };
 

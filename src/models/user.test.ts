@@ -11,6 +11,7 @@ import {
   UnauthorizedError,
 } from "../utils/expressError";
 import UserManager from "./user";
+import { testDate } from '../test/test_common';
 
 
 
@@ -294,6 +295,7 @@ describe("getUserCookbook", function () {
       imageMd: "http://R1ImageUrl.com/md",
       imageLg: "http://R1ImageUrl.com/lg",
       "owner": "u1",
+      createdTime: testDate,
     }]);
 
     const cookbook = await UserManager.getUserCookbook("u1");
@@ -318,6 +320,7 @@ describe("getUserCookbook", function () {
       "sourceName": "R1SourceName",
       "imageUrl": "http://R1ImageUrl.com",
       "owner": "u1",
+      "createdTime": testDate,
     }]);
 
 

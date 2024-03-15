@@ -28,6 +28,7 @@ model Recipe {
   imageMd     String          @default("https://sf-parsley.s3.amazonaws.com/recipeImage/default-md") @map("image_md")
   imageLg     String          @default("https://sf-parsley.s3.amazonaws.com/recipeImage/default-lg") @map("image_lg")
   sourceName  String          @map("source_name") @db.VarChar(50)
+  createdTime DateTime        @default(now())
   steps       Step[]
   ownerUser   User            @relation(fields: [owner], references: [username])
   owner       String
