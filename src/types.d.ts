@@ -36,6 +36,7 @@ interface IRecipeForUpdate extends IRecipeWithMetadata {
 //A full recipe including system generated values. Extends IRecipeWithMetadata
 interface RecipeData extends IRecipeWithMetadata {
   recipeId:number;
+  createdTime: Date;
   steps:Step[];
 }
 
