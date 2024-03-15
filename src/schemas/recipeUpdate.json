@@ -44,6 +44,10 @@
         "type": "string",
         "format":"uri"
       },
+      "createdTime":{
+        "type": "string",
+        "format":"date-time"
+      },
       "steps": {
         "type": "array",
         "items": {
