@@ -63,7 +63,8 @@
                 "type":"integer"
             },
             "instructions":{
-                "type":"string"
+                "type":"string",
+                "maxLength": 5000
             },
             "ingredients":{
                 "type":"array",
@@ -74,13 +75,16 @@
                         "type":"integer"
                       },
                       "amount":{
-                          "type": "string"
+                          "type": "string",
+                          "maxLength": 500
                       },
                       "description":{
-                          "type":"string"
+                          "type":"string",
+                          "maxLength": 500
                       },
                       "instructionRef":{
-                        "type":"string"
+                        "type":"string",
+                        "maxLength": 500
                       }
                     }
                   },
