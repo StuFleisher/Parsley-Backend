@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { uploadMultiple } from "../api/s3";
-
+import { createWorker } from 'tesseract.js';
 
 type ResizedImages = {
   "sm": Buffer,
@@ -36,6 +36,14 @@ class ImageHandler {
     const lg = await sharp(image).resize(2000, 900).jpeg({ quality: 50 }).toBuffer();
 
     return { sm, md, lg };
+  }
+
+  static async getRecipeTextFromPhoto(image:Buffer){
+    const worker = await createWorker('eng');
+    const resp = await worker.recognize(image);
+    console.log(resp.data.text);
+    await worker.terminate();
+    return resp.data.text;
   }
 
 }

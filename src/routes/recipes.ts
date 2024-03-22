@@ -20,42 +20,37 @@ import {
   ensureOwnerOrAdmin,
   ensureMatchingOwnerOrAdmin,
 } from '../middleware/auth';
+import ImageHandler from '../utils/imageHandler';
 
 
 
 /** POST /generate {recipeText}=>{recipeData}
  *
- * @params recipeText:
+ * Pulls text from either a json.body.recipeText or by interpreting text
+ * from a multipart/formdata image.
  *
- *  {
- *    recipeText: string (the copy/paste recipe from another source)
- *  }
+ * Generates an IRecipeBase and returns it to the user as json
+ * {recipe:IRecipeBase}
  *
- * @returns JSON recipeData: IRecipeBase
- *  {
- *    name: string
- *    steps:[
- *      {
- *        stepNumber:number,
-          instructions: string,
-          ingredients:[
-            {
-              amount: string;
-              description: string;
-            }
-          ],
-        }
- *    ]
- *  }
+ * Errors if no text is provided or if the recipe generation fails.
  */
 router.post(
   "/generate",
   ensureLoggedIn,
+  readMultipart("image"),
+
   async function (req: Request, res: Response, next: NextFunction) {
     //TODO: test middleware
+    let recipe, rawRecipe;
 
-    const rawRecipe = req.body.recipeText;
-    let recipe;
+    if (req.file){
+      rawRecipe = await ImageHandler.getRecipeTextFromPhoto(req.file.buffer)
+    } else if (req.body && req.body.recipeText){
+      rawRecipe = req.body.recipeText;
+    } else {
+      throw new BadRequestError("Please provide recipe text")
+    }
+
     try {
       recipe = await textToRecipe(rawRecipe, res.locals.user!.username);
     } catch (err) {
@@ -207,10 +202,10 @@ router.put(
     );
 
     return res.json({
-       imageSm: recipe.imageSm,
-       imageMd: recipe.imageMd,
-       imageLg: recipe.imageLg
-      });
+      imageSm: recipe.imageSm,
+      imageMd: recipe.imageMd,
+      imageLg: recipe.imageLg
+    });
   }
 );
 
