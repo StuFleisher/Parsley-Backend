@@ -188,6 +188,9 @@ Here are a few additional features of the app:<br/>
 - [ ] Fine-tune OpenAi Model to reduce token usage and improve responses
 - [ ] Add password recovery
 - [ ] Create Save to PDF feature
+- [ ] Unit conversion & recipe doubling
+- [ ] Checkboxes/accordions for completed recipes
+
 
 See the [open issues](https://github.com/StuFleisher/Parsley-Backend/issues) for a full list of proposed features (and known issues).
 
