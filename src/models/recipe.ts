@@ -49,6 +49,8 @@ class RecipeManager {
       }
     });
 
+    //We create submodels manually because prisma does not support
+    // deeply nested model creation
     for (const step of steps) {
       await StepManager.createStep({
         recipeId: createdRecipe.recipeId,
@@ -74,11 +76,14 @@ class RecipeManager {
 
   }
 
-  /** Fetches a list of all recipes from the database. Does not include submodel
-   *  data (steps or ingredients)
+
+  /** Fetches a filtered list of all recipes from the database.
+   *  Does not include submodel data (steps or ingredients)
    *
+   * @params query: string -> a user provided search string for filtering
    * @returns: SimpleRecipeData[] (Promise)
-   *  {recipeId, name, description, sourceUrl, sourceName}
+   *  {recipeId, name, description, sourceUrl, sourceName,
+   *  imageSm, imageMd, imageLg, owner}
    * */
 
   static async getAllRecipes(query?: string): Promise<SimpleRecipeData[]> {
@@ -115,7 +120,8 @@ class RecipeManager {
    *
    * @param: id : number --> The recipeId to query
    * @returns: RecipeData (Promise)
-   * {recipeId, name, description, sourceUrl, sourceName, steps}
+   * {recipeId, createdTime, name, description, sourceUrl, sourceName,
+   *  imageSm, imageMd, imageLg, owner, steps}
    *
    * Throws an error if record is not found.
   */
@@ -137,7 +143,6 @@ class RecipeManager {
     });
     return recipe;
   } catch(err) {
-    console.log("catching error");
     //use our custom error instead
     throw new NotFoundError("Recipe not found");
   }
@@ -150,15 +155,14 @@ class RecipeManager {
    *
    * @param: id : number
    * @returns: RecipeData (Promise)
-   * {recipeId, name, description, sourceUrl, sourceName, steps}
+   * {recipeId, createdTime, name, description, sourceUrl, sourceName,
+   *  imageSm, imageMd, imageLg, owner, steps}
    *
    * Throws an error if record is not found.
    */
 
   static async updateRecipe(newRecipe: IRecipeForUpdate): Promise < RecipeData > {
 
-  //TODO: handle id from url param, not request body
-  //TODO: prevent manual changes to stepId & ingredientId
   let updatedRecipe: RecipeData;
   const currentRecipe: RecipeData = (
     await RecipeManager.getRecipeById(newRecipe.recipeId)
@@ -166,7 +170,7 @@ class RecipeManager {
 
   try {
     await prisma.$transaction(async () => {
-      //Update base recipe data
+
       await prisma.recipe.update({
         where: { recipeId: currentRecipe.recipeId },
         data: {
@@ -180,7 +184,7 @@ class RecipeManager {
         },
       });
 
-      const temp = await RecipeManager._updateRecipeSteps(
+      await RecipeManager._updateRecipeSteps(
         currentRecipe.steps,
         newRecipe.steps,
         newRecipe.recipeId
@@ -384,13 +388,10 @@ class RecipeManager {
   await deleteFile(path);
 
   const recipe = await RecipeManager.getRecipeById(id);
-  // const deleted = { imgUrl: recipe.imageUrl };
-
   recipe.imageSm = `${DEFAULT_IMG_URL}-sm`;
   recipe.imageMd = `${DEFAULT_IMG_URL}-md`;
   recipe.imageLg = `${DEFAULT_IMG_URL}-lg`;
   return await RecipeManager.updateRecipe(recipe);
-  // return deleted;
 }
 
 }

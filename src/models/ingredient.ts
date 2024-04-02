@@ -31,10 +31,10 @@ class IngredientManager {
 
   /**Updates an ingredient and stores it in the database
    *
-   * @param ingredient: {ingredientId, step, amount, instructionRef, description}
+   * @param ingredient: {ingredientId?, step, amount, instructionRef, description}
    * @param stepId: number
    *
-   * @returns updatedIngredient {ingredientId, step, amount, description}
+   * @returns updatedIngredient {ingredientId, step, amount, description, instructionRef}
    */
 
   static async updateIngredient(
@@ -53,9 +53,11 @@ class IngredientManager {
 
 
   /** Deletes an ingredient by ingredientId
+   * Throws 404 on missing ingredient
    *
    * @param ingredientId
    * @returns deletedIngredient {ingredientId, step, amount, instructionRef, description}
+   *
    */
   static async deleteIngredient(ingredientId: number): Promise<IIngredient> {
     try{
@@ -74,8 +76,8 @@ class IngredientManager {
    *     toUpdate -> exists in both lists
    *     toDelete -> exists in current but not new
    *
-   * @param currentIngredients
-   * @param newIngredients
+   * @param currentIngredients (as they exist in the database)
+   * @param newIngredients (as defined by a user request)
    * @returns {toCreate, toUpdate, toDelete}
    */
 

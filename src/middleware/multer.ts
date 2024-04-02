@@ -1,4 +1,6 @@
-export {};
+/** Manages behavior related to the multer library for handling
+ * multipart/formdata requests
+*/
 
 import multer from 'multer';
 import { BadRequestError } from '../utils/expressError';
@@ -21,6 +23,8 @@ const upload = multer({
   }
 })
 
+
+/** Middleware for handling multipart/formdata requests */
 function readMultipart(fieldName:string){
   return upload.single(`${fieldName}`);
 }

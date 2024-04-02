@@ -32,7 +32,7 @@ function authenticateJWT(req: Request, res: Response, next: NextFunction) {
   return next();
 }
 
-/** Middleware to use when they must be logged in.
+/** Middleware to use when user must be logged in.
  *
  * If not, raises Unauthorized.
  */
@@ -43,7 +43,7 @@ function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
 }
 
 
-/** Middleware to use when they be logged in as an admin user.
+/** Middleware to use when user must be logged in as an admin user.
  *
  *  If not, raises Unauthorized.
  */
@@ -57,7 +57,7 @@ function ensureAdmin(req: Request, res: Response, next: NextFunction) {
 
 }
 
-/** Middleware to use when they must provide a valid token & be user matching
+/** Middleware to use when user must provide a valid token & be user matching
  *  username provided as route param.
  *
  *  If not, raises Unauthorized.
@@ -74,7 +74,7 @@ function ensureCorrectUserOrAdmin(req: Request, res: Response, next: NextFunctio
   throw new UnauthorizedError();
 }
 
-/** Middleware to use when they must provide a valid token & be user matching
+/** Middleware to use when user must provide a valid token & be user matching
  *  username property within the request body.
  *
  *  If not, raises Unauthorized.
@@ -92,8 +92,8 @@ function ensureMatchingUsernameOrAdmin(
   throw new UnauthorizedError();
 }
 
-/** Middleware to use when they must provide a valid token & be user matching
- *  owner property within the request body.
+/** Middleware to use when user must provide a valid token & be user matching
+ *  the owner property within the request body.
  *
  *  Use this when you can't access the recipe record directly
  *  (perhaps because it doesn't exist yet)

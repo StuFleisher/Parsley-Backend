@@ -1,3 +1,5 @@
+/** Handles interactions with AmazonS3 */
+
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { mockDeep } from 'jest-mock-extended';
 
@@ -9,7 +11,8 @@ const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 let s3: null | S3Client = null;
 
 
-/** Returns either an s3 instance or a mock of an s3 instance for testing */
+/** Creates an S3Client instance for future requests
+ * Returns either an s3 instance or a mock of an s3 instance for testing */
 function getS3(): S3Client {
   if (s3 === null) {
 
@@ -31,7 +34,7 @@ function getS3(): S3Client {
   return s3;
 }
 
-/** Accepts an image buffer and the path storage on s3.
+/** Accepts an image buffer and the path for storage on s3.
  * Saves the file to the indicated path in the parsley s3 bucket.
  *
  * Returns the response from the s3 server.
@@ -51,6 +54,7 @@ async function uploadFile(imageBuffer: Buffer, path: string) {
 }
 
 /** Accepts an array of objects representing uploadFile params
+ * [{imageBuffer:Buffer, path:string},...]
  * Attempts to store each file in it's corresponding s3 path.  All uploads
  * succeed or fail together.
  *
@@ -68,14 +72,12 @@ async function uploadMultiple(images: { buffer: Buffer, path: string; }[]) {
     ));
     await Promise.all(uploadPromises);
   } catch (err) {
-    console.log("error uploading 1 or more images to S3");
     await deleteMultiple(uploadedPaths);
-    console.log("S3 cleaned up successfully");
     throw err;
   }
 }
 
-/** Accepts a path to a file on the s3 server abdremoves that file.
+/** Accepts a path to a file on the s3 server and removes that file.
  *
  * Returns the response from the s3 server.
  */
@@ -91,7 +93,7 @@ async function deleteFile(path: string) {
   return response;
 }
 
-/** Accepts an array of paths for removal from s3.
+/** Accepts an array of paths and removes the files at those paths from s3.
  *
  * Returns the responses from the s3 server.
  */
@@ -103,8 +105,6 @@ async function deleteMultiple(paths: string[]) {
   let deleteResponses = await Promise.all(deletePromises);
   return deleteResponses;
 }
-
-
 
 
 

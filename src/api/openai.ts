@@ -13,7 +13,8 @@ import prisma from '../prismaClient';
 const openai = new OpenAI();
 
 
-/** Accepts a string containing raw text for a recipe and returns an IRecipeBase
+/** Handles generation/formatting from raw recipe text.
+ * Accepts a string containing raw text for a recipe and returns an IRecipeBase
  *
  * Throws an error if chat gpt cannot format the recipe correctly
  */
@@ -47,6 +48,7 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
     //continue with retry
   }
 
+  //FIXME: Retries are not succeeding - double check this logic
   const retryCompletion = await openai.chat.completions.create({
     messages: [
       {
@@ -99,7 +101,7 @@ function validateRecipe(recipe: any) {
 }
 
 
-/** Saves a record of the request in the database.  Returns void. */
+/** Saves a record of the generation request in the database.  Returns void. */
 async function logGenerateRequest(
   requestText:string,
   response:string,
