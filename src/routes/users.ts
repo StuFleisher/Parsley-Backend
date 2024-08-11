@@ -97,21 +97,21 @@ router.get("/:username/verify", async function (
 });
 
 
-/** GET /[username]/cookbook => { cookbook:SimpleRecipeData[] }
+/** GET /[username]/favorites => { favorites:SimpleRecipeData[] }
  *
  * Returns a list of SimpleRecipeData records:
- * {cookbook:[]}
+ * {favorites:[]}
  *
  * Authorization required: none
  **/
 
-router.get("/:username/cookbook", async function (
+router.get("/:username/favorites", async function (
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const cookbook = await UserManager.getUserCookbook(req.params.username);
-  return res.json({ cookbook });
+  const favorites = await UserManager.getUserFavorites(req.params.username);
+  return res.json({ favorites });
 });
 
 /** GET /[username]/recipes => { recipes:SimpleRecipeData[] }

@@ -113,7 +113,7 @@ class UserManager {
         where: { username },
         include: {
           recipes: true,
-          cookbook: true,
+          favorites: true,
         }
       });
       let user: UserData = fullUserData;
@@ -138,14 +138,14 @@ class UserManager {
     }
   };
 
-  /** Given a username, returns all of the recipes from that users cookbook as
+  /** Given a username, returns all of the recipes from that users favorites as
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
    */
-  static async getUserCookbook(username: string): Promise<SimpleRecipeData[]> {
-    let cookbook: SimpleRecipeData[] = await prisma.recipe.findMany({
+  static async getUserFavorites(username: string): Promise<SimpleRecipeData[]> {
+    let favorites: SimpleRecipeData[] = await prisma.recipe.findMany({
       where: {
-        cookbooks: {
+        favorites: {
           some: {
             user: {
               username: username
@@ -154,10 +154,10 @@ class UserManager {
         }
       }
     });
-    return cookbook;
+    return favorites;
   };
 
-  /** Given a username, returns all of the recipes from that users cookbook as
+  /** Given a username, returns all of that users recipes as
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
    */

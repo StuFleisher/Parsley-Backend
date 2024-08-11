@@ -204,25 +204,25 @@ class RecipeManager {
   }
 };
 
-  /** Adds a recipe to a user's cookbook.  Returns the cookbookEntry record.
+  /** Adds a recipe to a user's favorites.  Returns the favorite record.
    *
-   * cookbookEntry is {cookbookEntryId, recipeId, username}
+   * favorite is {favoriteId, recipeId, username}
    *
    * Throws a BadRequestError if the connection is impossible.
    */
-  static async addToCookbook(recipeId: number, username: string) {
-  let checkForExisting = await prisma.cookbookEntry.count({
+  static async addToFavorites(recipeId: number, username: string) {
+  let checkForExisting = await prisma.favorite.count({
     where: {
       username,
       recipeId,
     }
   });
   if (checkForExisting !== 0) {
-    throw new BadRequestError("Recipe already in cookbook");
+    throw new BadRequestError("Recipe already in favorites");
   }
 
   try {
-    const entry = await prisma.cookbookEntry.create({
+    const entry = await prisma.favorite.create({
       data: {
         username,
         recipeId
@@ -236,26 +236,26 @@ class RecipeManager {
   }
 }
 
-  /** Adds a recipe to a user's cookbook.
+  /** removes a recipe from a user's favorites.
    * Returns {removed:{recipeId, username}} on success
    *
-   * Throws a BadRequestError if cookbookEngry is missing for recipeId & username.
+   * Throws a BadRequestError if favorite is missing for recipeId & username.
    */
-  static async removeFromCookbook(recipeId: number, username: string) {
+  static async removeFromFavorites(recipeId: number, username: string) {
 
-  let checkForExisting = await prisma.cookbookEntry.count({
+  let checkForExisting = await prisma.favorite.count({
     where: {
       username,
       recipeId,
     }
   });
   if (checkForExisting !== 1) {
-    throw new BadRequestError("No cookbook entry to remove");
+    throw new BadRequestError("No favorites entry to remove");
   }
   /**note: even though we use a deleteMany here, the where clause
    * should ensure that we only ever delete a single record    */
 
-  await prisma.cookbookEntry.deleteMany({
+  await prisma.favorite.deleteMany({
     where: {
       username: username,
       recipeId: recipeId,

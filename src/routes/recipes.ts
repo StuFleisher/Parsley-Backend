@@ -225,44 +225,44 @@ router.delete(
 );
 
 
-/************************** COOKBOOK ACTIONS */
+/************************** FAVORITE ACTIONS */
 
 /** POST / {recipe} => {recipe}
  *
- * @body {username} => username for the cookbook to edit
+ * @body {username} => username for the favorite to edit
  * @params id:number => recipeId for the recipe to add
  *
- * @returns cookbookEntry:
- * {cookbookId, recipeId, username}
+ * @returns favorite:
+ * {favoriteId, recipeId, username}
  */
 
-router.post("/:id/addToCookbook",
+router.post("/:id/addToFavorites",
   ensureMatchingUsernameOrAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     //TODO: test middleware
 
     const { username } = req.body;
     const created = await RecipeManager
-      .addToCookbook(+req.params.id, username);
+      .addToFavorites(+req.params.id, username);
 
     return res.status(201).json({ created });
   });
 
 /** POST / {recipe} => {recipe}
  *
- * @body {username} => username for the cookbook to edit
+ * @body {username} => username for the favorite to edit
  * @params id:number => recipeId for the recipe to remove
  *
  * @returns {"removed": { recipeId, username }}
  */
 
-router.post("/:id/removeFromCookbook",
+router.post("/:id/removeFromFavorites",
   ensureMatchingUsernameOrAdmin,
   async function (req: Request, res: Response, next: NextFunction) {
     //TODO: test middleware
 
     const { username } = req.body;
-    await RecipeManager.removeFromCookbook(+req.params.id, username);
+    await RecipeManager.removeFromFavorites(+req.params.id, username);
 
     return res.json({
       "removed": {
