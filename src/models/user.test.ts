@@ -252,7 +252,7 @@ describe("get", function () {
       where: { username: "test username" },
       include: {
         recipes: true,
-        cookbook: true,
+        favorites: true,
       },
     });
   });
@@ -271,7 +271,7 @@ describe("get", function () {
         where: { username: "nope" },
         include: {
           recipes: true,
-          cookbook: true,
+          favorites: true,
         },
       });
     }
@@ -281,7 +281,7 @@ describe("get", function () {
 
 /************************************** update */
 
-describe("getUserCookbook", function () {
+describe("getUserFavorites", function () {
 
   test("works", async function () {
 
@@ -298,11 +298,11 @@ describe("getUserCookbook", function () {
       createdTime: testDate,
     }]);
 
-    const cookbook = await UserManager.getUserCookbook("u1");
+    const favorite = await UserManager.getUserFavorites("u1");
 
     expect(prisma.recipe.findMany).toHaveBeenCalledWith({
       where: {
-        cookbooks: {
+        favorites: {
           some: {
             user: {
               username: "u1"
@@ -312,13 +312,15 @@ describe("getUserCookbook", function () {
       }
     });
 
-    expect(cookbook).toEqual([{
+    expect(favorite).toEqual([{
       recipeId: 1,
       "name": "R1Name",
       "description": "R1Description",
       "sourceUrl": "http://R1SourceUrl.com",
       "sourceName": "R1SourceName",
-      "imageUrl": "http://R1ImageUrl.com",
+      imageSm: "http://R1ImageUrl.com/sm",
+      imageMd: "http://R1ImageUrl.com/md",
+      imageLg: "http://R1ImageUrl.com/lg",
       "owner": "u1",
       "createdTime": testDate,
     }]);
@@ -395,7 +397,18 @@ describe("update", function () {
 /************************************** DELETE *******************************/
 
 describe("remove", function () {
+  const userData = {
+    userId: 1,
+    username: "test username",
+    password: "test password",
+    firstName: "test firstName",
+    lastName: "test lastName",
+    email: "test@test.com",
+    isAdmin: false,
+  };
+  
   test("works", async function () {
+    prisma.user.delete.mockResolvedValueOnce(userData)
     await UserManager.deleteUser("test username");
     expect(prisma.user.delete).toHaveBeenCalledWith({ where: { username: "test username" } });
   });

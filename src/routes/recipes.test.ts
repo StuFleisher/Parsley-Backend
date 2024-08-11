@@ -109,7 +109,9 @@ describe("GET /", function () {
         description: "R1Description",
         sourceUrl: "http://R1SourceUrl.com",
         sourceName: "R1SourceName",
-        imageUrl: "http://R1ImageUrl.com",
+        imageSm: "http://R1ImageUrl.com/sm",
+        imageMd: "http://R1ImageUrl.com/md",
+        imageLg: "http://R1ImageUrl.com/lg",
         owner: "u1"
       }]
     });
@@ -123,12 +125,14 @@ describe("GET /{id}", function () {
   mockedGetRecipeById.mockResolvedValueOnce(storedRecipe1);
 
   test("OK", async function () {
-    // const recipe = await RecipeManager.saveRecipe(userSubmittedRecipe1);
     const resp = await request(app).get(`/recipes/1`);
 
     expect(mockedGetRecipeById).toHaveBeenCalledWith(1);
     expect(resp.statusCode).toEqual(200);
-    expect(resp.body).toEqual({ recipe: storedRecipe1 });
+    expect(resp.body).toEqual({ recipe: {
+      ...storedRecipe1,
+      createdTime: storedRecipe1.createdTime.toISOString(),
+    } });
 
   });
 
@@ -159,7 +163,10 @@ describe("POST /recipes", function () {
       .set("authorization", `Bearer ${adminToken}`);
 
     //should return correct data
-    expect(resp.body).toEqual({ recipe: storedRecipe1 });
+    expect(resp.body).toEqual({ recipe: {
+      ...storedRecipe1,
+      createdTime: storedRecipe1.createdTime.toISOString(),
+    } });
 
     //response should be OK
     expect(resp.statusCode).toEqual(201);
@@ -222,7 +229,10 @@ describe("DELETE /{id}", function () {
     expect(deleteRecipeByIdMock).toHaveBeenCalledWith(1);
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
-      deleted: storedRecipe1,
+      deleted: {
+        ...storedRecipe1,
+        createdTime: storedRecipe1.createdTime.toISOString(),
+      }
     });
   });
 
@@ -266,10 +276,16 @@ describe("PUT /{id}", function () {
       .send(storedRecipe1)
       .set("authorization", `Bearer ${adminToken}`);
 
-    expect(updateRecipeMock).toHaveBeenCalledWith(storedRecipe1);
+    expect(updateRecipeMock).toHaveBeenCalledWith({
+      ...storedRecipe1,
+      createdTime: storedRecipe1.createdTime.toISOString(),
+    });
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
-      recipe: storedRecipe1,
+      recipe: {
+        ...storedRecipe1,
+        createdTime: storedRecipe1.createdTime.toISOString(),
+      }
     });
   });
 
@@ -293,29 +309,29 @@ describe("PUT /{id}", function () {
 });
 
 
-/************************** COOKBOOK ACTIONS *************************/
+/************************** FAVORITE ACTIONS *************************/
 
-describe("POST /{id}/addToCookbook", function () {
-  const addToCookbookMock = jest.spyOn(RecipeManager, "addToCookbook");
+describe("POST /{id}/addToFavorites", function () {
+  const addToFavoritesMock = jest.spyOn(RecipeManager, "addToFavorites");
 
   test("works for user", async function () {
-    addToCookbookMock.mockResolvedValueOnce({
-      cookbookId: 1,
+    addToFavoritesMock.mockResolvedValueOnce({
+      favoriteId: 1,
       recipeId: 1,
       username: "u1",
     });
 
     const resp = await request(app)
-      .post("/recipes/1/addToCookbook")
+      .post("/recipes/1/addToFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${u1Token}`);
 
-    expect(addToCookbookMock).toHaveBeenCalledWith(1, "u1");
-    expect(addToCookbookMock).toHaveBeenCalledTimes(1);
+    expect(addToFavoritesMock).toHaveBeenCalledWith(1, "u1");
+    expect(addToFavoritesMock).toHaveBeenCalledTimes(1);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       created: {
-        cookbookId: 1,
+        favoriteId: 1,
         recipeId: 1,
         username: "u1",
       }
@@ -323,23 +339,23 @@ describe("POST /{id}/addToCookbook", function () {
   });
 
   test("works for admin", async function () {
-    addToCookbookMock.mockResolvedValueOnce({
-      cookbookId: 1,
+    addToFavoritesMock.mockResolvedValueOnce({
+      favoriteId: 1,
       recipeId: 1,
       username: "u1",
     });
 
     const resp = await request(app)
-      .post("/recipes/1/addToCookbook")
+      .post("/recipes/1/addToFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${adminToken}`);
 
-    expect(addToCookbookMock).toHaveBeenCalledWith(1, "u1");
-    expect(addToCookbookMock).toHaveBeenCalledTimes(1);
+    expect(addToFavoritesMock).toHaveBeenCalledWith(1, "u1");
+    expect(addToFavoritesMock).toHaveBeenCalledTimes(1);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       created: {
-        cookbookId: 1,
+        favoriteId: 1,
         recipeId: 1,
         username: "u1",
       }
@@ -348,7 +364,7 @@ describe("POST /{id}/addToCookbook", function () {
 
   test("401 for wrong user", async function () {
     const resp = await request(app)
-      .post("/recipes/1/addToCookbook")
+      .post("/recipes/1/addToFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${u2Token}`);
 
@@ -357,7 +373,7 @@ describe("POST /{id}/addToCookbook", function () {
 
   test("401 for anon", async function () {
     const resp = await request(app)
-      .post("/recipes/1/addToCookbook")
+      .post("/recipes/1/addToFavorites")
       .send({ username: "u1" });
 
     expect(resp.statusCode).toEqual(401);
@@ -366,11 +382,11 @@ describe("POST /{id}/addToCookbook", function () {
 });
 
 
-describe("POST /{id}/removeFromCookbook", function () {
-  const removeFromCookbookMock = jest.spyOn(RecipeManager, "removeFromCookbook");
+describe("POST /{id}/removeFromFavorites", function () {
+  const removeFromFavoritesMock = jest.spyOn(RecipeManager, "removeFromFavorites");
 
   test("works for user", async function () {
-    removeFromCookbookMock.mockResolvedValueOnce({
+    removeFromFavoritesMock.mockResolvedValueOnce({
       removed: {
         username: "u1",
         recipeId: 1,
@@ -378,12 +394,12 @@ describe("POST /{id}/removeFromCookbook", function () {
     });
 
     const resp = await request(app)
-      .post("/recipes/1/removeFromCookbook")
+      .post("/recipes/1/removeFromFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${u1Token}`);
 
-    expect(removeFromCookbookMock).toHaveBeenCalledWith(1, "u1");
-    expect(removeFromCookbookMock).toHaveBeenCalledTimes(1);
+    expect(removeFromFavoritesMock).toHaveBeenCalledWith(1, "u1");
+    expect(removeFromFavoritesMock).toHaveBeenCalledTimes(1);
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       removed: {
@@ -394,7 +410,7 @@ describe("POST /{id}/removeFromCookbook", function () {
   });
 
   test("works for admin", async function () {
-    removeFromCookbookMock.mockResolvedValueOnce({
+    removeFromFavoritesMock.mockResolvedValueOnce({
       removed: {
         username: "u1",
         recipeId: 1,
@@ -402,12 +418,12 @@ describe("POST /{id}/removeFromCookbook", function () {
     });
 
     const resp = await request(app)
-      .post("/recipes/1/removeFromCookbook")
+      .post("/recipes/1/removeFromFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${adminToken}`);
 
-    expect(removeFromCookbookMock).toHaveBeenCalledWith(1, "u1");
-    expect(removeFromCookbookMock).toHaveBeenCalledTimes(1);
+    expect(removeFromFavoritesMock).toHaveBeenCalledWith(1, "u1");
+    expect(removeFromFavoritesMock).toHaveBeenCalledTimes(1);
     expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
       removed: {
@@ -419,7 +435,7 @@ describe("POST /{id}/removeFromCookbook", function () {
 
   test("401 for wrong user", async function () {
     const resp = await request(app)
-      .post("/recipes/1/removeFromCookbook")
+      .post("/recipes/1/removeFromFavorites")
       .send({ username: "u1" })
       .set("authorization", `Bearer ${u2Token}`);
 
@@ -428,7 +444,7 @@ describe("POST /{id}/removeFromCookbook", function () {
 
   test("401 for anon", async function () {
     const resp = await request(app)
-      .post("/recipes/1/removeFromCookbook")
+      .post("/recipes/1/removeFromFavorites")
       .send({ username: "u1" });
 
     expect(resp.statusCode).toEqual(401);

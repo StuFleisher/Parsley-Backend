@@ -343,12 +343,12 @@ describe("GET /users/:username", function () {
   });
 });
 
-/************************************** GET /users/:username/cookbook */
-describe("GET /users/:username", function () {
-  const mockedGetUserCookbook = jest.spyOn(UserManager, "getUserCookbook");
+/************************************** GET /users/:username/favorites */
+describe("GET /users/:username/favorites", function () {
+  const mockedGetUserFavorites = jest.spyOn(UserManager, "getUserFavorites");
 
   test("works", async function () {
-    mockedGetUserCookbook.mockResolvedValueOnce([{
+    mockedGetUserFavorites.mockResolvedValueOnce([{
       recipeId: 1,
       name: "R1Name",
       description: "R1Description",
@@ -361,28 +361,22 @@ describe("GET /users/:username", function () {
     }]);
 
     const resp = await request(app)
-      .get(`/users/u1/cookbook/`)
+      .get(`/users/u1/favorites/`)
       .set("authorization", `Bearer ${adminToken}`);
 
     expect(resp.body).toEqual({
-      cookbook: [{
+      favorites: [{
         recipeId: 1,
         name: "R1Name",
         description: "R1Description",
         sourceUrl: "http://R1SourceUrl.com",
         sourceName: "R1SourceName",
-        imageUrl: "http://R1ImageUrl.com",
+        imageSm: "http://R1ImageUrl.com/sm",
+        imageMd: "http://R1ImageUrl.com/md",
+        imageLg: "http://R1ImageUrl.com/lg",
         owner: "u1"
       }]
     });
-  });
-
-  test("unauth for anon", async function () {
-
-    const resp = await request(app)
-      .get(`/users/u1/cookbook/`);
-
-    expect(resp.statusCode).toEqual(401);
   });
 
 });
@@ -519,6 +513,7 @@ describe("DELETE /users/:username", function () {
   const mockDeleteUser = jest.spyOn(UserManager, "deleteUser");
 
   test("works for admin", async function () {
+    mockDeleteUser.mockResolvedValueOnce("u1")
     const resp = await request(app)
       .delete(`/users/u1`)
       .set("authorization", `Bearer ${adminToken}`);
@@ -527,6 +522,7 @@ describe("DELETE /users/:username", function () {
   });
 
   test("works for same user", async function () {
+    mockDeleteUser.mockResolvedValueOnce("u1")
     const resp = await request(app)
       .delete(`/users/u1`)
       .set("authorization", `Bearer ${u1Token}`);

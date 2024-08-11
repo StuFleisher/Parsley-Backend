@@ -87,7 +87,9 @@ describe("Test Create Recipe", function () {
     expect(prisma.recipe.create).toHaveBeenCalledWith({
       "data": {
         "description": "R1Description",
-        "imageUrl": "http://R1ImageUrl.com",
+        "imageSm": "http://R1ImageUrl.com/sm",
+        "imageMd": "http://R1ImageUrl.com/md",
+        "imageLg": "http://R1ImageUrl.com/lg",
         "name": "R1Name",
         "owner": "u1",
         "sourceName": "R1SourceName",
@@ -164,13 +166,13 @@ describe("Test getAllRecipes", function () {
           { steps: { some: { ingredients: { some: { description: { search: "R1Name" } } } } } },
         ]
       },
-      orderBy: {
+      orderBy: [{
         _relevance: {
           fields: ["name", "description"],
           search: "R1Name",
           sort: 'desc',
         }
-      }
+      }]
     }
 
     );
@@ -386,23 +388,23 @@ describe("Test deleteRecipeById", function () {
 
 });
 
-// /**************** COOKBOOK METHODS **************************/
+// /**************** FAVORITES METHODS **************************/
 
-describe("addToCookbook", function () {
+describe("addToFavorites", function () {
 
   const validResponse = {
-    cookbookId: 1,
+    favoriteId: 1,
     recipeId: 1,
     username: "u1"
   };
 
   test("works", async function () {
-    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
-    prisma.cookbookEntry.create.mockResolvedValueOnce(validResponse);
+    prisma.favorite.count.mockResolvedValueOnce(0);
+    prisma.favorite.create.mockResolvedValueOnce(validResponse);
 
-    const entry = await RecipeManager.addToCookbook(1, "u1");
+    const entry = await RecipeManager.addToFavorites(1, "u1");
 
-    expect(prisma.cookbookEntry.create).toHaveBeenCalledWith({
+    expect(prisma.favorite.create).toHaveBeenCalledWith({
       data: {
         username: "u1",
         recipeId: 1,
@@ -412,14 +414,14 @@ describe("addToCookbook", function () {
   });
 
   test("BadRequest on existing record", async function () {
-    prisma.cookbookEntry.count.mockResolvedValueOnce(1);
+    prisma.favorite.count.mockResolvedValueOnce(1);
 
     try {
-      await RecipeManager.addToCookbook(1, "u1");
+      await RecipeManager.addToFavorites(1, "u1");
       throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestError);
-      expect(err.message).toEqual("Recipe already in cookbook");
+      expect(err.message).toEqual("Recipe already in favorites");
     }
 
   });
@@ -429,11 +431,11 @@ describe("addToCookbook", function () {
       throw new Error("fail create");
     } as any;
 
-    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
-    prisma.cookbookEntry.create.mockImplementationOnce(mockCreate);
+    prisma.favorite.count.mockResolvedValueOnce(0);
+    prisma.favorite.create.mockImplementationOnce(mockCreate);
 
     try {
-      await RecipeManager.addToCookbook(1, "badUsername");
+      await RecipeManager.addToFavorites(1, "badUsername");
       throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestError);
@@ -444,7 +446,7 @@ describe("addToCookbook", function () {
   });
 });
 
-describe("removeFromCookbook", function () {
+describe("removeFromFavorites", function () {
   const validResult = {
     removed: {
       recipeId: 1,
@@ -453,12 +455,12 @@ describe("removeFromCookbook", function () {
   };
 
   test("", async function () {
-    prisma.cookbookEntry.count.mockResolvedValueOnce(1);
-    prisma.cookbookEntry.deleteMany.mockResolvedValueOnce({ count: 1 });
+    prisma.favorite.count.mockResolvedValueOnce(1);
+    prisma.favorite.deleteMany.mockResolvedValueOnce({ count: 1 });
 
-    let result = await RecipeManager.removeFromCookbook(1, "u1");
+    let result = await RecipeManager.removeFromFavorites(1, "u1");
 
-    expect(prisma.cookbookEntry.deleteMany).toHaveBeenCalledWith({
+    expect(prisma.favorite.deleteMany).toHaveBeenCalledWith({
       where: {
         username: "u1",
         recipeId: 1,
@@ -467,15 +469,15 @@ describe("removeFromCookbook", function () {
     expect(result).toEqual(validResult);
   });
 
-  test("BadRequest on missing cookbookEntry", async function () {
-    prisma.cookbookEntry.count.mockResolvedValueOnce(0);
+  test("BadRequest on missing favorite", async function () {
+    prisma.favorite.count.mockResolvedValueOnce(0);
 
     try {
-      await RecipeManager.removeFromCookbook(1, "u1");
+      await RecipeManager.removeFromFavorites(1, "u1");
       throw new Error("Fail test. You shouldn't get here");
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestError);
-      expect(err.message).toEqual("No cookbook entry to remove");
+      expect(err.message).toEqual("No favorites entry to remove");
     }
   });
 
