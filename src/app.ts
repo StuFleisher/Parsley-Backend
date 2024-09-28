@@ -8,6 +8,7 @@ import {MulterError} from "multer";
 import authRoutes from './routes/auth';
 import recipesRoutes from './routes/recipes';
 import usersRoutes from './routes/users';
+import tagsRoutes from './routes/tags';
 import bugReportRoutes from './routes/bugReports'
 
 const app=express();
@@ -25,6 +26,7 @@ app.use(authenticateJWT);
 app.use("/auth", authRoutes);
 app.use("/recipes", recipesRoutes);
 app.use("/users", usersRoutes);
+app.use("/tags", tagsRoutes);
 app.use("/bugReports", bugReportRoutes);
 
 

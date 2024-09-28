@@ -198,6 +198,50 @@ describe("Test getAllRecipes", function () {
   });
 });
 
+
+describe("Test getRecipesByTag", function () {
+
+  const queryResult ={
+    name: "testTag",
+    recipes:[
+    {
+      recipeId: 1,
+      name: "R1Name",
+      description: "R1Description",
+      sourceUrl: "http://R1SourceUrl.com",
+      sourceName: "R1SourceName",
+      "imageSm": "http://R1ImageUrl.com/sm",
+      "imageMd": "http://R1ImageUrl.com/md",
+      "imageLg": "http://R1ImageUrl.com/lg",
+      owner: "u1",
+      createdTime: testDate,
+      tags:[{name:"testTag"}]
+    },
+    {
+      recipeId: 2,
+      name: "R2Name",
+      description: "R2Description",
+      sourceUrl: "http://R2SourceUrl.com",
+      sourceName: "R2SourceName",
+      "imageSm": "http://R2ImageUrl.com/sm",
+      "imageMd": "http://R2ImageUrl.com/md",
+      "imageLg": "http://R2ImageUrl.com/lg",
+      owner: "u2",
+      createdTime: testDate,
+      tags:[{name:"testTag"}]
+    },
+  ]};
+
+  test("Works ", async function () {
+    prisma.tag.findUniqueOrThrow.mockResolvedValueOnce(queryResult);
+
+    const recipes = await RecipeManager.getRecipesByTag("testTag");
+    expect(recipes.length).toEqual(2);
+    expect(recipes).toEqual(queryResult.recipes);
+  })
+
+})
+
 //**************** GET BY ID **************************/
 describe("Test getRecipeById", function () {
 
@@ -302,6 +346,9 @@ describe("Test updateRecipe", function () {
         imageSm: recipeAfterUpdate.imageSm,
         imageMd: recipeAfterUpdate.imageMd,
         imageLg: recipeAfterUpdate.imageLg,
+        tags:{
+          connectOrCreate:[]
+        }
       },
     });
     expect(_updateRecipeSteps).toHaveBeenCalledTimes(1);

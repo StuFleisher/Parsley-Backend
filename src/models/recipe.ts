@@ -57,7 +57,7 @@ class RecipeManager {
             ))
         }
       },
-      include: {tags:true}
+      include: { tags: true }
     });
 
     //We create submodels manually because prisma does not support
@@ -136,6 +136,21 @@ class RecipeManager {
     return recipe;
   }
 
+  static async getRecipesByTag(tagName: string): Promise<SimpleRecipeData[]> {
+    let tag = await prisma.tag.findUniqueOrThrow({
+      where: {
+        name: tagName
+      },
+      include: {
+        recipes: {
+          include: { tags: true }
+        }
+      },
+    });
+
+    return tag.recipes;
+  }
+
 
   /** Fetches and returns a single recipe record and its submodels from the
    * database by recipeId.
@@ -204,6 +219,15 @@ class RecipeManager {
             imageSm: newRecipe.imageSm,
             imageMd: newRecipe.imageMd,
             imageLg: newRecipe.imageLg,
+            tags: {
+              connectOrCreate:
+                newRecipe.tags.map((tag: Tag) => (
+                  {
+                    where: { name: tag.name },
+                    create: { name: tag.name }
+                  }
+                ))
+            }
           },
         });
 
@@ -366,7 +390,7 @@ class RecipeManager {
               ingredients: true,
             }
           },
-          tags:true,
+          tags: true,
         }
       });
 
