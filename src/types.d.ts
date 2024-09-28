@@ -2,6 +2,7 @@
 interface IRecipeBase {
   name:string;
   steps:IStepBase[] | Step[] | StepForCreate[];
+  tags: Tag[]
 }
 
 //Additional metadata from the user.  Extends IRecipeBase.
@@ -25,6 +26,7 @@ type RecipeForCreate = {
   imageMd: string;
   imageLg: string;
   owner: string;
+  tags: Tag[];
 }
 
 //Recipe with an Id, but new steps/ingredients may have been created without ids
@@ -52,6 +54,7 @@ type SimpleRecipeData = {
   imageMd: string;
   imageLg: string;
   owner: string;
+  tags: Tag[]
 }
 
 interface IStepBase {
@@ -126,4 +129,8 @@ interface IUserBase {
 type Token = {
   username:string;
   isAdmin:boolean;
+}
+
+type Tag = {
+  name: string;
 }

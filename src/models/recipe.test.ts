@@ -93,8 +93,15 @@ describe("Test Create Recipe", function () {
         "name": "R1Name",
         "owner": "u1",
         "sourceName": "R1SourceName",
-        "sourceUrl": "http://R1SourceUrl.com"
-      }
+        "sourceUrl": "http://R1SourceUrl.com",
+        "tags": {
+          "connectOrCreate": [{
+            "create": { "name": "R1Tag1" },
+            "where": { "name": "R1Tag1" }
+          }]
+        },
+      },
+      "include":{"tags":true},
     });
     expect(prisma.recipe.create).toHaveBeenCalledTimes(1);
     expect(mockedStepManager.createStep).toHaveBeenCalledWith({
@@ -160,12 +167,13 @@ describe("Test getAllRecipes", function () {
     expect(prisma.recipe.findMany).toHaveBeenCalledWith({
       where: {
         OR: [
-          { name: { search: "R1Name" } },
-          { description: { search: "R1Name" } },
-          { steps: { some: { instructions: { search: "R1Name" } } } },
-          { steps: { some: { ingredients: { some: { description: { search: "R1Name" } } } } } },
+          { name: { search: "R1Name", "mode": "insensitive" } },
+          { description: { search: "R1Name", "mode": "insensitive" } },
+          { steps: { some: { instructions: { search: "R1Name","mode": "insensitive" } } } },
+          { steps: { some: { ingredients: { some: { description: { search: "R1Name", "mode": "insensitive" } } } } } },
         ]
       },
+      include:{tags:true},
       orderBy: [{
         _relevance: {
           fields: ["name", "description"],
@@ -262,6 +270,7 @@ describe("Test updateRecipe", function () {
       owner: "u1",
       createdTime: testDate,
       steps: [],
+      tags: []
     };
 
     //mock dependencies
@@ -318,6 +327,7 @@ describe("Test updateRecipe", function () {
       owner: "u1",
       createdTime: testDate,
       steps: [],
+      tags: [],
     };
 
     //mock dependencies
@@ -364,7 +374,8 @@ describe("Test deleteRecipeById", function () {
           include: {
             ingredients: true,
           }
-        }
+        },
+        tags:true,
       },
     });
     expect(result).toEqual(storedRecipe1);

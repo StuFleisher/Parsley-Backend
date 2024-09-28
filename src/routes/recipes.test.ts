@@ -95,7 +95,8 @@ describe("GET /", function () {
       imageSm: "http://R1ImageUrl.com/sm",
       imageMd: "http://R1ImageUrl.com/md",
       imageLg: "http://R1ImageUrl.com/lg",
-      owner: "u1"
+      owner: "u1",
+      tags:[{"name":"R1Tag1"}]
     }]);
 
     const resp = await request(app).get("/recipes");
@@ -112,7 +113,8 @@ describe("GET /", function () {
         imageSm: "http://R1ImageUrl.com/sm",
         imageMd: "http://R1ImageUrl.com/md",
         imageLg: "http://R1ImageUrl.com/lg",
-        owner: "u1"
+        owner: "u1",
+        tags:[{"name":"R1Tag1"}]
       }]
     });
   });

@@ -38,7 +38,8 @@ const newRecipeSubmission: RecipeForCreate = {
       description: "R1S1I1Description",
       instructionRef: "R1S1I1InstructionRef",
     }]
-  }]
+  }],
+  tags:[{name:"R1Tag1"}]
 };
 
 const createdRecipe: RecipeData = {
@@ -64,7 +65,8 @@ const createdRecipe: RecipeData = {
       description: "R1S1I1Description",
       instructionRef: "R1S1I1InstructionRef",
     }]
-  }]
+  }],
+  tags:[{name:"R1Tag1"}]
 };
 
 
@@ -89,7 +91,8 @@ const userSubmittedRecipe1: IRecipeWithMetadata = {
         instructionRef: "R1S1I1InstructionRef",
       }]
     }
-  ]
+  ],
+  tags:[{name:"R1Tag1"}]
 };
 
 const storedRecipe1: RecipeData = {
@@ -117,7 +120,8 @@ const storedRecipe1: RecipeData = {
         instructionRef: "R1S1I1InstructionRef",
       }]
     }
-  ]
+  ],
+  tags:[{name:"R1Tag1"}]
 };
 
 const generatedRecipe1: IRecipeBase = {
@@ -133,7 +137,8 @@ const generatedRecipe1: IRecipeBase = {
         instructionRef: "R1S1I1InstructionRef",
       }]
     }
-  ]
+  ],
+  tags:[{name:"R1Tag1"}]
 };
 
 const userSubmittedRecipe2: IRecipeWithMetadata = {
@@ -155,7 +160,8 @@ const userSubmittedRecipe2: IRecipeWithMetadata = {
         instructionRef: "R2S1I1InstructionRef",
       }]
     }
-  ]
+  ],
+  tags:[{name:"R1Tag1"}]
 };
 
 const user1 = {

@@ -95,6 +95,17 @@
           },
         "additionalProperties": false,
         "required": ["recipeId","stepNumber","instructions","ingredients"]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type":"object",
+            "properties":{
+              "name":{"type":"string"}
+            },
+            "additionalProperties": false,
+            "required":["name"]
+          }
         }
       },
     "additionalProperties": false,

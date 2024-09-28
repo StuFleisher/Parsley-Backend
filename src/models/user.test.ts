@@ -309,7 +309,8 @@ describe("getUserFavorites", function () {
             }
           }
         }
-      }
+      },
+      include:{tags:true}
     });
 
     expect(favorite).toEqual([{
@@ -406,7 +407,7 @@ describe("remove", function () {
     email: "test@test.com",
     isAdmin: false,
   };
-  
+
   test("works", async function () {
     prisma.user.delete.mockResolvedValueOnce(userData)
     await UserManager.deleteUser("test username");

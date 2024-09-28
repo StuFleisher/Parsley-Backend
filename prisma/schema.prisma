@@ -33,6 +33,7 @@ model Recipe {
   ownerUser   User       @relation(fields: [owner], references: [username])
   owner       String
   favorites   Favorite[]
+  tags        Tag[]
 
   @@map("recipes")
 }
@@ -87,6 +88,13 @@ model GenerationRequest {
   requestedBy   String
 
   @@map("generation_request")
+}
+
+model Tag {
+  name    String   @id @db.VarChar(100)
+  recipes Recipe[]
+
+  @@map("tags")
 }
 
 model BugReport {

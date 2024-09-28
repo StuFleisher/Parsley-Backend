@@ -151,8 +151,9 @@ class UserManager {
               username: username
             }
           }
-        }
-      }
+        },
+      },
+      include: { tags: true }
     });
     return favorites;
   };
@@ -160,14 +161,15 @@ class UserManager {
   /** Given a username, returns all of that users recipes as
    * SimpleRecipeData.
    * Throws a NotFoundError if the user isn't found.
-   */
-  //TODO: TESTING
+  */
+ //TODO: TESTING
 
-  static async getUserRecipes(username: string): Promise<SimpleRecipeData[]> {
-    let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({
-      where: {
-        owner: username
-      }
+ static async getUserRecipes(username: string): Promise<SimpleRecipeData[]> {
+   let recipes: SimpleRecipeData[] = await prisma.recipe.findMany({
+     where: {
+       owner: username
+      },
+      include: { tags: true }
     });
     return recipes;
   };
@@ -222,7 +224,7 @@ class UserManager {
       const deleted = await prisma.user.delete({
         where: { username }
       });
-      return deleted.username
+      return deleted.username;
     } catch (err) {
       throw new NotFoundError("User not found");
     }
