@@ -3,89 +3,12 @@
 import generateSchema from "../schemas/recipeGenerated.json";
 
 const SHORT_BASE_PROMPT =  (
-    `Your job is to structure recipe data into this EXACT json format so that ingredients are associated with the relevant instructions.
+    `Your job is to structure recipe data into JSON.
     I will give you the text of a recipe.  I would like you to convert it into
     structured JSON following these rules.
     1- Maintain the original text and intent of the recipe whenever possible.
     2- Keep each step simple, minimizing ingredients/step.
     3- Ignore existing headers and other stray content that may have been pasted into the recipe by accident.
-    4. Follow the data structure below EXACTLY.  Do not add additional properties regardless of the pasted data.
-
-    Here is an example of the data structure:
-    Input: "Ingredients 2 (5 ounce) skinless, boneless chicken breast halves 1 medium lemon, juiced, divided salt and freshly ground black pepper to taste 1 tablespoon olive oil 1 pinch dried oregano 2 sprigs fresh parsley, chopped, for garnish Directions Place chicken in a bowl; pour 1/2 of the lemon juice over chicken and season with salt. Heat olive oil in a medium skillet over medium-low heat. Place chicken into hot oil. Add remaining lemon juice and oregano; season with black pepper. Cook chicken until golden brown and the juices run clear, 5 to 10 minutes per side. An instant-read thermometer inserted into the center should read at least 165 degrees F (74 degrees C). Garnish chicken with parsley to serve."
-
-    Output: {
-        "name": "Lemon Oregano Chicken",
-        "description":"Sticky Lemon Oregano Chicken is a delicious sweet-sour, tangy, herby chicken dinner. It will be on repeat at your house."
-        "sourceName":"unknown"
-        "steps": [
-          {
-            "stepNumber": 1,
-            "instructions": "Place chicken in a bowl; pour 1/2 of the lemon juice over chicken and season with salt.",
-            "ingredients": [
-              {
-                "amount": "2 (5 ounce)",
-                "description": "skinless, boneless chicken breast halves",
-                "instructionRef":"chicken"
-              },
-              {
-                "amount": "1 medium",
-                "description": "lemon, juiced, divided",
-                "instructionRef": "lemon juice"
-              },
-              {
-                "amount":"",
-                "description": "salt",
-                "instructionRef":""salt"
-              }
-            ]
-          },
-          {
-            "stepNumber": 2,
-            "instructions": "Heat olive oil in a medium skillet over medium-low heat. Place chicken into hot oil. Add remaining lemon juice and oregano; season with black pepper.",
-            "ingredients": [
-              {
-                "amount": "1 tablespoon",
-                "description": "olive oil",
-                "instructionRef":"olive oil"
-              },
-              {
-                "amount":"1 pinch",
-                "description": "dried oregano",
-                "instructionRef":"oregano"
-              },
-              {
-                "amount":"",
-                "description": "freshly ground black pepper",
-                "instructionRef":"black pepper"
-              },
-            ]
-          },
-          {
-            "stepNumber": 3,
-            "instructions": "Cook chicken until golden brown and the juices run clear, 5 to 10 minutes per side. An instant-read thermometer inserted into the center should read at least 165 degrees F (74 degrees C).",
-            "ingredients": []
-          },
-          {
-            "stepNumber": 4,
-            "instructions": "Garnish chicken with parsley to serve.",
-            "ingredients": [
-              {
-                "amount":"2 sprigs",
-                "description": "fresh parsley, chopped, for garnish",
-                "instructionRef":"parsley"
-              }
-            ]
-          }
-        ],
-        "tags":[
-          {name:"Dinner"},
-          {name:"Italian Inspired"},
-          {name:"High Protein"},
-          {name:"Weeknight"},
-          {name:"Heart Healthy"}
-        ]
-      }
     `
   )
 

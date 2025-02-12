@@ -4,9 +4,7 @@
     "type": "object",
     "properties": {
       "name": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 200
+        "type": "string"
       },
       "owner":{"type":"string"},
       "description":{"type":"string"},
@@ -36,15 +34,15 @@
                       "instructionRef":{
                         "type":"string"
                       }
-                    }
-                  },
-                  "additionalProperties": false,
-                  "required":["amount","description","instructionRef"]
+                    },
+                    "additionalProperties": false,
+                    "required":["amount","description","instructionRef"]
+                  }
                 }
-            }
-          },
-        "additionalProperties": false,
-        "required": ["stepNumber","instructions","ingredients"]
+            },
+            "additionalProperties": false,
+            "required": ["stepNumber", "ingredients", "instructions"]
+          }
         },
         "tags": {
             "type": "array",
@@ -61,6 +59,10 @@
     "additionalProperties": false,
     "required": [
       "name",
-      "steps"
+      "owner",
+      "description",
+      "sourceName",
+      "steps",
+      "tags"
     ]
   }

@@ -9,7 +9,6 @@ import recipeGeneratedSchema from "../schemas/recipeGenerated.json";
 import { BadRequestError } from '../utils/expressError';
 import prisma from '../prismaClient';
 
-
 const openai = new OpenAI();
 
 
@@ -30,56 +29,66 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
       role: "system",
       content: `${SHORT_BASE_PROMPT}${recipeText}`
     }],
-    model: "gpt-3.5-turbo-1106",
-    response_format: { type: "json_object" },
+    model: "gpt-4o-2024-08-06",
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "recipeResponse",
+        strict: true,
+        schema: recipeGeneratedSchema
+      }
+     },
     temperature: 0
   });
+  console.log("openai access complete")
+  console.log(completion)
 
   let recipeData = completion.choices[0].message.content;
+  console.log(recipeData);
   if (recipeData === null) throw new Error("Open AI conversation error");
   recipe = JSON.parse(recipeData);
-
+  console.log(recipe)
   try {
     validateRecipe(recipe);
     logGenerateRequest(recipeText,recipeData,false,null,true, username)
-    return recipe;
   } catch (err) {
     console.log("First recipe failed to validate. Retrying.")
     //continue with retry
   }
+  return recipe;
 
   //FIXME: Retries are not succeeding - double check this logic
-  const retryCompletion = await openai.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content: `${SHORT_BASE_PROMPT}${recipeText}`
-      },
-      completion.choices[0].message,
-      {
-        role: "user",
-        content: `${RETRY_PROMPT}`
-      },
+  // const retryCompletion = await openai.chat.completions.create({
+  //   messages: [
+  //     {
+  //       role: "system",
+  //       content: `${SHORT_BASE_PROMPT}${recipeText}`
+  //     },
+  //     completion.choices[0].message,
+  //     {
+  //       role: "user",
+  //       content: `${RETRY_PROMPT}`
+  //     },
 
-    ],
-    model: "gpt-3.5-turbo-1106",
-    response_format: { type: "json_object" },
-    temperature: 0
-  });
+  //   ],
+  //   model: "gpt-3.5-turbo-1106",
+  //   response_format: { type: "json_object" },
+  //   temperature: 0
+  // });
 
-  let retryRecipeData = retryCompletion.choices[0].message.content;
-  if (retryRecipeData === null) throw new Error("Open AI conversation error");
-  let retryRecipe = JSON.parse(recipeData);
+  // let retryRecipeData = retryCompletion.choices[0].message.content;
+  // if (retryRecipeData === null) throw new Error("Open AI conversation error");
+  // let retryRecipe = JSON.parse(recipeData);
 
-  try {
-    validateRecipe(retryRecipe);
-    logGenerateRequest(recipeText,recipeData,true,retryRecipeData,true,username)
-    return retryRecipe;
-  } catch (err) {
+  // try {
+  //   // validateRecipe(retryRecipe);
+  //   logGenerateRequest(recipeText,recipeData,true,retryRecipeData,true,username)
+  //   return retryRecipe;
+  // } catch (err) {
 
-    logGenerateRequest(recipeText,recipeData,true,retryRecipeData,false,username)
-    throw(err);
-  }
+  //   logGenerateRequest(recipeText,recipeData,true,retryRecipeData,false,username)
+  //   throw(err);
+  // }
 }
 
 
