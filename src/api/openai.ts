@@ -2,7 +2,7 @@
 /** This file contains methods for handling interactions with the openai api*/
 import '../config';
 
-import { SHORT_BASE_PROMPT, RETRY_PROMPT } from "./prompts";
+import { SHORT_BASE_PROMPT } from "./prompts";
 import OpenAI from "openai";
 import jsonschema from 'jsonschema';
 import recipeGeneratedSchema from "../schemas/recipeGenerated.json";
@@ -44,10 +44,8 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
   console.log(completion)
 
   let recipeData = completion.choices[0].message.content;
-  console.log(recipeData);
   if (recipeData === null) throw new Error("Open AI conversation error");
   recipe = JSON.parse(recipeData);
-  console.log(recipe)
   try {
     validateRecipe(recipe);
     logGenerateRequest(recipeText,recipeData,false,null,true, username)

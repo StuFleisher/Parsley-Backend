@@ -21,6 +21,7 @@ import {
   ensureMatchingOwnerOrAdmin,
 } from '../middleware/auth';
 import ImageHandler from '../utils/imageHandler';
+import scrapeRecipeFromURL from '../api/agentQl';
 
 
 
@@ -40,24 +41,36 @@ router.post(
   readMultipart("image"),
 
   async function (req: Request, res: Response, next: NextFunction) {
-    //TODO: test middleware
+    const method = req.query.method;
     let recipe, rawRecipe;
 
-    if (req.file){
-      rawRecipe = await ImageHandler.getRecipeTextFromPhoto(req.file.buffer)
-    } else if (req.body && req.body.recipeText){
-      rawRecipe = req.body.recipeText;
-    } else {
-      throw new BadRequestError("Please provide recipe text")
+    if (method === "image") {
+      if (req.file) {
+        rawRecipe = await ImageHandler.getRecipeTextFromPhoto(req.file.buffer);
+      } else {
+        throw new BadRequestError("Generate from image requires an image");
+      }
+    } else if (method ==="url"){
+      if (req.body && req.body.url) {
+        let scrapedRecipe = await scrapeRecipeFromURL(req.body.url);
+        if (scrapedRecipe.data.recipes[0]) {
+          rawRecipe = JSON.stringify(scrapedRecipe.data.recipes[0]);
+        } else {
+          throw new BadRequestError("We couldn't find a recipe on that page.  Did you enter the link correctly?")
+        }
+      }
+    } else if (method==="text") {
+      if (req.body && req.body.recipeText) {
+        rawRecipe = req.body.recipeText;
+      } else {
+        throw new BadRequestError("Please provide recipe text");
+      }
     }
 
     try {
       recipe = await textToRecipe(rawRecipe, res.locals.user!.username);
     } catch (err) {
-      return res.status(400).json({
-        message: "There was an issue processing your recipe",
-        errors: err.message,
-      });
+      throw new BadRequestError(err.message)
     }
     return res.json({ recipe });
   });

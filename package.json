@@ -5,6 +5,7 @@
     "@types/cors": "^2.8.16",
     "@types/multer": "^1.4.11",
     "@types/supertest": "^2.0.16",
+    "agentql": "^1.8.0",
     "axios": "^1.6.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
