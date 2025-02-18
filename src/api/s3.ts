@@ -1,12 +1,17 @@
 /** Handles interactions with AmazonS3 */
 
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand } from "@aws-sdk/client-s3";
 import { mockDeep } from 'jest-mock-extended';
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;
 const AWS_KEY = process.env.AWS_KEY;
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+
+const S3_DIR = "https://sf-parsley.s3.amazonaws.com/";
+const DEFAULT_IMG_URL = "recipeImage/default";
+const TEMP_IMG_BASE_PATH = "recipeImage/tmp/";
+const IMG_BASE_PATH = "recipeImage/recipe-";
 
 let s3: null | S3Client = null;
 
@@ -53,6 +58,7 @@ async function uploadFile(imageBuffer: Buffer, path: string) {
   return response;
 }
 
+
 /** Accepts an array of objects representing uploadFile params
  * [{imageBuffer:Buffer, path:string},...]
  * Attempts to store each file in it's corresponding s3 path.  All uploads
@@ -93,6 +99,24 @@ async function deleteFile(path: string) {
   return response;
 }
 
+/** Accepts a path to a file on the s3 server and copies it to a new path.
+ *
+ * Returns the response from the s3 server.
+ */
+async function copyFile(path: string, newPath: string) {
+
+  const params = {
+    Bucket: BUCKET_NAME,
+    CopySource: `${BUCKET_NAME}/${path}`,
+    Key: newPath,
+  };
+
+  const command = new CopyObjectCommand(params);
+  const response = await getS3().send(command);
+  return response;
+}
+
+
 /** Accepts an array of paths and removes the files at those paths from s3.
  *
  * Returns the responses from the s3 server.
@@ -108,4 +132,13 @@ async function deleteMultiple(paths: string[]) {
 
 
 
-export { uploadFile, deleteFile, uploadMultiple };
+export {
+  uploadFile,
+  deleteFile,
+  copyFile,
+  uploadMultiple,
+  IMG_BASE_PATH,
+  TEMP_IMG_BASE_PATH,
+  DEFAULT_IMG_URL,
+  S3_DIR,
+};

@@ -16,6 +16,17 @@ interface IRecipeWithMetadata extends IRecipeBase {
   owner: string;
 }
 
+type GeneratedRecipe = {
+  name: string;
+  description:string;
+  sourceName:string;
+  steps: IStep[];
+  imageSm: string;
+  imageMd: string;
+  imageLg: string;
+  tags: Tag[];
+}
+
 type RecipeForCreate = {
   name:string;
   steps:StepForNewRecipe[];

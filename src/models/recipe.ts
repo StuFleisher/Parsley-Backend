@@ -3,10 +3,8 @@ import '../config';
 import prisma from '../prismaClient';
 import { NotFoundError, BadRequestError } from '../utils/expressError';
 import StepManager from './step';
-import { deleteFile } from "../api/s3";
+import { deleteFile, copyFile, IMG_BASE_PATH, S3_DIR, DEFAULT_IMG_URL, TEMP_IMG_BASE_PATH } from "../api/s3";
 import ImageHandler from '../utils/imageHandler';
-
-const DEFAULT_IMG_URL = "https://sf-parsley.s3.amazonaws.com/recipeImage/default";
 
 
 /** Data and functionality for recipes */
@@ -24,7 +22,7 @@ class RecipeManager {
 
   static async saveRecipe(clientRecipe: RecipeForCreate): Promise<RecipeData> {
 
-    const {
+    let {
       name,
       description,
       sourceUrl,
@@ -71,21 +69,9 @@ class RecipeManager {
       });
     }
 
-    return await prisma.recipe.findUniqueOrThrow({
-      where: { recipeId: createdRecipe.recipeId },
-      include: {
-        steps: {
-          orderBy: { stepNumber: 'asc' },
-          include: {
-            ingredients: {
-              orderBy: { ingredientId: 'asc' },
-            }
-          }
-        },
-        tags: true,
-      }
-    });
+    let recipe = await this.getRecipeById(createdRecipe.recipeId)
 
+    return await this.replaceTempImages(recipe)
   }
 
 
@@ -412,16 +398,49 @@ class RecipeManager {
    */
   static async updateRecipeImage(file: Express.Multer.File, id: number) {
 
-    const basePath = `recipeImage/recipe-${id}`;
-    await ImageHandler.uploadAllSizes(file.buffer, basePath);
+    // const basePath = `recipeImage/recipe-${id}`;
+    await ImageHandler.uploadAllSizes(file.buffer, `${IMG_BASE_PATH}${id}`);
 
     const recipe = await RecipeManager.getRecipeById(+id);
 
-
-    recipe.imageSm = `https://sf-parsley.s3.amazonaws.com/${basePath}-sm`;
-    recipe.imageMd = `https://sf-parsley.s3.amazonaws.com/${basePath}-md`;
-    recipe.imageLg = `https://sf-parsley.s3.amazonaws.com/${basePath}-lg`;
+    recipe.imageSm = `${S3_DIR}${IMG_BASE_PATH}${id}-sm`;
+    recipe.imageMd = `${S3_DIR}${IMG_BASE_PATH}${id}-md`;
+    recipe.imageLg = `${S3_DIR}${IMG_BASE_PATH}${id}-lg`;
     return await RecipeManager.updateRecipe(recipe);
+  }
+
+  /** Copies any temporary images made during recipe generation to their permanent
+   * s3 directory and updates the record accordingly.
+   */
+  static async replaceTempImages(recipe:RecipeData):Promise<RecipeData>{
+    if (ImageHandler.isTempImage(recipe.imageLg)){
+      console.log("From:",`${TEMP_IMG_BASE_PATH}${recipe.owner}-sm` )
+      console.log("To:",  `${IMG_BASE_PATH}${recipe.recipeId}-sm`)
+
+      copyFile(
+        `${TEMP_IMG_BASE_PATH}${recipe.owner}-sm`,
+        `${IMG_BASE_PATH}${recipe.recipeId}-sm`
+      )
+      copyFile(
+        `${TEMP_IMG_BASE_PATH}${recipe.owner}-md`,
+        `${IMG_BASE_PATH}${recipe.recipeId}-md`
+      )
+      copyFile(
+        `${TEMP_IMG_BASE_PATH}${recipe.owner}-lg`,
+        `${IMG_BASE_PATH}${recipe.recipeId}-lg`
+      )
+
+
+      recipe = {
+        ...recipe,
+        imageSm: `${S3_DIR}${IMG_BASE_PATH}${recipe.recipeId}-sm`,
+        imageMd: `${S3_DIR}${IMG_BASE_PATH}${recipe.recipeId}-md`,
+        imageLg: `${S3_DIR}${IMG_BASE_PATH}${recipe.recipeId}-lg`,
+      }
+
+      return this.updateRecipe(recipe);
+    }
+    return recipe;
   }
 
   /**Deletes the image associated with the recipeId from s3 and updates the
@@ -436,9 +455,9 @@ class RecipeManager {
     await deleteFile(path);
 
     const recipe = await RecipeManager.getRecipeById(id);
-    recipe.imageSm = `${DEFAULT_IMG_URL}-sm`;
-    recipe.imageMd = `${DEFAULT_IMG_URL}-md`;
-    recipe.imageLg = `${DEFAULT_IMG_URL}-lg`;
+    recipe.imageSm = `${S3_DIR}${DEFAULT_IMG_URL}-sm`;
+    recipe.imageMd = `${S3_DIR}${DEFAULT_IMG_URL}-md`;
+    recipe.imageLg = `${S3_DIR}${DEFAULT_IMG_URL}-lg`;
     return await RecipeManager.updateRecipe(recipe);
   }
 

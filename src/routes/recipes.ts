@@ -13,7 +13,7 @@ import recipeUpdateSchema from "../schemas/recipeUpdate.json";
 //modules
 import RecipeManager from '../models/recipe';
 import { BadRequestError } from '../utils/expressError';
-import { textToRecipe } from "../api/openai";
+import { generateImage, textToRecipe } from "../api/openai";
 import {
   ensureMatchingUsernameOrAdmin,
   ensureLoggedIn,
@@ -22,7 +22,7 @@ import {
 } from '../middleware/auth';
 import ImageHandler from '../utils/imageHandler';
 import scrapeRecipeFromURL from '../api/agentQl';
-
+import { TEMP_IMG_BASE_PATH, S3_DIR } from '../api/s3';
 
 
 /** POST /generate {recipeText}=>{recipeData}
@@ -42,7 +42,7 @@ router.post(
 
   async function (req: Request, res: Response, next: NextFunction) {
     const method = req.query.method;
-    let recipe, rawRecipe;
+    let rawRecipe;
 
     if (method === "image") {
       if (req.file) {
@@ -50,16 +50,16 @@ router.post(
       } else {
         throw new BadRequestError("Generate from image requires an image");
       }
-    } else if (method ==="url"){
+    } else if (method === "url") {
       if (req.body && req.body.url) {
         let scrapedRecipe = await scrapeRecipeFromURL(req.body.url);
         if (scrapedRecipe.data.recipes[0]) {
           rawRecipe = JSON.stringify(scrapedRecipe.data.recipes[0]);
         } else {
-          throw new BadRequestError("We couldn't find a recipe on that page.  Did you enter the link correctly?")
+          throw new BadRequestError("We couldn't find a recipe on that page.  Did you enter the link correctly?");
         }
       }
-    } else if (method==="text") {
+    } else if (method === "text") {
       if (req.body && req.body.recipeText) {
         rawRecipe = req.body.recipeText;
       } else {
@@ -68,13 +68,41 @@ router.post(
     }
 
     try {
-      recipe = await textToRecipe(rawRecipe, res.locals.user!.username);
+      const [generatedRecipe, generatedImageUrl] = await Promise.all([
+        textToRecipe(rawRecipe, res.locals.user!.username),
+        generateImage(rawRecipe)
+      ]);
+
+      //Store generated image on s3 in a temp directory
+      let imageBuffer = await ImageHandler.urlToBlob(generatedImageUrl);
+      const basePath = `recipeImage/tmp/${res.locals.user!.username}`;
+      await ImageHandler.uploadAllSizes(imageBuffer, basePath);
+
+      let recipe = {
+        ...generatedRecipe,
+        imageSm: `${S3_DIR}${TEMP_IMG_BASE_PATH}${res.locals.user!.username}-sm`,
+        imageMd: `${S3_DIR}${TEMP_IMG_BASE_PATH}${res.locals.user!.username}-md`,
+        imageLg: `${S3_DIR}${TEMP_IMG_BASE_PATH}${res.locals.user!.username}-lg`,
+      };
+
+      return res.json({ recipe });
     } catch (err) {
-      throw new BadRequestError(err.message)
+      throw new BadRequestError(err.message);
     }
-    return res.json({ recipe });
   });
 
+router.post(
+  "/:id/image/generate",
+  ensureLoggedIn,
+  async function (req: Request, res: Response, next: NextFunction) {
+    const recipe = await RecipeManager.getRecipeById(+req.params.id);
+
+    const imgUrl = await generateImage(recipe);
+    const blob = await ImageHandler.urlToBlob(imgUrl)
+    res.setHeader("Content-Type", "image/png");
+    return res.send(Buffer.from(blob));
+  }
+);
 
 /** POST / {recipe} => {recipe}
  *

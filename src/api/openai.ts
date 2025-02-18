@@ -2,7 +2,7 @@
 /** This file contains methods for handling interactions with the openai api*/
 import '../config';
 
-import { SHORT_BASE_PROMPT } from "./prompts";
+import { SHORT_BASE_PROMPT, RECIPE_IMAGE_PROMPT } from "./prompts";
 import OpenAI from "openai";
 import jsonschema from 'jsonschema';
 import recipeGeneratedSchema from "../schemas/recipeGenerated.json";
@@ -40,8 +40,6 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
      },
     temperature: 0
   });
-  console.log("openai access complete")
-  console.log(completion)
 
   let recipeData = completion.choices[0].message.content;
   if (recipeData === null) throw new Error("Open AI conversation error");
@@ -54,39 +52,6 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
     //continue with retry
   }
   return recipe;
-
-  //FIXME: Retries are not succeeding - double check this logic
-  // const retryCompletion = await openai.chat.completions.create({
-  //   messages: [
-  //     {
-  //       role: "system",
-  //       content: `${SHORT_BASE_PROMPT}${recipeText}`
-  //     },
-  //     completion.choices[0].message,
-  //     {
-  //       role: "user",
-  //       content: `${RETRY_PROMPT}`
-  //     },
-
-  //   ],
-  //   model: "gpt-3.5-turbo-1106",
-  //   response_format: { type: "json_object" },
-  //   temperature: 0
-  // });
-
-  // let retryRecipeData = retryCompletion.choices[0].message.content;
-  // if (retryRecipeData === null) throw new Error("Open AI conversation error");
-  // let retryRecipe = JSON.parse(recipeData);
-
-  // try {
-  //   // validateRecipe(retryRecipe);
-  //   logGenerateRequest(recipeText,recipeData,true,retryRecipeData,true,username)
-  //   return retryRecipe;
-  // } catch (err) {
-
-  //   logGenerateRequest(recipeText,recipeData,true,retryRecipeData,false,username)
-  //   throw(err);
-  // }
 }
 
 
@@ -133,4 +98,19 @@ async function logGenerateRequest(
   }
 }
 
-export { textToRecipe };
+//Image Generation
+async function generateImage(recipe:IRecipeWithMetadata):Promise<string> {
+  const prompt = `${RECIPE_IMAGE_PROMPT} Title: ${recipe.name} Description: ${recipe.description}`
+
+  const image = await openai.images.generate({
+    model: "dall-e-3",
+    prompt,
+    size:"1792x1024",
+  });
+
+  if (!image.data[0].url) throw new BadRequestError("We couldn't generate that an image")
+  return image.data[0].url
+}
+
+
+export { textToRecipe, generateImage };

@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import { uploadMultiple } from "../api/s3";
 import { createWorker } from 'tesseract.js';
+import axios from "axios";
 
 type ResizedImages = {
   "sm": Buffer,
@@ -44,6 +45,15 @@ class ImageHandler {
     console.log(resp.data.text);
     await worker.terminate();
     return resp.data.text;
+  }
+
+  static async urlToBlob(url:string){
+    const blobResponse = await axios.get(url, {responseType:'arraybuffer'})
+    return blobResponse.data;
+  }
+
+  static isTempImage(imageUrl: string): boolean {
+    return imageUrl.includes("/tmp/");
   }
 
 }

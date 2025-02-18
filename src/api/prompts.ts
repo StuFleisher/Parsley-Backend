@@ -64,4 +64,9 @@ Stir in cream then serve warm with cilantro over basmati rice.
   `
 )
 
-export {TEST_RECIPE_TEXT, SHORT_BASE_PROMPT, RETRY_PROMPT}
+const RECIPE_IMAGE_PROMPT = `
+Generate a feature image for a fresh food and lifestyle magazine.  Below I will give you a recipe in JSON format - read it carefully before continuing, considering the ingredients, styling trends, and anything unusual about the recipe(if any).
+Generate a close-up photo representing the dish that highlights the food rather than the environment.  Make the image realistic and natural rather than highly stylized.  Keep the lighting even, the environment white, and the image tightly cropped on the plate.
+`
+
+export {TEST_RECIPE_TEXT, SHORT_BASE_PROMPT, RETRY_PROMPT, RECIPE_IMAGE_PROMPT}
