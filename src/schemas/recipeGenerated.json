@@ -21,7 +21,7 @@
                 "type":"string"
             },
             "ingredients":{
-                "type":"array",
+                "type":["array","null"],
                 "items":{
                   "type":"object",
                   "properties":{

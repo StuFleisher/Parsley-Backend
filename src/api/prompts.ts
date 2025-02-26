@@ -6,9 +6,10 @@ const SHORT_BASE_PROMPT =  (
     `Your job is to structure recipe data into JSON.
     I will give you the text of a recipe.  I would like you to convert it into
     structured JSON following these rules.
-    1- Maintain the original text and intent of the recipe whenever possible.
-    2- Keep each step simple, minimizing ingredients/step.
-    3- Ignore existing headers and other stray content that may have been pasted into the recipe by accident.
+    1 - Maintain the original text and intent of the recipe whenever possible.
+    2 - Create a new step whenever the recipe asks us to measure time, switch equipment, change contexts, or whenever it otherwise makes intuitive sense.
+    3 - Favor more simple steps over fewer, more involved steps.
+    4 - Ignore existing headers and other stray content that may have been pasted into the recipe by accident.
     `
   )
 
@@ -66,7 +67,7 @@ Stir in cream then serve warm with cilantro over basmati rice.
 
 const RECIPE_IMAGE_PROMPT = `
 Generate a feature image for a fresh food and lifestyle magazine.  Below I will give you a recipe in JSON format - read it carefully before continuing, considering the ingredients, styling trends, and anything unusual about the recipe(if any).
-Generate a close-up photo representing the dish that highlights the food rather than the environment.  Make the image realistic and natural rather than highly stylized.  Keep the lighting even, the environment white, and the image tightly cropped on the plate.
+Create a tightly-cropped photo that highlights the finished dish.  Make the image realistic and natural rather than highly stylized.  Keep the lighting soft and even, the environment white, and let the food be the star.
 `
 
 export {TEST_RECIPE_TEXT, SHORT_BASE_PROMPT, RETRY_PROMPT, RECIPE_IMAGE_PROMPT}

@@ -10,8 +10,7 @@ import { BadRequestError } from '../utils/expressError';
 import prisma from '../prismaClient';
 
 const openai = new OpenAI();
-
-
+const MODEL = process.env.FINE_TUNED_MODEL_ID || "gpt-4o-2024-08-06"
 /** Handles generation/formatting from raw recipe text.
  * Accepts a string containing raw text for a recipe and returns an IRecipeBase
  *
@@ -29,7 +28,7 @@ async function textToRecipe(recipeText: string, username:string): Promise<IRecip
       role: "system",
       content: `${SHORT_BASE_PROMPT}${recipeText}`
     }],
-    model: "gpt-4o-2024-08-06",
+    model: MODEL,
     response_format: {
       type: "json_schema",
       json_schema: {
