@@ -102,7 +102,7 @@ async function generateImage(recipe:IRecipeWithMetadata):Promise<string> {
   const prompt = `${RECIPE_IMAGE_PROMPT} Title: ${recipe.name} Description: ${recipe.description}`
 
   const image = await openai.images.generate({
-    model: "dall-e-3",
+    model: "gpt-image-2",
     prompt,
     size:"1792x1024",
   });
