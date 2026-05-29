@@ -68,13 +68,13 @@ router.post(
     }
 
     try {
-      const [generatedRecipe, generatedImageUrl] = await Promise.all([
+      const [generatedRecipe, base64ImageString] = await Promise.all([
         textToRecipe(rawRecipe, res.locals.user!.username),
         generateImage(rawRecipe)
       ]);
 
       //Store generated image on s3 in a temp directory
-      let imageBuffer = await ImageHandler.urlToBlob(generatedImageUrl);
+      const imageBuffer = Buffer.from(base64ImageString, 'base64');
       const basePath = `recipeImage/tmp/${res.locals.user!.username}`;
       await ImageHandler.uploadAllSizes(imageBuffer, basePath);
 
@@ -97,10 +97,10 @@ router.post(
   async function (req: Request, res: Response, next: NextFunction) {
     const recipe = await RecipeManager.getRecipeById(+req.params.id);
 
-    const imgUrl = await generateImage(recipe);
-    const blob = await ImageHandler.urlToBlob(imgUrl)
+    const base64ImageString = await generateImage(JSON.stringify(recipe));
+    const imageBuffer = Buffer.from(base64ImageString, 'base64');
     res.setHeader("Content-Type", "image/png");
-    return res.send(Buffer.from(blob));
+    return res.send(imageBuffer);
   }
 );
 

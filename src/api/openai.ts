@@ -98,17 +98,29 @@ async function logGenerateRequest(
 }
 
 //Image Generation
-async function generateImage(recipe:IRecipeWithMetadata):Promise<string> {
-  const prompt = `${RECIPE_IMAGE_PROMPT} Title: ${recipe.name} Description: ${recipe.description}`
+async function generateImage(recipe:string):Promise<string> {
+  const prompt = `${RECIPE_IMAGE_PROMPT} ${recipe}`
 
-  const image = await openai.images.generate({
-    model: "gpt-image-2",
-    prompt,
-    size:"1792x1024",
-  });
+  try{
+    const result = await openai.images.generate({
+      model: "gpt-image-2",
+      prompt,
+      size:"1536x1024",
+    });
 
-  if (!image.data[0].url) throw new BadRequestError("We couldn't generate that an image")
-  return image.data[0].url
+    const base64Data = result.data?.[0]?.b64_json;
+
+      if (!base64Data) {
+        throw new BadRequestError("We couldn't generate an image");
+      }
+
+      // Return the raw base64 string directly
+      return base64Data;
+  } catch (error) {
+    throw new BadRequestError(
+      `Image generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
 }
 
 
